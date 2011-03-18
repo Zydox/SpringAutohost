@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: ISO-8859-1 -*-
-import LoadCFG
-import Debug
-import Master, Host
+import loadCFG
+import debug
+import master, host
 import time
-import Unitsync
+import unitsync
 
 
 class Server:
 	def __init__ (self):
-		self.ClassDebug = Debug.Debug ()
+		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ("Initiate")
-		self.LoadCFG = LoadCFG.LoadCFG (self)
+		self.LoadCFG = loadCFG.LoadCFG (self)
 		
-		self.Unitsync = Unitsync.Unitsync (self.Config['UnitsyncPath'])
+		self.Unitsync = unitsync.Unitsync (self.Config['UnitsyncPath'])
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps ()
 		self.LoadMods ()
 
-		self.Master = Master.Master (self)
+		self.Master = master.Master (self)
 		self.Hosts = {}
 
 		
@@ -39,7 +39,7 @@ class Server:
 			if (self.Hosts.has_key (HostAccount[0])):
 				self.Hosts[HostAccount[0]].HostBattle (Group)
 			else:
-				self.Hosts[HostAccount[0]] = Host.Host (self, Group, HostAccount)
+				self.Hosts[HostAccount[0]] = host.Host (self, Group, HostAccount)
 				self.Hosts[HostAccount[0]].start ()
 		else:
 			self.Debug ("ERROR::Group unknown" + str (Group))

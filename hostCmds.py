@@ -1,7 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
-import HostCmdsBattle
-import HostCmdsSpecial
-import HostCmdsLadderbot
+import hostCmdsBattle
+import hostCmdsSpecial
+import hostCmdsLadderbot
 
 class HostCmds:
 	def __init__ (self, ClassServer, ClassHost):
@@ -10,9 +10,9 @@ class HostCmds:
 		self.Debug ('HostCmds Init')
 		self.Host = ClassHost
 		self.Commands = {}
-		self.HostCmdsBattle = HostCmdsBattle.HostCmdsBattle (self, ClassServer, ClassHost)
-		self.HostCmdsSpecial = HostCmdsSpecial.HostCmdsSpecial (self, ClassServer, ClassHost)
-		self.HostCmdsLadderbot = HostCmdsLadderbot.HostCmdsLadderbot (self, ClassServer, ClassHost)
+		self.HostCmdsBattle = hostCmdsBattle.HostCmdsBattle (self, ClassServer, ClassHost)
+		self.HostCmdsSpecial = hostCmdsSpecial.HostCmdsSpecial (self, ClassServer, ClassHost)
+		self.HostCmdsLadderbot = hostCmdsLadderbot.HostCmdsLadderbot (self, ClassServer, ClassHost)
 
 	def HandleInput (self, Source, Command, Data):
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))

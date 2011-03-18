@@ -1,9 +1,9 @@
 # -*- coding: ISO-8859-1 -*-
-import Lobby
+import lobby
 import threading
 import time
-import HostCmds
-import Spring
+import hostCmds
+import spring
 
 
 class Host (threading.Thread):
@@ -12,10 +12,10 @@ class Host (threading.Thread):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
-		self.Lobby = Lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, HostAccount)
+		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, HostAccount)
 		self.Group = Group
-		self.HostCmds = HostCmds.HostCmds (ClassServer, self)
-		self.Spring = Spring.Spring (ClassServer, self.Lobby)
+		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
+		self.Spring = spring.Spring (ClassServer, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1
 		
 	

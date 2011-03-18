@@ -1,5 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
-import Lobby
+import lobby
 import threading
 import time
 
@@ -10,7 +10,7 @@ class Master (threading.Thread):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Master Init')
-		self.Lobby = Lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, ClassServer.Config['MainAccount'])
+		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, ClassServer.Config['MainAccount'])
 	
 	
 	def run (self):

@@ -52,10 +52,12 @@ class LoadCFG:
 		self.Server.AccessRoles = {
 			'owner':{
 				'[CN]Zydox':1,
+				'_koshi_':1,
+				'BrainDamage':1,
 			},
 			'admin':{
 				'[CN]Zydox':1,
-				'[Fx]Droid':1,
+				'_koshi_':1,
 				'BrainDamage':1,
 			},
 			'operator':{

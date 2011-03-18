@@ -274,6 +274,19 @@ class Lobby (threading.Thread):
 		self.Debug ('Lobby Login')
 		self.Send ("LOGIN " + str (self.User) + " " + str (base64.b64encode (binascii.a2b_hex (hashlib.md5 (self.Passwd).hexdigest ()))) + " 0 " + str (self.IP) + " DoxBot\t\ta b sp", 1)
 		
+	def Logout (self):
+		self.Debug ('Lobby exit')
+		self.Send ("EXIT")
+		self.Ping.Active = False
+		self.LoggedIn = False
+	
+	def Quit(self):
+		if self.LoggedIn:
+			self.Logout()
+		self.Socket.shutdown(socket.SHUT_RDWR)
+		self.Socket.close()
+		self.Active = False
+			
 	
 	def BattleOpen (self, Mod, Map, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (self.Server.Mods[Mod]['Hash']) + ' ' + str (MinRank) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))

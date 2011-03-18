@@ -35,7 +35,9 @@ class Host (threading.Thread):
 			self.SetAccessRoles (Data[0])
 		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
 			self.SetAccessRoles (Data[1])
-		
+	
+	def Shutdown(self):
+		self.Lobby.Quit()
 	
 	def HandleInput (self, Source, Data):
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Data))

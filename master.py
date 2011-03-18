@@ -41,7 +41,10 @@ class Master (threading.Thread):
 				if (self.Lobby.Users.has_key (Command[1])):
 					self.Lobby.Send ("SAYPRIVATE " + Data[0] + " " + str (self.Lobby.Users[Command[1]]))
 					
-	
+	def Shutdown(self):
+		self.Lobby.Logout()
+		self.Lobby.Active = False
+		self.Lobby.join()
 	
 	def SpawnHost (self, Group):
 		Return = {'OK':0}

@@ -3,7 +3,7 @@
 import loadCFG
 import debug
 import master, host
-import time
+import time,sys
 import unitsync
 
 
@@ -122,5 +122,15 @@ class Server:
 		if Int > 2147483648:
 			Int = Int - 2147483648 * 2
 		return (Int)
-
-S = Server ()
+		
+	def Shutdown(self):
+		try:
+			for name,host in self.Hosts.iteritems():
+				host.Shutdown()
+			self.Master.Shutdown()
+			sys.exit(0)
+		except:
+			sys.exit(-1)
+		
+if __name__ == '__main__':
+	S = Server ()

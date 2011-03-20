@@ -4,7 +4,6 @@ import time
 import socket
 import hashlib, base64, binascii
 #import LobbyBS
-
 import random
 
 class Lobby (threading.Thread):
@@ -18,7 +17,7 @@ class Lobby (threading.Thread):
 		self.User = LoginInfo[0]
 		self.Passwd = LoginInfo[1]
 		self.BattlePort = LoginInfo[2]
-		self.IP = '192.168.200.210'
+		self.IP = '188.165.214.142'
 		self.Host = ClassServer.Config['LobbyServer']['Host']
 		self.Port = ClassServer.Config['LobbyServer']['Port']
 		self.Ping = LobbyPing (self, ClassServer.Debug)
@@ -290,6 +289,7 @@ class Lobby (threading.Thread):
 	
 	def BattleOpen (self, Mod, Map, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (self.Server.Mods[Mod]['Hash']) + ' ' + str (MinRank) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
+		#self.Send ("OPENBATTLE %d %d %s %d %d %s %d %s %s %s %s"%(Type,Nat,Password,self.BattlePort,MaxPlayers,self.Server.Mods[Mod]['Hash'],MinRank,self.Server.Maps[Map]['Hash'],Map,Title,Mod) )
 	
 	def BattleMap (self, Map):
 		self.Battles[self.BattleID]['Map'] = Map

@@ -1,4 +1,6 @@
 # -*- coding: ISO-8859-1 -*-
+import localconfig
+
 class LoadCFG:
 	def __init__ (self, Class):
 		self.Server = Class
@@ -8,39 +10,25 @@ class LoadCFG:
 	
 	def LoadCFG (self):
 		self.Debug ("Load CFG")
-		self.Server.Config = {
-			'LobbyServer':{'Host':'taspringmaster.clan-sy.com', 'Port':8200},
-			'MainAccount':['TourneyBot', 'DoxiePooh', 0],
-			'UnitsyncPath':'/share/spring/lib/libunitsync.so',
-			'SpringExec':'/share/spring/bin/spring-dedicated',
-			'TempPath':'/tmp/',
-		}
+		self.Server.Config = localconfig.Server
 		
 		self.Server.Groups = {
 			'BA_Tourney':{
 				'Mod':'Balanced Annihilation V7.19',
 				'Map':'Comet Catcher Redux',
 				'ChannelsReport':[['tourney'], ['cn']],
-				'Accounts':[
-					['TourneyBot1','machine', 8460],
-					['TourneyBot2','machine', 8461],
-					['TourneyBot3','machine', 8462],
-					['TourneyBot4','machine', 8463],
-					['TourneyBot5','machine', 8464],
-					['TourneyBot6','machine', 8465],
-					['TourneyBot7','machine', 8466],
-					['TourneyBot8','machine', 8467],
-				]
+				'Accounts':[ ['TourneyBot%d'%i,'machine', 8460+i] for i in range(5) ]
 			},
 			'teh':{
 				'Mod':'Balanced Annihilation V7.19',
 				'Map':'Comet Catcher Redux',
-				'ChannelsReport':[['teh'], ['cn']],
+				'ChannelsReport':[['infolog']],
 				'Accounts':[
 					['TourneyBot','DoxiePooh', 8468],
 				]
 			},
 		}
+		self.IP = localconfig.IP
 		
 		self.Server.AccessCommands = {
 			'code':['owner', 'admin'],

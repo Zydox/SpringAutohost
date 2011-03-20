@@ -30,7 +30,8 @@ class Spring:
 		self.Debug ('Spring::Stop')
 		self.SpringUDP.Terminate ()
 		try:
-			self.SpringPID.terminate ()
+			self.SpringUDP.join()
+			self.SpringPID.kill()
 			return (True)
 		except:
 			return (False)
@@ -175,6 +176,8 @@ class SpringUDP (threading.Thread):
 				Data, self.ServerAddr = self.Socket.recvfrom (8192)
 				if (Data):
 					self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (Data))
+		self.Socket.shutdown(socket.SHUT_RDWR)
+		self.Socket.close()
 	
 	
 	def Talk (self, Message):

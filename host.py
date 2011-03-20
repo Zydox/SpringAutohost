@@ -38,6 +38,10 @@ class Host (threading.Thread):
 	
 	def Shutdown(self):
 		self.Lobby.Quit()
+		if self.Spring.SpringStop():
+			self.Debug ('Spring::Stopped OK')
+		else:
+			self.Debug ('Spring::Stopped Error')
 	
 	def HandleInput (self, Source, Data):
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Data))

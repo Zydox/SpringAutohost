@@ -62,6 +62,8 @@ class Lobby (threading.Thread):
 			'CLIENTS':['V', 'S'],
 			'JOINED':['V', 'V'],
 			'LEFT':['V', 'V'],
+			'AGREEMENTEND':[],
+			'AGREEMENT':[],
 		}
 	
 	
@@ -260,7 +262,8 @@ class Lobby (threading.Thread):
 			self.Channels[Arg[0]]['Users'][Arg[1]] = Arg[1]
 		elif Command == 'LEFT':
 			del (self.Channels[Arg[0]]['Users'][Arg[1]])
-
+		elif Command == 'AGREEMENTEND':
+			self.Send ('CONFIRMAGREEMENT')
 
 #			print ('\n' + str (RawData))
 #			print (str (Arg))

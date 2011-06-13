@@ -4,33 +4,34 @@ import loadCFG
 import debug
 import master, host
 import time,sys
-import unitsync
+from daemon import Daemon
+import tasbot
+from tasbot.customlog import Log
 
-
-class Server:
+class Server(Daemon):
 	def __init__ (self):
+		super(Server, self).__init__('server.pid')
 		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ("Initiate")
 		self.LoadCFG = loadCFG.LoadCFG (self)
-		
-		self.Unitsync = unitsync.Unitsync (self.Config['UnitsyncPath'])
+		try:
+			self.Unitsync = __import__('pyunitsync')
+		except:
+			import unitsync
+			self.Unitsync = unitsync.Unitsync (self.Config['UnitsyncPath'])
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps ()
 		self.LoadMods ()
 
 		self.Master = master.Master (self)
-		self.Hosts = {}
-
-		
-		self.Start ()
-		
+		self.Hosts = {}		
 	
 	def Start (self):
 		self.Debug ("Start server")
-#		self.Master.start ()
-		print (self.Groups['teh']['Accounts'][0])
-		self.SpawnHost ('teh', self.Groups['teh']['Accounts'][0])		#Debug testing
+		self.Master.start ()
+		print (self.Groups['pyah']['Accounts'][0])
+		self.SpawnHost ('pyah', self.Groups['pyah']['Accounts'][0])		#Debug testing
 		
 	
 	def SpawnHost (self, Group, HostAccount):
@@ -131,6 +132,24 @@ class Server:
 			sys.exit(0)
 		except:
 			sys.exit(-1)
-		
+			
+	def run(self):
+		self.Start ()
+		while 1:
+			try:
+				time.sleep(1)
+			except SystemExit:
+				self.Shutdown()
+				return
+			except KeyboardInterrupt:
+				#error("SIGINT, Exiting")
+				self.Shutdown()
+				return
+			except Exception, e:
+				#error("parsing command line")
+				Log.Except( e )
+
 if __name__ == '__main__':
+	Log.Init( 'server.log', 'info', True )
 	S = Server ()
+	S.run()

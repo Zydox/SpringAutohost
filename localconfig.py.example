@@ -1,0 +1,15 @@
+Server = {
+			'LobbyServer':{'Host':'springrts.com', 'Port':8200},
+			'MainAccount':('[pyah]Master','PASSWORD',0),
+			'UnitsyncPath':'/share/spring/lib/libunitsync.so',
+			'SpringExec':'/share/spring/bin/spring-dedicated'
+		}
+Groups = {
+				'pyah':{
+					'Mod':'Evolution RTS - v1.5',
+					'Map':'Comet Catcher Redux',
+					'ChannelsReport':[['autohostdev']],
+					'Accounts':[('[pyah]Host_01','PASSWORD',8468)]
+				},
+			}
+IP ='so.me.i.p'

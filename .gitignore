@@ -2,4 +2,9 @@
 *.pyc
 *~
 *.swp
-
+server.pid 
+server.log 
+.project 
+.settings/ 
+.pydevproject 
+localconfig.py

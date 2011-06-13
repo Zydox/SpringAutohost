@@ -1,33 +1,39 @@
 # -*- coding: ISO-8859-1 -*-
 import localconfig
-
+import ConfigParser 
+import tasbot
+from tasbot.customlog import Log
+ 
 class LoadCFG:
 	def __init__ (self, Class):
 		self.Server = Class
 		self.Debug = Class.Debug
 		self.LoadCFG ()
 	
-	
 	def LoadCFG (self):
 		self.Debug ("Load CFG")
-		self.Server.Config = localconfig.Server
-		
-		self.Server.Groups = {
-			'BA_Tourney':{
-				'Mod':'Balanced Annihilation V7.19',
-				'Map':'Comet Catcher Redux',
-				'ChannelsReport':[['tourney'], ['cn']],
-				'Accounts':[ ['TourneyBot%d'%i,'machine', 8460+i] for i in range(5) ]
-			},
-			'teh':{
-				'Mod':'Balanced Annihilation V7.19',
-				'Map':'Comet Catcher Redux',
-				'ChannelsReport':[['infolog']],
-				'Accounts':[
-					['TourneyBot','DoxiePooh', 8468],
-				]
-			},
-		}
+		try:
+			self.Server.Config = localconfig.Server
+		except:
+			Log.Error('using default server config')
+			self.Server.Config = {
+				'LobbyServer':{'Host':'springrts.com', 'Port':8200},
+				'MainAccount':'[pyah]Master',
+				'UnitsyncPath':'/usr/lib/libunitsync.so',
+				'SpringExec':'/usr/bin/spring-dedicated'
+			}
+		try:
+			self.Server.Groups = localconfig.Groups
+		except:
+			Log.Error('using default server config')
+			self.Server.Groups = {
+				'pyah':{
+					'Mod':'Evolution RTS - v1.5',
+					'Map':'Comet Catcher Redux',
+					'ChannelsReport':[['autohostdev']],
+					'Accounts':[('[pyah]Host_01','PASSWORD',0)]
+				},
+			}
 		self.IP = localconfig.IP
 		
 		self.Server.AccessCommands = {

@@ -17,6 +17,7 @@ class HostCmdsBattle:
 			'ring':[['OV'], 'Source', '!ring [<user>]', 'Rings a specific user or all unready users'],
 			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <> <> <> <> <>', 'Adds a startbox'],
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
+			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -59,11 +60,13 @@ class HostCmdsBattle:
 			else:
 				return ('Battle unlocked')		
 		elif (Command == 'kick'):
+			self.Host.Spring.SpringTalk ('/kick ' + Data[0])
 			if self.Host.Lobby.Users.has_key (Data[0]):
 				self.Host.Lobby.BattleKick (Data[0])
 				return ('User kicked')
 			else:
 				return ('Can\'t find the user')
+
 		elif Command == 'ring':
 			if len (Data) == 1:
 				self.Host.Lobby.BattleRing (Data[0])
@@ -78,3 +81,6 @@ class HostCmdsBattle:
 			return ('Box added')
 		elif Command == 'udp':
 			self.Host.Spring.SpringTalk (Data[0])
+		elif Command == 'forcestart':
+			self.Host.Spring.SpringTalk ('/forcestart')
+			return ('Battle started')

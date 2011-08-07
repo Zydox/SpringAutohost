@@ -48,6 +48,7 @@ class LoadCFG:
 			'start':['owner', 'admin', '%BattlePlayer%'],
 			'kick':['owner', 'admin', 'operator'],
 			'ring':['admin', 'operator', '%BattlePlayer%', '%GamePlayer%'],
+			'forcestart':['owner', 'admin'],
 		}
 		self.Server.AccessRoles = {
 			'owner':{

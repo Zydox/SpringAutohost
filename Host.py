@@ -53,6 +53,9 @@ class Host (threading.Thread):
 			Input['User'] = Data[0]
 			Input['Reference'] = Data[0]
 			Input['Input'] = Data[1]
+			
+			self.Spring.SpringTalk ('<' + Input['User'] + '> ' + Input['Input'])
+
 		
 		if (len (Input) > 2):
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':
@@ -165,6 +168,8 @@ class Host (threading.Thread):
 					else:
 						self.UserRoles[User] = {Role:1}
 			if self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User].has_key ('Spectator'):
+				if not self.UserRoles.has_key (User):
+					self.UserRoles[User] = {}
 				if self.Lobby.BattleUsers[User]['Spectator']:
 					self.UserRoles[User]['%BattleSpectator%'] = 1
 				else:

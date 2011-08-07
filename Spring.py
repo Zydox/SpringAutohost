@@ -28,8 +28,8 @@ class Spring:
 	
 	def SpringStop (self):
 		self.Debug ('Spring::Stop')
-		self.SpringUDP.Terminate ()
 		try:
+			self.SpringUDP.Terminate ()
 			self.SpringPID.terminate ()
 			return (True)
 		except:
@@ -37,8 +37,11 @@ class Spring:
 	
 	
 	def SpringTalk (self, UDP_Command):
-		if self.SpringUDP:
+		self.Debug ('Spring::SpringTalk=' + str (UDP_Command))
+		try:
 			self.SpringUDP.Talk (UDP_Command)
+		except:
+			return (False)
 
 	
 	def GenerateBattleScript (self, FilePath):
@@ -157,7 +160,7 @@ class Spring:
 		FP.close ()
 
 
-class SpringUDP (threading.Thread):
+class SpringUDP (threading.Thread): 
 	def __init__ (self, ClassSpring, FunctionDebug):
 		threading.Thread.__init__ (self)
 		self.Spring = ClassSpring

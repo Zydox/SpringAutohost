@@ -180,6 +180,7 @@ class Lobby (threading.Thread):
 					'Players':0,
 					'Locked':0,
 				}
+				
 				self.SmurfDetection (Arg[3], Arg[4])
 			else:
 				self.Debug ('ERROR::Battle exsits::' + str (RawData))
@@ -196,6 +197,11 @@ class Lobby (threading.Thread):
 				'Handicap':None,
 				'Synced':1,
 			}
+			self.Battles[self.BattleID]['PassthoughBattleLobbyToSpring'] = 1
+			self.Battles[self.BattleID]['PassthoughSpringNormalToBattleLobby'] = 1
+			self.Battles[self.BattleID]['PassthoughSpringAllyToBattleLobby'] = 0
+			self.Battles[self.BattleID]['PassthoughSpringSpecToBattleLobby'] = 1
+
 		elif Command == 'JOINEDBATTLE':
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])

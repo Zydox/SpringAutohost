@@ -54,7 +54,8 @@ class Host (threading.Thread):
 			Input['Reference'] = Data[0]
 			Input['Input'] = Data[1]
 			
-			self.Spring.SpringTalk ('<' + Input['User'] + '> ' + Input['Input'])
+			if self.Lobby.BattleID and self.Lobby.Battles[self.Lobby.BattleID]['PassthoughBattleLobbyToSpring']:
+				self.Spring.SpringTalk ('<' + Input['User'] + '> ' + Input['Input'])
 
 		
 		if (len (Input) > 2):

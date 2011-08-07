@@ -176,24 +176,23 @@ class SpringUDP (threading.Thread):
 		self.Debug ('SpringUDP start')
 		self.Socket.bind ((str ('127.0.0.1'), int (self.Spring.SpringAutoHostPort)))
 		while self.Active:
-			while self.Active:
-				Data, self.ServerAddr = self.Socket.recvfrom (8192)
-				if Data:
-					if ord (Data[0]) == 10:
-						self.SpringUsers[Data[1]] = Data[2:]
-					
-					if not ord (Data[0]) == 20:
-						self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (Data))
-					if ord (Data[0]) == 13:
-						if ord (Data[2]) == 252:
-							if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringAllyToBattleLobby']:
-								self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> Ally: ' + str (Data[3:]))
-						if ord (Data[2]) == 253:
-							if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringSpecToBattleLobby']:
-								self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> Spec: ' + str (Data[3:]))
-						if ord (Data[2]) == 254:
-							if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringNormalToBattleLobby']:
-								self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> ' + str (Data[3:]))
+			Data, self.ServerAddr = self.Socket.recvfrom (8192)
+			if Data:
+				if ord (Data[0]) == 10:
+					self.SpringUsers[Data[1]] = Data[2:]
+				
+				if not ord (Data[0]) == 20:
+					self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (Data))
+				if ord (Data[0]) == 13:
+					if ord (Data[2]) == 252:
+						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringAllyToBattleLobby']:
+							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> Ally: ' + str (Data[3:]))
+					if ord (Data[2]) == 253:
+						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringSpecToBattleLobby']:
+							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> Spec: ' + str (Data[3:]))
+					if ord (Data[2]) == 254:
+						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringNormalToBattleLobby']:
+							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> ' + str (Data[3:]))
 	
 	
 	def Talk (self, Message):

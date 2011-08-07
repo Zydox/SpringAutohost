@@ -18,6 +18,9 @@ class HostCmds:
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
 		
 		
+		if Source == 'Battle':
+			self.Host.Spring.SpringTalk (Command)
+		
 		
 		if (self.HostCmdsBattle.Commands.has_key (Command)):
 			return (self.HostCmdsBattle.HandleInput (Command, Data))

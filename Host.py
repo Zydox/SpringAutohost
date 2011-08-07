@@ -155,7 +155,8 @@ class Host (threading.Thread):
 	def SetAccessRoles (self, User):
 #		self.Debug ('SetAccessRoles::' + str (User))
 		if self.UserRoles.has_key (User):
-			del (self.UserRoles[User])
+			self.UserRoles[User] = {}
+		
 		if self.Lobby.Users.has_key (User) and not User == self.Lobby.User:
 			for Role in self.Server.AccessRoles:
 				if self.Server.AccessRoles[Role].has_key (User):

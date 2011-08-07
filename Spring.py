@@ -37,7 +37,8 @@ class Spring:
 	
 	
 	def SpringTalk (self, UDP_Command):
-		self.SpringUDP.Talk (UDP_Command)
+		if self.SpringUDP:
+			self.SpringUDP.Talk (UDP_Command)
 
 	
 	def GenerateBattleScript (self, FilePath):

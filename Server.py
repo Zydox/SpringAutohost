@@ -1,10 +1,27 @@
 # -*- coding: ISO-8859-1 -*-
+#!/usr/bin/env python
 import LoadCFG
 import Debug
 import Master, Host
 import time
 import Unitsync
 
+#
+#	Server
+#		Debug - Debug
+#		LoadCFG - LoadCFG
+#		Unitsync - Unitsync
+#		Master - Master
+#			Lobby - Lobby
+#				Ping - Lobby
+#		Hosts = Host {}
+#			Lobby - Lobby
+#				Ping - Lobby
+#			HostCmds - HostCmds
+#			Spring - Spring
+#				SpringUDP - Spring
+#			-UserRoles [User]
+#
 
 class Server:
 	def __init__ (self):

@@ -278,10 +278,12 @@ class Lobby (threading.Thread):
 	def BattleOpen (self, Mod, Map, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (self.Server.Mods[Mod]['Hash']) + ' ' + str (MinRank) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
 	
+	
 	def BattleMap (self, Map):
 		self.Battles[self.BattleID]['Map'] = Map
 		self.BattleUpdate ()
 #		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map))
+	
 	
 	def BattleSay (self, Message, Me = 0):
 		if (Me):
@@ -289,25 +291,32 @@ class Lobby (threading.Thread):
 		else:
 			self.Send ('SAYBATTLE ' + str (Message))
 	
+	
 	def BattleStart (self):
 		self.Send ('MYSTATUS 1')
-
+	
+	
 	def BattleStop (self):
 		self.Send ('MYSTATUS 0')
+	
 	
 	def BattleLock (self, Lock):
 		if self.Battles[self.BattleID]['Locked'] != Lock:
 			self.Battles[self.BattleID]['Locked'] = Lock
 			self.BattleUpdate ()
 	
+	
 	def BattleUpdate (self):		
 		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Server.Maps[self.Battles[self.BattleID]['Map']]['Hash']) + ' ' + str (self.Battles[self.BattleID]['Map']))
+	
 	
 	def BattleKick (self, User):
 		self.Send ('KICKFROMBATTLE ' + str (User))
 	
+	
 	def BattleRing (self, User):
 		self.Send ('RING ' + str (User))
+	
 	
 	def BattleAddBox (self, Ally, Left, Top, Right, Bottom):
 		self.Send ('ADDSTARTRECT ' + str (Ally) + ' ' + str (Left) + ' ' + str (Top) + ' ' + str (Right) + ' ' + str (Bottom))

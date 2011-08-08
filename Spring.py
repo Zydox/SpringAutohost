@@ -169,7 +169,7 @@ class SpringUDP (threading.Thread):
 		self.Socket = socket.socket (socket.AF_INET, socket.SOCK_DGRAM)
 		self.Socket.setsockopt (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.ServerAddr = None
-		self.SpringUsers = {}
+		self.SpringUsers = {}	# [ID] = {'Alias', 'Ready', 'Alive'}
 		
 	
 	def run (self):
@@ -178,28 +178,75 @@ class SpringUDP (threading.Thread):
 		while self.Active:
 			Data, self.ServerAddr = self.Socket.recvfrom (8192)
 			if Data:
+				if ord (Data[0]) == 1:
+					self.Terminate ('Spring sent SERVER_QUIT')
+				if ord (Data[0]) == 3:
+					self.Spring.Lobby.BattleSay ('Battle ended', 1)
 				if ord (Data[0]) == 10:
-					self.SpringUsers[Data[1]] = Data[2:]
+					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0}
+#					print '==' + self.SpringUsers[Data[1]]['Alias'] + '=Joined'
+				if ord (Data[0]) == 11:
+#					print '==' + self.SpringUsers[Data[1]]['Alias'] + '=Left'
+					del (self.SpringUsers[Data[1]])
+				if ord (Data[0]) == 12:
+#					print '==' + self.SpringUsers[Data[1]]['Alias'] + '=Ready'
+					self.SpringUsers[Data[1]]['Ready'] = 1
+					self.SpringUsers[Data[1]]['Alive'] = 1
+				if ord (Data[0]) == 14:
+#					print '==' + self.SpringUsers[Data[1]]['Alias'] + '=Died'
+					self.SpringUsers[Data[1]]['Alive'] = 0
 				
-				if not ord (Data[0]) == 20:
-					self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (Data))
+				if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
+					try:
+						self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
+					except:
+						try:
+							self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
+						except:
+							self.Debug ('UDP::' + str (ord (Data[0])))
+				
 				if ord (Data[0]) == 13:
 					if ord (Data[2]) == 252:
 						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringAllyToBattleLobby']:
-							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> Ally: ' + str (Data[3:]))
+							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> Ally: ' + str (Data[3:]))
 					if ord (Data[2]) == 253:
 						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringSpecToBattleLobby']:
-							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> Spec: ' + str (Data[3:]))
+							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> Spec: ' + str (Data[3:]))
 					if ord (Data[2]) == 254:
 						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringNormalToBattleLobby']:
-							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]] + '> ' + str (Data[3:]))
+							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> ' + str (Data[3:]))
+				try:
+					if ord (Data[0]) == 10:
+						print '10::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
+					if ord (Data[0]) == 11:
+						print '11::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
+					if ord (Data[0]) == 12:
+						print '12::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
+					if ord (Data[0]) == 14:
+						print '14::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
+				except:
+					i = 1
+	
+	
+	def IsReady (self, SearchUser):
+		self.Debug ('InReady::' + str (SearchUser))
+		for User in self.SpringUsers:
+			if self.SpringUsers[User]['Alias'] == SearchUser:
+				return (self.SpringUsers[User]['Ready'])
+	
+	
+	def IsAlive (self, SearchUser):
+		self.Debug ('InAlive::' + str (SearchUser))
+		for User in self.SpringUsers:
+			if self.SpringUsers[User]['Alias'] == SearchUser:
+				return (self.SpringUsers[User]['Alive'])
 	
 	
 	def Talk (self, Message):
-		self.Debug ('UDP_SEND::' + str (Message))
+		self.Debug ('Talk::' + str (Message))
 		self.Socket.sendto (str (Message), self.ServerAddr)
 	
 	
-	def Terminate (self):
-		self.Debug ('SpringUDP terminate')
+	def Terminate (self, Message = ''):
+		self.Debug ('SpringUDP terminate (' + str (Message) + ')')
 		self.Active = 0

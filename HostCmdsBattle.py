@@ -18,6 +18,7 @@ class HostCmdsBattle:
 			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <> <> <> <> <>', 'Adds a startbox'],
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
+			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -39,9 +40,6 @@ class HostCmdsBattle:
 			Return.sort ()
 			return (Return)
 		elif (Command == "start"):
-#			ScriptURI = str (self.Server.Config['TempPath']) + 'Script.txt'
-#			self.Host.Spring.GenerateBattleScript (ScriptURI)
-#			self.SpringPID = subprocess.Popen([self.Server.Config['SpringExec'], ScriptURI]) 
 			self.Host.Spring.SpringStart ()
 			self.Host.Lobby.BattleStart ()
 			return ('Battle started')
@@ -84,3 +82,16 @@ class HostCmdsBattle:
 		elif Command == 'forcestart':
 			self.Host.Spring.SpringTalk ('/forcestart')
 			return ('Battle started')
+		elif Command == 'info':
+			Return = ['Battle information']
+			for Alias in self.Host.Lobby.BattleUsers:
+				if not Alias == self.Host.Lobby.User:
+					User = self.Host.Lobby.BattleUsers[Alias]
+					try:
+						R = str (self.Host.Spring.SpringUDP.IsReady (Alias))
+						A = str (self.Host.Spring.SpringUDP.IsAlive (Alias))
+					except:
+						R = 'N/A'
+						A = 'N/A'
+					Return.append (Alias + '   ' + 'A:' + A + '   R:' + R)
+			return (Return)

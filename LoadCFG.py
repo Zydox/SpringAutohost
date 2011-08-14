@@ -9,10 +9,11 @@ class LoadCFG:
 	def LoadCFG (self):
 		self.Debug ("Load CFG")
 		self.Server.Config = {
-			'LobbyServer':{'Host':'taspringmaster.clan-sy.com', 'Port':8200},
+			'LobbyServer':{'Host':'94.23.170.70', 'Port':8200},
+#			'LobbyServer':{'Host':'taspringmaster.clan-sy.com', 'Port':8200},
 			'MainAccount':['TourneyBot', 'DoxiePooh', 0],
 			'UnitsyncPath':'/usr/local/lib/libunitsync.so',
-			'SpringExec':'/usr/local/bin/spring-dedicated',
+			'SpringExec':'/usr/local/bin/spring-headless',
 			'TempPath':'/tmp/',
 		}
 		

@@ -38,7 +38,6 @@ class Server:
 		self.Master = Master.Master (self)
 		self.Hosts = {}
 		
-		
 		self.Start ()
 		
 	

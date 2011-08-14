@@ -63,6 +63,7 @@ class Lobby (threading.Thread):
 			'CLIENTS':['V', 'S'],
 			'JOINED':['V', 'V'],
 			'LEFT':['V', 'V'],
+			'ADDBOT':['I', 'V', 'V', 'B32', 'I', 'S'],
 		}
 	
 	
@@ -196,6 +197,9 @@ class Lobby (threading.Thread):
 				'Color':None,
 				'Handicap':None,
 				'Synced':1,
+				'AI':0,
+				'AIOwner':None,
+				'AIDLL':None,
 			}
 			self.Battles[self.BattleID]['PassthoughBattleLobbyToSpring'] = 1
 			self.Battles[self.BattleID]['PassthoughSpringNormalToBattleLobby'] = 1
@@ -208,6 +212,9 @@ class Lobby (threading.Thread):
 				if Arg[0] == self.BattleID:
 					self.BattleUsers[Arg[1]] = {
 						'Password':Arg[2],
+						'AI':0,
+						'AIOwner':None,
+						'AIDLL':None,
 					}
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
@@ -267,8 +274,39 @@ class Lobby (threading.Thread):
 			self.Channels[Arg[0]]['Users'][Arg[1]] = Arg[1]
 		elif Command == 'LEFT':
 			del (self.Channels[Arg[0]]['Users'][Arg[1]])
+		elif Command == 'ADDBOT':
+			#BATTLE_ID name owner battlestatus teamcolor {AIDLL}
+			if Arg[0] == self.BattleID:
+				self.Battles[Arg[0]]['Users'].append (Arg[1])
+				self.BattleUsers[Arg[1]] = {
+					'AI':1,
+					'AIOwner':Arg[2],
+					'AIDLL':Arg[5],
+					'Ready':int (Arg[3][1]),
+					'Team':int (Arg[3][5]) * 8 + int (Arg[3][4]) * 4 + int (Arg[3][3]) * 2 + int (Arg[3][2]),
+					'Ally':int (Arg[3][9]) * 8 + int (Arg[3][8]) * 4 + int (Arg[3][7]) * 2 + int (Arg[3][6]),
+					'Spectator':{0:1, 1:0}[int (Arg[3][10])],
+					'Handicap':int (Arg[3][17]) * 64 + int (Arg[3][16]) * 32 + int (Arg[3][15]) * 16 + int (Arg[3][14]) * 8 + int (Arg[3][13]) * 4 + int (Arg[3][12]) * 2 + int (Arg[3][11]),
+					'Synced':int (Arg[3][23]) * 2 + int (Arg[3][22]),
+					'Side':int (Arg[3][27]) * 8 + int (Arg[3][26]) * 4 + int (Arg[3][25]) * 2 + int (Arg[3][24]),
+					'Color':'%X' % int (Arg[4]),
+				}
+			while (len (self.BattleUsers[Arg[1]]['Color']) < 6):
+				self.BattleUsers[Arg[1]]['Color'] = str (0) + self.BattleUsers[Arg[1]]['Color']
 
-
+#			self.BattleUsers[Arg[1]]['Ready'] = int (Arg[3][1])
+#			self.BattleUsers[Arg[1]]['Team'] = int (Arg[3][5]) * 8 + int (Arg[3][4]) * 4 + int (Arg[3][3]) * 2 + int (Arg[3][2])
+#			self.BattleUsers[Arg[1]]['Ally'] = int (Arg[3][9]) * 8 + int (Arg[3][8]) * 4 + int (Arg[3][7]) * 2 + int (Arg[3][6])
+#			self.BattleUsers[Arg[1]]['Spectator'] = {0:1, 1:0}[int (Arg[3][10])]
+#			self.BattleUsers[Arg[1]]['Handicap'] = int (Arg[3][17]) * 64 + int (Arg[3][16]) * 32 + int (Arg[3][15]) * 16 + int (Arg[3][14]) * 8 + int (Arg[3][13]) * 4 + int (Arg[3][12]) * 2 + int (Arg[3][11])
+#			self.BattleUsers[Arg[1]]['Synced'] = int (Arg[3][23]) * 2 + int (Arg[3][22])
+#			self.BattleUsers[Arg[1]]['Side'] = int (Arg[3][27]) * 8 + int (Arg[3][26]) * 4 + int (Arg[3][25]) * 2 + int (Arg[3][24])
+#			self.BattleUsers[Arg[1]]['Color'] = "%X" % int (Arg[4])
+#			while (len (self.BattleUsers[Arg[1]]['Color']) < 6):
+#				self.BattleUsers[Arg[1]]['Color'] = str (0) + self.BattleUsers[Arg[1]]['Color']
+			print self.BattleUsers[Arg[1]]
+		
+		
 #			print ('\n' + str (RawData))
 #			print (str (Arg))
 #			print (self.BattleUsers[Arg[0]])

@@ -1,4 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
+import HostCmdsBattleLogic
 
 class HostCmdsBattle:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
@@ -7,6 +8,7 @@ class HostCmdsBattle:
 		self.Debug ('HostCmdsBattle Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
+		self.Logic = HostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
 			'map':[['*'], 'Source', '!map <map name>', 'Changes the map to <map name>'],
 			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],
@@ -19,6 +21,8 @@ class HostCmdsBattle:
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
+			'addbot':[['I', 'I', 'V', 'V', 'V'], 'Source', '!addbot 1 1 E323AI CORE FFFFFF', 'Add a bot to the battle (Team, Ally, Bot, Side, Hex RGB Color)'],
+			'testbot':[['I', 'I', 'I', 'I', 'I', 'I', 'V'], 'Source', '!testbot ready, team, ally, spec, hcp, sync, side', ''],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -67,13 +71,9 @@ class HostCmdsBattle:
 
 		elif Command == 'ring':
 			if len (Data) == 1:
-				self.Host.Lobby.BattleRing (Data[0])
-				return ('Ringing "' + str (Data[0]) + '"')
+				return (self.Logic.LogicRing (Data[0]))
 			else:
-				for User in self.Host.Lobby.BattleUsers:
-					if self.Host.Lobby.BattleUsers[User]['Spectator'] == 0 and self.Host.Lobby.BattleUsers[User]['Ready'] == 0:
-						self.Host.Lobby.BattleRing (User)
-				return ('Ringing all unready users')
+				return (self.Logic.LogicRing ())
 		elif (Command == 'addbox'):
 			self.Host.Lobby.BattleAddBox (Data[0] - 1, Data[1], Data[2], Data[3], Data[4])
 			return ('Box added')
@@ -83,15 +83,8 @@ class HostCmdsBattle:
 			self.Host.Spring.SpringTalk ('/forcestart')
 			return ('Battle started')
 		elif Command == 'info':
-			Return = ['Battle information']
-			for Alias in self.Host.Lobby.BattleUsers:
-				if not Alias == self.Host.Lobby.User:
-					User = self.Host.Lobby.BattleUsers[Alias]
-					try:
-						R = str (self.Host.Spring.SpringUDP.IsReady (Alias))
-						A = str (self.Host.Spring.SpringUDP.IsAlive (Alias))
-					except:
-						R = 'N/A'
-						A = 'N/A'
-					Return.append (Alias + '   ' + 'A:' + A + '   R:' + R)
-			return (Return)
+			return (self.Logic.LogicInfo ())
+		elif Command == 'addbot':
+			return (self.Logic.LogicAddBot (Data[0], Data[1], Data[2], Data[3], Data[4]))
+		elif Command == 'testbot':
+			return (self.Logic.LogicFunctionBattleStatus (Data[0], Data[1], Data[2], Data[3], Data[4], Data[5], Data[6]))

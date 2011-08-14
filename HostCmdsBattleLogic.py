@@ -41,7 +41,7 @@ class HostCmdsBattleLogic:
 						AI_ID = AI
 		if AI_ID:
 			AI_Data = self.Server.Mods[self.Battle['Mod']]['AI'][AI_ID]
-			self.Lobby.Send ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team, Ally, 0, 0, 0, Side)) + ' 255 ' + AI_Data['shortName'])
+			self.Lobby.Send ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team, Ally, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
 			#ADDBOT 730 Bot [CN]Zydox 68 200 E323AI
 			#ADDBOT BATTLE_ID name owner battlestatus teamcolor {AIDLL}
 			return (Name)
@@ -66,7 +66,6 @@ class HostCmdsBattleLogic:
 	
 	def LogicFunctionBattleStatus (self, Ready, Team, Ally, Spec, Hcp, Sync, Side):
 		Status = 0
-		
 		if Ready:	Status = Status + 2
 		Tmp = self.Lobby.dec2bin (int (Team) - 1, 4)
 		if Tmp[0]:	Status = Status + 4
@@ -111,8 +110,12 @@ class HostCmdsBattleLogic:
 #b22..b23 = sync status (0 = unknown, 1 = synced, 2 = unsynced) 
 #b24..b27 = side (e.g.: arm, core, tll, ... Side index can be between 0 and 15, inclusive) 
 #b28..b31 = undefined (reserved for future use) 
-		Return = []
-		Return.append ('Team::' + str (self.Lobby.dec2bin (int (Team) - 1, 4)))
-		Return.append ('Status::' + str (Status))
+#		Return = []
+#		Return.append ('Team::' + str (self.Lobby.dec2bin (int (Team) - 1, 4)))
+#		Return.append ('Status::' + str (Status))
 		return (Status)
-		return (Return)
+
+
+	def LogicFunctionBattleColor (self, HexColor):
+		Color = int (HexColor[4:6] + HexColor[2:4] + HexColor[0:2], 16)
+		return (Color)

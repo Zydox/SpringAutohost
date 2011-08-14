@@ -86,6 +86,13 @@ class Host (threading.Thread):
 							NewArg = self.Lobby.ReturnValue (Data, ' ')
 							if Field == 'V' and len (NewArg) < 1:
 								Failed ='Missing variable'
+						elif Field[0] == 'V' and len (Field) > 1:
+							try:
+								NewArg = self.Lobby.ReturnValue (Data, ' ')
+								if len (NewArg) != int (Field[1:]):
+									Failed = 'Variable not the correct length'
+							except:
+								NewArg = 'Faulty variable'
 						elif Field == 'B' or (Field == 'OB' and len (Data) > 0):
 							try:
 								NewArg = int (self.Lobby.ReturnValue (Data, ' '))
@@ -102,7 +109,7 @@ class Host (threading.Thread):
 							Data = Data[len (str (NewArg)) + 1:]
 					
 					if Failed:
-						Input['Message'] = Failed
+						Input['Message'] = 'ERROR:' + str (Field) + '::' + Failed
 					elif len (Data) > 0:
 						Input['Message'] = 'TO MUCH DATA/BAD DATA'
 					else:

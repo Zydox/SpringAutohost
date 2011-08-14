@@ -21,7 +21,7 @@ class HostCmdsBattle:
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
-			'addbot':[['I', 'I', 'V', 'V', 'V'], 'Source', '!addbot 1 1 E323AI CORE FFFFFF', 'Add a bot to the battle (Team, Ally, Bot, Side, Hex RGB Color)'],
+			'addbot':[['I', 'I', 'V', 'V', 'V6'], 'Source', '!addbot 1 1 E323AI CORE FFFFFF', 'Add a bot to the battle (Team, Ally, Bot, Side, Hex RGB Color)'],
 			'testbot':[['I', 'I', 'I', 'I', 'I', 'I', 'V'], 'Source', '!testbot ready, team, ally, spec, hcp, sync, side', ''],
 		}
 		for Command in self.Commands:

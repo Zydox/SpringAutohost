@@ -29,6 +29,7 @@ class Server:
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ("Initiate")
 		self.LoadCFG = LoadCFG.LoadCFG (self)
+		self.ClassDebug.SetFile ('/tmp/Debug.log')
 		
 		self.Unitsync = Unitsync.Unitsync (self.Config['UnitsyncPath'])
 		self.Unitsync.Init (True, 1)

@@ -64,6 +64,29 @@ class HostCmdsBattleLogic:
 		return (Return)
 	
 	
+	def LogicSpec (self, User):
+		self.Refresh ()
+		if self.BattleUsers.has_key (User):
+			self.Lobby.Send ('FORCESPECTATORMODE ' + str (User))
+			return ('User "' + str (User) + '" spectated')
+		return ('User "' + str (User) + '" not found in battle')
+	
+	
+	def LogicKick (self, User):
+		self.Refresh ()
+		self.Host.Spring.SpringTalk ('/kick ' + User)
+		if self.Host.Lobby.BattleUsers.has_key (User):
+			if self.Host.Lobby.BattleUsers[User]['AI']:
+				self.Host.Lobby.BattleKickAI (User)
+				return ('AI "'+ str (User) + '" kicked')
+			else:
+				self.Host.Lobby.BattleKick (User)
+				return ('User "'+ str (User) + '" kicked')
+		else:
+			return ('Can\'t find the user "' + str (User) + '"')
+
+	
+	
 	def LogicFunctionBattleStatus (self, Ready, Team, Ally, Spec, Hcp, Sync, Side):
 		Status = 0
 		if Ready:	Status = Status + 2

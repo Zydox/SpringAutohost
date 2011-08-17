@@ -22,7 +22,7 @@ class HostCmdsBattle:
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
 			'addbot':[['I', 'I', 'V', 'V', 'V6'], 'Source', '!addbot 1 1 E323AI CORE FFFFFF', 'Add a bot to the battle (Team, Ally, Bot, Side, Hex RGB Color)'],
-			'testbot':[['I', 'I', 'I', 'I', 'I', 'I', 'V'], 'Source', '!testbot ready, team, ally, spec, hcp, sync, side', ''],
+			'spec':[['V'], 'Source', '!spec <User>', 'Spectates the specified user'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -62,13 +62,7 @@ class HostCmdsBattle:
 			else:
 				return ('Battle unlocked')		
 		elif (Command == 'kick'):
-			self.Host.Spring.SpringTalk ('/kick ' + Data[0])
-			if self.Host.Lobby.Users.has_key (Data[0]):
-				self.Host.Lobby.BattleKick (Data[0])
-				return ('User kicked')
-			else:
-				return ('Can\'t find the user')
-
+			return (self.Logic.LogicKick (Data[0]))
 		elif Command == 'ring':
 			if len (Data) == 1:
 				return (self.Logic.LogicRing (Data[0]))
@@ -86,5 +80,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicInfo ())
 		elif Command == 'addbot':
 			return (self.Logic.LogicAddBot (Data[0], Data[1], Data[2], Data[3], Data[4]))
-		elif Command == 'testbot':
-			return (self.Logic.LogicFunctionBattleStatus (Data[0], Data[1], Data[2], Data[3], Data[4], Data[5], Data[6]))
+		elif Command == 'spec':
+			return (self.Logic.LogicSpec (Data[0]))

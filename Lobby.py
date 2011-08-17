@@ -64,6 +64,7 @@ class Lobby (threading.Thread):
 			'JOINED':['V', 'V'],
 			'LEFT':['V', 'V'],
 			'ADDBOT':['I', 'V', 'V', 'B32', 'I', 'S'],
+			'REMOVEBOT':['I', 'V'],
 		}
 	
 	
@@ -246,7 +247,7 @@ class Lobby (threading.Thread):
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'SAIDPRIVATE' or Command == 'SAID' or Command == 'SAIDEX' or Command == 'SAIDBATTLE' or Command == 'SAIDBATTLEEX' or Command == 'SAIDPRIVATEEX':
-			print (RawData)
+#			print (RawData)
 			if Arg[0] != self.User:
 				self.CallbackChat (Command, Arg)
 		elif Command == 'REQUESTBATTLESTATUS':
@@ -293,18 +294,12 @@ class Lobby (threading.Thread):
 				}
 			while (len (self.BattleUsers[Arg[1]]['Color']) < 6):
 				self.BattleUsers[Arg[1]]['Color'] = str (0) + self.BattleUsers[Arg[1]]['Color']
-
-#			self.BattleUsers[Arg[1]]['Ready'] = int (Arg[3][1])
-#			self.BattleUsers[Arg[1]]['Team'] = int (Arg[3][5]) * 8 + int (Arg[3][4]) * 4 + int (Arg[3][3]) * 2 + int (Arg[3][2])
-#			self.BattleUsers[Arg[1]]['Ally'] = int (Arg[3][9]) * 8 + int (Arg[3][8]) * 4 + int (Arg[3][7]) * 2 + int (Arg[3][6])
-#			self.BattleUsers[Arg[1]]['Spectator'] = {0:1, 1:0}[int (Arg[3][10])]
-#			self.BattleUsers[Arg[1]]['Handicap'] = int (Arg[3][17]) * 64 + int (Arg[3][16]) * 32 + int (Arg[3][15]) * 16 + int (Arg[3][14]) * 8 + int (Arg[3][13]) * 4 + int (Arg[3][12]) * 2 + int (Arg[3][11])
-#			self.BattleUsers[Arg[1]]['Synced'] = int (Arg[3][23]) * 2 + int (Arg[3][22])
-#			self.BattleUsers[Arg[1]]['Side'] = int (Arg[3][27]) * 8 + int (Arg[3][26]) * 4 + int (Arg[3][25]) * 2 + int (Arg[3][24])
-#			self.BattleUsers[Arg[1]]['Color'] = "%X" % int (Arg[4])
-#			while (len (self.BattleUsers[Arg[1]]['Color']) < 6):
-#				self.BattleUsers[Arg[1]]['Color'] = str (0) + self.BattleUsers[Arg[1]]['Color']
-			print self.BattleUsers[Arg[1]]
+		elif Command == 'REMOVEBOT':
+			if (self.Battles.has_key (Arg[0])):
+				self.Battles[Arg[0]]['Users'].remove (Arg[1])
+			else:
+				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+			
 		
 		
 #			print ('\n' + str (RawData))
@@ -356,6 +351,10 @@ class Lobby (threading.Thread):
 	
 	def BattleKick (self, User):
 		self.Send ('KICKFROMBATTLE ' + str (User))
+	
+	
+	def BattleKickAI (self, AI):
+		self.Send ('REMOVEBOT ' + str (AI))
 	
 	
 	def BattleRing (self, User):

@@ -7,9 +7,10 @@ import socket
 
 
 class Spring:
-	def __init__ (self, ClassServer, ClassLobby):
+	def __init__ (self, ClassServer, ClassHost, ClassLobby):
 		self.Debug = ClassServer.Debug
 		self.Server = ClassServer
+		self.Host = ClassHost
 		self.Lobby = ClassLobby
 		self.SpringAutoHostPort = 9000
 		self.SpringUDP = None
@@ -17,23 +18,26 @@ class Spring:
 		self.HeadlessSpeed = [1, 3]
 	
 	
-	def SpringStart (self):
-		self.Debug ('Spring::Start')
+	def SpringStart (self, Reason = 'UNKNOWN'):
+		self.Debug ('Spring::Start (' + Reason + ')')
 		ScriptURI = str (self.Server.Config['TempPath']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
 		self.SpringPID = subprocess.Popen([self.Server.Config['SpringExec'], ScriptURI]) 
 		
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()
+		self.Host.HostCmds.Notifications ('BATTLE_STARTED')
 		
 		return (True)
 	
 	
-	def SpringStop (self):
-		self.Debug ('Spring::Stop')
+	def SpringStop (self, Reason = 'UNKNOWN', Message = ''):
+		#UDP_SERVER_QUIT
+		self.Debug ('Spring::Stop (' + Reason + '::' + Message + ')')
 		try:
-			self.SpringUDP.Terminate ()
+			self.SpringUDP.Terminate (Message)
 			self.SpringPID.terminate ()
+			self.Lobby.BattleStop ()
 			return (True)
 		except:
 			return (False)
@@ -238,7 +242,7 @@ class SpringUDP (threading.Thread):
 			Data, self.ServerAddr = self.Socket.recvfrom (8192)
 			if Data:
 				if ord (Data[0]) == 1:
-					self.Terminate ('Spring sent SERVER_QUIT')
+					self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
 				if ord (Data[0]) == 2:
 					if self.Spring.Headless:
 						self.Talk ('/setminspeed 1')

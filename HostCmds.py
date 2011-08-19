@@ -25,3 +25,11 @@ class HostCmds:
 			return (self.HostCmdsLadderbot.HandleInput (Command, Data))
 		else:
 			return ('Unknown command type')
+	
+	
+	def Notifications (self, Event):
+		self.Debug ('Notifications::' + str (Event))
+		if Event == 'BATTLE_ENDED':
+			print '* Battle ended'
+		elif Event == 'BATTLE_STARTED':
+			print '* Battle started'

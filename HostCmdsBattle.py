@@ -17,12 +17,14 @@ class HostCmdsBattle:
 			'lock':[['OB'], 'Source', '!lock [0/1]', 'Locks/unlocks the battle'],
 			'kick':[['V'], 'Source', '!kick <user>', 'Kicks <user> from the battle'],
 			'ring':[['OV'], 'Source', '!ring [<user>]', 'Rings a specific user or all unready users'],
-			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <> <> <> <> <>', 'Adds a startbox'],
+			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <Team> <Left> <Top> <Right> <Bottom> (0-200)', 'Adds a startbox'],
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
 			'addbot':[['I', 'I', 'V', 'V', 'V6'], 'Source', '!addbot 1 1 E323AI CORE FFFFFF', 'Add a bot to the battle (Team, Ally, Bot, Side, Hex RGB Color)'],
 			'spec':[['V'], 'Source', '!spec <User>', 'Spectates the specified user'],
+			'fixid':[[], 'Source', '!fixid', 'Fix the player IDs'],
+			'balance':[[], 'Battle', '!balance', 'Balances the battle users based on rank'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -31,7 +33,7 @@ class HostCmdsBattle:
 	def HandleInput (self, Command, Data):
 		self.Debug ('HandleInput::' + str (Command) + '::' + str (Data))
 		
-		if (Command == "map"):
+		if Command == 'map':
 			if (self.Server.Maps.has_key (Data[0])):
 				self.Host.Lobby.BattleMap (Data[0])
 				return ('Map changed to ' + str (Data[0]))
@@ -43,15 +45,15 @@ class HostCmdsBattle:
 				Return.append (Map)
 			Return.sort ()
 			return (Return)
-		elif (Command == "start"):
+		elif Command == 'start':
 			self.Host.Spring.SpringStart ()
 			self.Host.Lobby.BattleStart ()
 			return ('Battle started')
-		elif (Command == "stop"):
+		elif Command == 'stop':
 			Return = self.Host.Spring.SpringStop ()
 			self.Host.Lobby.BattleStop ()
 			return (Return)
-		elif (Command == "lock"):
+		elif Command == 'lock':
 			if len (Data) == 1:
 				Lock = Data[0]
 			else:
@@ -61,14 +63,14 @@ class HostCmdsBattle:
 				return ('Battle locked')		
 			else:
 				return ('Battle unlocked')		
-		elif (Command == 'kick'):
+		elif Command == 'kick':
 			return (self.Logic.LogicKick (Data[0]))
 		elif Command == 'ring':
 			if len (Data) == 1:
 				return (self.Logic.LogicRing (Data[0]))
 			else:
 				return (self.Logic.LogicRing ())
-		elif (Command == 'addbox'):
+		elif Command == 'addbox':
 			self.Host.Lobby.BattleAddBox (Data[0] - 1, Data[1], Data[2], Data[3], Data[4])
 			return ('Box added')
 		elif Command == 'udp':
@@ -82,3 +84,7 @@ class HostCmdsBattle:
 			return (self.Logic.LogicAddBot (Data[0], Data[1], Data[2], Data[3], Data[4]))
 		elif Command == 'spec':
 			return (self.Logic.LogicSpec (Data[0]))
+		elif Command == 'fixid':
+			return (self.Logic.LogicFixID ())
+		elif Command == 'balance':
+			return (self.Logic.LogicBalance ())

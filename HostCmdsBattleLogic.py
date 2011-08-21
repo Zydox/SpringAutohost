@@ -41,7 +41,7 @@ class HostCmdsBattleLogic:
 						AI_ID = AI
 		if AI_ID:
 			AI_Data = self.Server.Mods[self.Battle['Mod']]['AI'][AI_ID]
-			self.Lobby.Send ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team, Ally, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
+			self.Lobby.Send ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
 			#ADDBOT 730 Bot [CN]Zydox 68 200 E323AI
 			#ADDBOT BATTLE_ID name owner battlestatus teamcolor {AIDLL}
 			return (Name)
@@ -84,18 +84,56 @@ class HostCmdsBattleLogic:
 				return ('User "'+ str (User) + '" kicked')
 		else:
 			return ('Can\'t find the user "' + str (User) + '"')
-
+	
+	
+	def LogicFixID (self):
+		self.Refresh ()
+		ID = 0
+		AIs = []
+		for User in self.BattleUsers:
+			if not self.BattleUsers[User]['Spectator'] and not self.BattleUsers[User]['AI']:
+				self.Lobby.BattleForceID (User, ID)
+				if ID < 15:
+					ID = ID + 1
+			elif self.BattleUsers[User]['AI']:
+				AIs.append (User)
+		if len (AIs):
+			for AI in AIs:
+				self.Lobby.BattleUpdateAI (AI, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[AI]['Ally'], 0, 0, 0, self.BattleUsers[AI]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[AI]['Color']))
+				if ID < 15:
+					ID = ID + 1
+		return ('IDs fixed')
+	
+	
+	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
+		self.Refresh ()
+		TeamRank = {}
+		PlayerRank = {}
+		for iTeam in range (0, Teams):
+			TeamRank[iTeam] = 0
+		for User in self.BattleUsers:
+			if self.BattleUsers[User]['AI']:
+				PlayerRank[User] = 1
+			elif not self.BattleUsers[User]['Spectator']:
+				PlayerRank[User] = self.Lobby.Users[User]['Rank']
+		print '==============================='
+		print PlayerRank
+		print TeamRank
+		print '==============================='
+		print ''
+		
+		return ('Testing')
 	
 	
 	def LogicFunctionBattleStatus (self, Ready, Team, Ally, Spec, Hcp, Sync, Side):
 		Status = 0
 		if Ready:	Status = Status + 2
-		Tmp = self.Lobby.dec2bin (int (Team) - 1, 4)
+		Tmp = self.Lobby.dec2bin (int (Team), 4)
 		if Tmp[0]:	Status = Status + 4
 		if Tmp[1]:	Status = Status + 8
 		if Tmp[2]:	Status = Status + 16
 		if Tmp[3]:	Status = Status + 32
-		Tmp = self.Lobby.dec2bin (int (Ally) - 1, 4)
+		Tmp = self.Lobby.dec2bin (int (Ally), 4)
 		if Tmp[0]:	Status = Status + 64
 		if Tmp[1]:	Status = Status + 128
 		if Tmp[2]:	Status = Status + 256

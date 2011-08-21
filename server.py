@@ -7,6 +7,22 @@ import time,sys
 from daemon import Daemon
 import tasbot
 from tasbot.customlog import Log
+#
+#	Server
+#		Debug - Debug
+#		LoadCFG - LoadCFG
+#		Unitsync - Unitsync
+#		Master - Master
+#			Lobby - Lobby
+#				Ping - Lobby
+#		Hosts = Host {}
+#			Lobby - Lobby
+#				Ping - Lobby
+#			HostCmds - HostCmds
+#			Spring - Spring
+#				SpringUDP - Spring
+#			-UserRoles [User]
+#
 
 class Server(Daemon):
 	def __init__ (self):
@@ -23,10 +39,11 @@ class Server(Daemon):
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps ()
 		self.LoadMods ()
-
+		
 		self.Master = master.Master (self)
 		self.Hosts = {}		
 	
+		
 	def Start (self):
 		self.Debug ("Start server")
 		self.Master.start ()
@@ -52,11 +69,11 @@ class Server(Daemon):
 		for iMap in range (0, self.Unitsync.GetMapCount ()):
 			Map = self.Unitsync.GetMapName (iMap)
 			self.Maps[Map] = {'Hash':self.SignInt (self.Unitsync.GetMapChecksum (iMap))}
-			if (self.Unitsync.GetMapOptionCount (Map)):
+			if self.Unitsync.GetMapOptionCount (Map):
 				self.Maps[Map]['Options'] = {}
 				for iOpt in range (0, self.Unitsync.GetMapOptionCount (Map)):
 					self.Maps[Map]['Options'][iOpt] = self.LoadOption (iOpt)
-					if (len (self.Maps[Map]['Options'][iOpt]) == 0):
+					if len (self.Maps[Map]['Options'][iOpt]) == 0:
 						del (self.Maps[Map]['Options'][iOpt])
 	
 	
@@ -64,6 +81,7 @@ class Server(Daemon):
 		self.Debug ('Load mods')
 		self.Mods = {}
 		for iMod in range (0, self.Unitsync.GetPrimaryModCount ()):
+			self.Unitsync.Init (True, 1)
 			self.Unitsync.AddAllArchives (self.Unitsync.GetPrimaryModArchive (iMod))
 			Mod = self.Unitsync.GetPrimaryModName (iMod)
 			self.Mods[Mod] = {
@@ -71,27 +89,33 @@ class Server(Daemon):
 				'Title':self.Unitsync.GetPrimaryModName (iMod),
 				'Sides':{},
 				'Options':{},
+				'AI':{},
 			}
-			if (self.Unitsync.GetSideCount()):
+			if self.Unitsync.GetSideCount():
 				for iSide in xrange (self.Unitsync.GetSideCount()):
 					self.Mods[Mod]['Sides'][iSide] = self.Unitsync.GetSideName (iSide)
-			if (self.Unitsync.GetModOptionCount ()):
+			if self.Unitsync.GetModOptionCount ():
 				for iOpt in xrange (self.Unitsync.GetModOptionCount ()):
 					self.Mods[Mod]['Options'][iOpt] = self.LoadOption (iOpt)
-					if (len (self.Mods[Mod]['Options'][iOpt]) == 0):
+					if len (self.Mods[Mod]['Options'][iOpt]) == 0:
 						del (self.Mods[Mod]['Options'][iOpt])
+			if self.Unitsync.GetSkirmishAICount ():
+				for iAI in range (0, self.Unitsync.GetSkirmishAICount ()):
+					self.Mods[Mod]['AI'][iAI] = {}
+					for iAII in range (0, self.Unitsync.GetSkirmishAIInfoCount (iAI)):
+						self.Mods[Mod]['AI'][iAI][self.Unitsync.GetInfoKey (iAII)] = self.Unitsync.GetInfoValue (iAII)
 	
 	
 	def LoadOption (self, iOpt):
 		Data = {}
-		if (self.Unitsync.GetOptionType (iOpt) == 1):
+		if self.Unitsync.GetOptionType (iOpt) == 1:
 			Data = {
 				'Key':self.Unitsync.GetOptionKey (iOpt),
 				'Title':self.Unitsync.GetOptionName (iOpt),
 				'Type':'Boolean',
 				'Default':self.Unitsync.GetOptionBoolDef (iOpt),
 			}
-		elif (self.Unitsync.GetOptionType (iOpt) == 2):
+		elif self.Unitsync.GetOptionType (iOpt) == 2:
 			Data = {
 				'Key':self.Unitsync.GetOptionKey (iOpt),
 				'Title':self.Unitsync.GetOptionName (iOpt),
@@ -99,10 +123,10 @@ class Server(Daemon):
 				'Default':self.Unitsync.GetOptionListDef (iOpt),
 				'Options':{},
 			}
-			if (self.Unitsync.GetOptionListCount (iOpt)):
+			if self.Unitsync.GetOptionListCount (iOpt):
 				for iItem in range (0, self.Unitsync.GetOptionListCount (iOpt)):
 					Data['Options'][self.Unitsync.GetOptionListItemKey (iOpt, iItem)] = self.Unitsync.GetOptionListItemName (iOpt, iItem) + ' (' + self.Unitsync.GetOptionListItemDesc (iOpt, iItem) + ')'
-		elif (self.Unitsync.GetOptionType (iOpt) == 3):
+		elif self.Unitsync.GetOptionType (iOpt) == 3:
 			Data = {
 				'Key':self.Unitsync.GetOptionKey (iOpt),
 				'Title':self.Unitsync.GetOptionName (iOpt),
@@ -112,7 +136,7 @@ class Server(Daemon):
 				'Max':self.Unitsync.GetOptionNumberMax (iOpt),
 				'Step':self.Unitsync.GetOptionNumberStep (iOpt),
 			}
-		elif (self.Unitsync.GetOptionType (iOpt) == 5):
+		elif self.Unitsync.GetOptionType (iOpt) == 5:
 			Ignore = 1
 		else:
 			self.Debug ('ERROR::Unkown options type (' + str (self.Unitsync.GetOptionType (iOpt)) + ')')

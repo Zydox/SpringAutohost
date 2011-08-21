@@ -59,6 +59,10 @@ class Host (threading.Thread):
 			Input['User'] = Data[0]
 			Input['Reference'] = Data[0]
 			Input['Input'] = Data[1]
+			
+			if self.Lobby.BattleID and self.Lobby.Battles[self.Lobby.BattleID]['PassthoughBattleLobbyToSpring']:
+				self.Spring.SpringTalk ('<' + Input['User'] + '> ' + Input['Input'])
+
 		
 		if (len (Input) > 2):
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':
@@ -88,6 +92,13 @@ class Host (threading.Thread):
 							NewArg = self.Lobby.ReturnValue (Data, ' ')
 							if Field == 'V' and len (NewArg) < 1:
 								Failed ='Missing variable'
+						elif Field[0] == 'V' and len (Field) > 1:
+							try:
+								NewArg = self.Lobby.ReturnValue (Data, ' ')
+								if len (NewArg) != int (Field[1:]):
+									Failed = 'Variable not the correct length'
+							except:
+								NewArg = 'Faulty variable'
 						elif Field == 'B' or (Field == 'OB' and len (Data) > 0):
 							try:
 								NewArg = int (self.Lobby.ReturnValue (Data, ' '))
@@ -104,7 +115,7 @@ class Host (threading.Thread):
 							Data = Data[len (str (NewArg)) + 1:]
 					
 					if Failed:
-						Input['Message'] = Failed
+						Input['Message'] = 'ERROR:' + str (Field) + '::' + Failed
 					elif len (Data) > 0:
 						Input['Message'] = 'TO MUCH DATA/BAD DATA'
 					else:
@@ -170,6 +181,8 @@ class Host (threading.Thread):
 					else:
 						self.UserRoles[User] = {Role:1}
 			if self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User].has_key ('Spectator'):
+				if not self.UserRoles.has_key (User):
+					self.UserRoles[User] = {}
 				if self.Lobby.BattleUsers[User]['Spectator']:
 					self.UserRoles[User]['%BattleSpectator%'] = 1
 				else:

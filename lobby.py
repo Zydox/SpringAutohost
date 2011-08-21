@@ -4,6 +4,7 @@ import time
 import socket
 import hashlib, base64, binascii
 #import LobbyBS
+
 import random
 
 class Lobby (threading.Thread):
@@ -17,7 +18,7 @@ class Lobby (threading.Thread):
 		self.User = LoginInfo[0]
 		self.Passwd = LoginInfo[1]
 		self.BattlePort = LoginInfo[2]
-		self.IP = '188.165.214.142'
+		self.IP = '192.168.200.210'
 		self.Host = ClassServer.Config['LobbyServer']['Host']
 		self.Port = ClassServer.Config['LobbyServer']['Port']
 		self.Ping = LobbyPing (self, ClassServer.Debug)
@@ -64,6 +65,8 @@ class Lobby (threading.Thread):
 			'LEFT':['V', 'V'],
 			'AGREEMENTEND':[],
 			'AGREEMENT':[],
+			'ADDBOT':['I', 'V', 'V', 'B32', 'I', 'S'],
+			'REMOVEBOT':['I', 'V'],
 		}
 	
 	
@@ -181,6 +184,7 @@ class Lobby (threading.Thread):
 					'Players':0,
 					'Locked':0,
 				}
+				
 				self.SmurfDetection (Arg[3], Arg[4])
 			else:
 				self.Debug ('ERROR::Battle exsits::' + str (RawData))
@@ -196,13 +200,24 @@ class Lobby (threading.Thread):
 				'Color':None,
 				'Handicap':None,
 				'Synced':1,
+				'AI':0,
+				'AIOwner':None,
+				'AIDLL':None,
 			}
+			self.Battles[self.BattleID]['PassthoughBattleLobbyToSpring'] = 1
+			self.Battles[self.BattleID]['PassthoughSpringNormalToBattleLobby'] = 1
+			self.Battles[self.BattleID]['PassthoughSpringAllyToBattleLobby'] = 0
+			self.Battles[self.BattleID]['PassthoughSpringSpecToBattleLobby'] = 1
+
 		elif Command == 'JOINEDBATTLE':
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])
 				if Arg[0] == self.BattleID:
 					self.BattleUsers[Arg[1]] = {
 						'Password':Arg[2],
+						'AI':0,
+						'AIOwner':None,
+						'AIDLL':None,
 					}
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
@@ -234,7 +249,7 @@ class Lobby (threading.Thread):
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'SAIDPRIVATE' or Command == 'SAID' or Command == 'SAIDEX' or Command == 'SAIDBATTLE' or Command == 'SAIDBATTLEEX' or Command == 'SAIDPRIVATEEX':
-			print (RawData)
+#			print (RawData)
 			if Arg[0] != self.User:
 				self.CallbackChat (Command, Arg)
 		elif Command == 'REQUESTBATTLESTATUS':
@@ -264,7 +279,31 @@ class Lobby (threading.Thread):
 			del (self.Channels[Arg[0]]['Users'][Arg[1]])
 		elif Command == 'AGREEMENTEND':
 			self.Send ('CONFIRMAGREEMENT')
-
+		elif Command == 'ADDBOT':
+			#BATTLE_ID name owner battlestatus teamcolor {AIDLL}
+			if Arg[0] == self.BattleID:
+				self.Battles[Arg[0]]['Users'].append (Arg[1])
+				self.BattleUsers[Arg[1]] = {
+					'AI':1,
+					'AIOwner':Arg[2],
+					'AIDLL':Arg[5],
+					'Ready':int (Arg[3][1]),
+					'Team':int (Arg[3][5]) * 8 + int (Arg[3][4]) * 4 + int (Arg[3][3]) * 2 + int (Arg[3][2]),
+					'Ally':int (Arg[3][9]) * 8 + int (Arg[3][8]) * 4 + int (Arg[3][7]) * 2 + int (Arg[3][6]),
+					'Spectator':{0:1, 1:0}[int (Arg[3][10])],
+					'Handicap':int (Arg[3][17]) * 64 + int (Arg[3][16]) * 32 + int (Arg[3][15]) * 16 + int (Arg[3][14]) * 8 + int (Arg[3][13]) * 4 + int (Arg[3][12]) * 2 + int (Arg[3][11]),
+					'Synced':int (Arg[3][23]) * 2 + int (Arg[3][22]),
+					'Side':int (Arg[3][27]) * 8 + int (Arg[3][26]) * 4 + int (Arg[3][25]) * 2 + int (Arg[3][24]),
+					'Color':'%X' % int (Arg[4]),
+				}
+			while (len (self.BattleUsers[Arg[1]]['Color']) < 6):
+				self.BattleUsers[Arg[1]]['Color'] = str (0) + self.BattleUsers[Arg[1]]['Color']
+		elif Command == 'REMOVEBOT':
+			if (self.Battles.has_key (Arg[0])):
+				self.Battles[Arg[0]]['Users'].remove (Arg[1])
+			else:
+				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+			
 #			print ('\n' + str (RawData))
 #			print (str (Arg))
 #			print (self.BattleUsers[Arg[0]])
@@ -292,12 +331,13 @@ class Lobby (threading.Thread):
 	
 	def BattleOpen (self, Mod, Map, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (self.Server.Mods[Mod]['Hash']) + ' ' + str (MinRank) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
-		#self.Send ("OPENBATTLE %d %d %s %d %d %s %d %s %s %s %s"%(Type,Nat,Password,self.BattlePort,MaxPlayers,self.Server.Mods[Mod]['Hash'],MinRank,self.Server.Maps[Map]['Hash'],Map,Title,Mod) )
+	
 	
 	def BattleMap (self, Map):
 		self.Battles[self.BattleID]['Map'] = Map
 		self.BattleUpdate ()
 #		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map))
+	
 	
 	def BattleSay (self, Message, Me = 0):
 		if (Me):
@@ -310,20 +350,27 @@ class Lobby (threading.Thread):
 
 	def BattleStop (self):
 		self.Send ('MYSTATUS 0')
-	
+
 	def BattleLock (self, Lock):
 		if self.Battles[self.BattleID]['Locked'] != Lock:
 			self.Battles[self.BattleID]['Locked'] = Lock
 			self.BattleUpdate ()
-	
+		
 	def BattleUpdate (self):		
 		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Server.Maps[self.Battles[self.BattleID]['Map']]['Hash']) + ' ' + str (self.Battles[self.BattleID]['Map']))
+	
 	
 	def BattleKick (self, User):
 		self.Send ('KICKFROMBATTLE ' + str (User))
 	
+	
+	def BattleKickAI (self, AI):
+		self.Send ('REMOVEBOT ' + str (AI))
+	
+	
 	def BattleRing (self, User):
 		self.Send ('RING ' + str (User))
+	
 	
 	def BattleAddBox (self, Ally, Left, Top, Right, Bottom):
 		self.Send ('ADDSTARTRECT ' + str (Ally) + ' ' + str (Left) + ' ' + str (Top) + ' ' + str (Right) + ' ' + str (Bottom))

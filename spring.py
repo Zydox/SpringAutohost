@@ -4,7 +4,7 @@ import subprocess
 import threading
 import time
 import socket
-
+from tempfile import NamedTemporaryFile as TmpFile
 
 class Spring:
 	def __init__ (self, ClassServer, ClassHost, ClassLobby):
@@ -20,9 +20,12 @@ class Spring:
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('Spring::Start (' + Reason + ')')
-		ScriptURI = str (self.Server.Config['TempPath']) + 'Script.txt'
-		self.GenerateBattleScript (ScriptURI)
-		self.SpringPID = subprocess.Popen([self.Server.Config['SpringExec'], ScriptURI]) 
+		#ScriptURI = str (self.Server.Config['TempPath']) + 'Script.txt'
+		#using a uniquely named tmp file here to avoid clashes from multiple spawns
+		Script = TmpFile(prefix='Script.txt_')
+		self.GenerateBattleScript (Script)
+		#reopening the file is not guaranteed to work on win
+		self.SpringPID = subprocess.Popen([self.Server.Config['SpringExec'], Script.name]) 
 		
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()
@@ -52,12 +55,11 @@ class Spring:
 			return (False)
 
 	
-	def GenerateBattleScript (self, FilePath):
-		self.Debug ('Spring::GenerateBattleScript::' + str (FilePath))
+	def GenerateBattleScript (self, FP):
+		self.Debug ('Spring::GenerateBattleScript::' + FP.name)
 		self.Headless = 1
 		
 		Battle = self.Lobby.Battles[self.Lobby.BattleID]
-		FP = open (FilePath, 'w')
 		FP.write ('[GAME]\n')
 		FP.write ('{\n')
 		FP.write ('\tMapname=' + str (Battle['Map']) + ';\n')
@@ -221,7 +223,8 @@ class Spring:
 #		wc=0;
 		FP.write ('\t}\n')
 		FP.write ('}\n')
-		FP.close ()
+		#since FP is a tempfile object closing it would delete it atm
+		#FP.close ()
 
 
 class SpringUDP (threading.Thread): 

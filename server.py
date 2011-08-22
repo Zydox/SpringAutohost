@@ -55,7 +55,7 @@ class Server(Daemon):
 		self.Debug ("Spawn Host (" + str (Group) + "/" + str (HostAccount) + ")")
 		if (self.Groups.has_key (Group)):
 			if (self.Hosts.has_key (HostAccount[0])):
-				self.Hosts[HostAccount[0]].HostBattle (Group)
+				self.Hosts[HostAccount[0]].HostBattle ()
 			else:
 				self.Hosts[HostAccount[0]] = host.Host (self, Group, HostAccount)
 				self.Hosts[HostAccount[0]].start ()

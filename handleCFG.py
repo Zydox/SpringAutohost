@@ -1,5 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
-class LoadCFG:
+import sys
+
+class HandleCFG:
 	def __init__ (self, Class):
 		self.Server = Class
 		self.Debug = Class.Debug
@@ -8,14 +10,15 @@ class LoadCFG:
 	
 	def LoadCFG (self):
 		self.Debug ("Load CFG")
-		self.Server.Config = {
-			'LobbyServer':{'Host':'94.23.170.70', 'Port':8200},
-#			'LobbyServer':{'Host':'taspringmaster.clan-sy.com', 'Port':8200},
-			'MainAccount':['TourneyBot', 'DoxiePooh', 0],
-			'UnitsyncPath':'/usr/local/lib/libunitsync.so',
-			'SpringExec':'/usr/local/bin/spring-headless',
-			'TempPath':'/tmp/',
-		}
+		self.Server.Config = {}
+		if len (sys.argv) < 2:
+			print 'Missing config file (python server.py <conf file1> <font file2> ...)'
+			sys.exit ()
+		
+		for File in sys.argv[1:]:
+			self.LoadFile (File)
+#		print self.Server.Config
+#		sys.exit ()
 		
 		self.Server.Groups = {
 			'BA_Tourney':{
@@ -63,3 +66,22 @@ class LoadCFG:
 			'operator':{
 			},
 		}
+	
+	def LoadFile (self, File):
+		self.Debug ("Load file: " + File)
+		ConfigType = ''
+		FP = open (File, "r")
+		for Line in FP:
+			Line = Line.strip ()
+			if Line and not Line[0] == '#':
+				if Line[0:8] == '[MASTER]':
+					ConfigType = 'Master'
+				elif Line[0:7] == '[SLAVE]':
+					ConfigType = 'Slave'
+				elif Line.index ('='):
+#					print '::' + ConfigType + '::' + Line
+#					print Line.index ('=')
+#					print Line[0:Line.index ('='):]
+#					print Line[Line.index ('=') + 1:]
+					self.Server.Config[Line[0:Line.index ('='):]] = Line[Line.index ('=') + 1:]
+		FP.close ()

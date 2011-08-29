@@ -20,9 +20,12 @@ class Spring:
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('Spring::Start (' + Reason + ')')
-		ScriptURI = str (self.Server.Config['TempPath']) + 'Script.txt'
+		ScriptURI = str (self.Server.Config['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
-		self.SpringPID = subprocess.Popen([self.Server.Config['SpringExec'], ScriptURI]) 
+		if self.Headless:
+			self.SpringPID = subprocess.Popen([self.Server.Config['PathSpringHeadless'], ScriptURI]) 
+		else:
+			self.SpringPID = subprocess.Popen([self.Server.Config['PathSpringDedicated'], ScriptURI]) 
 		
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()
@@ -53,9 +56,13 @@ class Spring:
 	
 	def GenerateBattleScript (self, FilePath):
 		self.Debug ('Spring::GenerateBattleScript::' + str (FilePath))
-		self.Headless = 1
-		
 		Battle = self.Lobby.Battles[self.Lobby.BattleID]
+		
+		self.Headless = 0
+		for User in Battle['Users']:
+			if not User == self.Lobby.User and self.Lobby.BattleUsers[User]['AI'] and self.Lobby.BattleUsers[User]['AIOwner'] == self.Lobby.User:
+				self.Headless = 1
+		
 		FP = open (FilePath, 'w')
 		FP.write ('[GAME]\n')
 		FP.write ('{\n')
@@ -77,10 +84,6 @@ class Spring:
 		FP.write ('\tHostPort=' + str (self.Lobby.BattlePort) + ';\n')
 		if self.Headless:
 			FP.write ('\tMyPlayerName=' + str (self.Lobby.User) + ';\n')
-#			FP.write ('\tAutoHostName=' + str (self.Lobby.User) + ';\n')
-#			FP.write ('\tAutoHostCountryCode=' + str (self.Lobby.Users[self.Lobby.User]['Country']) + ';\n')
-#			FP.write ('\tAutoHostRank=' + str (self.Lobby.Users[self.Lobby.User]['Rank']) + ';\n')
-#			FP.write ('\tAutoHostAccountId=' + str (self.Lobby.Users[self.Lobby.User]['ID']) + ';\n')
 			FP.write ('\tAutohostPort=' + str (self.SpringAutoHostPort) + ';\n')
 			FP.write ('\tIsHost=1;\n')
 			iP = 1

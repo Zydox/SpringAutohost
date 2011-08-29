@@ -5,8 +5,8 @@ import master
 import host
 import time,sys
 from daemon import Daemon
-import tasbot
-from tasbot.customlog import Log
+#import tasbot
+#from tasbot.customlog import Log
 #
 #	Server
 #		Debug - debug
@@ -30,6 +30,7 @@ class Server(Daemon):
 		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ("Initiate")
+		self.ClassDebug.SetFile ('/tmp/Debug.log')
 		self.HandleCFG = handleCFG.HandleCFG (self)
 		try:
 			self.Unitsync = __import__('pyunitsync')
@@ -47,8 +48,7 @@ class Server(Daemon):
 	def Start (self):
 		self.Debug ("Start server")
 		self.Master.start ()
-		print (self.Groups['pyah']['Accounts'][0])
-		self.SpawnHost ('pyah', self.Groups['pyah']['Accounts'][0])		#Debug testing
+		self.SpawnHost ('teh', self.Groups['teh']['Accounts'][0])		#Debug testing
 		
 	
 	def SpawnHost (self, Group, HostAccount):
@@ -170,9 +170,10 @@ class Server(Daemon):
 				return
 			except Exception, e:
 				#error("parsing command line")
-				Log.Except( e )
+				print e
+#				Log.Except( e )
 
 if __name__ == '__main__':
-	Log.Init( 'server.log', 'info', True )
+#	Log.Init( 'server.log', 'info', True )
 	S = Server ()
 	S.run()

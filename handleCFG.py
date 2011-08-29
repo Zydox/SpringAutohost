@@ -37,7 +37,7 @@ class HandleCFG:
 				]
 			},
 			'teh':{
-				'Mod':'Balanced Annihilation V7.19',
+				'Mod':'Balanced Annihilation V7.50',
 				'Map':'Comet Catcher Redux',
 				'ChannelsReport':[['teh'], ['cn']],
 				'Accounts':[
@@ -67,6 +67,7 @@ class HandleCFG:
 			},
 		}
 	
+	
 	def LoadFile (self, File):
 		self.Debug ("Load file: " + File)
 		ConfigType = ''
@@ -79,9 +80,6 @@ class HandleCFG:
 				elif Line[0:7] == '[SLAVE]':
 					ConfigType = 'Slave'
 				elif Line.index ('='):
-#					print '::' + ConfigType + '::' + Line
-#					print Line.index ('=')
-#					print Line[0:Line.index ('='):]
-#					print Line[Line.index ('=') + 1:]
-					self.Server.Config[Line[0:Line.index ('='):]] = Line[Line.index ('=') + 1:]
+					if ConfigType == 'Master':
+						self.Server.Config[Line[0:Line.index ('='):]] = Line[Line.index ('=') + 1:]
 		FP.close ()

@@ -20,10 +20,10 @@ class Spring:
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('Spring::Start (' + Reason + ')')
-		#ScriptURI = str (self.Server.Config['TempPath']) + 'Script.txt'
+		ScriptURI = str (self.Server.Config['PathTemp']) + 'Script.txt'
 		#using a uniquely named tmp file here to avoid clashes from multiple spawns
-		Script = TmpFile(prefix='Script.txt_')
-		self.GenerateBattleScript (Script)
+		#Script = TmpFile(prefix='Script.txt_')
+		self.GenerateBattleScript (ScriptURI)
 		#reopening the file is not guaranteed to work on win
 		if self.Headless:
 			self.SpringPID = subprocess.Popen([self.Server.Config['PathSpringHeadless'], ScriptURI]) 
@@ -57,9 +57,10 @@ class Spring:
 		except:
 			return (False)
 
-	def GenerateBattleScript (self, FP):
-		self.Debug ('Spring::GenerateBattleScript::' + FP.name)
+	def GenerateBattleScript (self, File):
+		self.Debug ('Spring::GenerateBattleScript::' + str (File))
 		Battle = self.Lobby.Battles[self.Lobby.BattleID]
+		FP = open (File, 'w')
 		
 		self.Headless = 0
 		for User in Battle['Users']:
@@ -225,7 +226,7 @@ class Spring:
 		FP.write ('\t}\n')
 		FP.write ('}\n')
 		#since FP is a tempfile object closing it would delete it atm
-		#FP.close ()
+		FP.close ()
 
 
 class SpringUDP (threading.Thread): 

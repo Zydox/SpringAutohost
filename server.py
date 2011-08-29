@@ -1,26 +1,26 @@
 #!/usr/bin/env python
-# -*- coding: ISO-8859-1 -*-
-import loadCFG
+import handleCFG
 import debug
-import master, host
+import master
+import host
 import time,sys
 from daemon import Daemon
 import tasbot
 from tasbot.customlog import Log
 #
 #	Server
-#		Debug - Debug
-#		LoadCFG - LoadCFG
-#		Unitsync - Unitsync
-#		Master - Master
-#			Lobby - Lobby
-#				Ping - Lobby
-#		Hosts = Host {}
-#			Lobby - Lobby
-#				Ping - Lobby
-#			HostCmds - HostCmds
-#			Spring - Spring
-#				SpringUDP - Spring
+#		Debug - debug
+#		HandleCFG - handleCFG
+#		Unitsync - unitsync
+#		Master - master
+#			Lobby - lobby
+#				Ping - lobby
+#		Hosts = host {}
+#			Lobby - lobby
+#				Ping - lobby
+#			HostCmds - hostCmds
+#			Spring - spring
+#				SpringUDP - spring
 #			-UserRoles [User]
 #
 
@@ -30,12 +30,12 @@ class Server(Daemon):
 		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ("Initiate")
-		self.LoadCFG = loadCFG.LoadCFG (self)
+		self.HandleCFG = handleCFG.HandleCFG (self)
 		try:
 			self.Unitsync = __import__('pyunitsync')
 		except:
 			import unitsync
-			self.Unitsync = unitsync.Unitsync (self.Config['UnitsyncPath'])
+			self.Unitsync = unitsync.Unitsync (self.Config['PathUnitsync'])
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps ()
 		self.LoadMods ()

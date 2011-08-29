@@ -1,5 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
-import HostCmdsBattleLogic
+import hostCmdsBattleLogic
 
 class HostCmdsBattle:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
@@ -8,7 +8,7 @@ class HostCmdsBattle:
 		self.Debug ('HostCmdsBattle Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
-		self.Logic = HostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
+		self.Logic = hostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
 			'map':[['*'], 'Source', '!map <map name>', 'Changes the map to <map name>'],
 			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],

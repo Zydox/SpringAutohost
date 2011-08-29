@@ -10,7 +10,7 @@ class Master (threading.Thread):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Master Init')
-		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, ClassServer.Config['MainAccount'])
+		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, ClassServer.Config['Account'])
 	
 	
 	def run (self):

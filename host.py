@@ -15,7 +15,7 @@ class Host (threading.Thread):
 		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, HostAccount)
 		self.Group = Group
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
-		self.Spring = spring.Spring (ClassServer, self.Lobby)
+		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1
 		
 	

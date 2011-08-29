@@ -3,8 +3,6 @@ import threading
 import time
 import socket
 import hashlib, base64, binascii
-#import LobbyBS
-
 import random
 
 class Lobby (threading.Thread):
@@ -195,7 +193,7 @@ class Lobby (threading.Thread):
 				'Team':None,
 				'Ally':None,
 				'Side':None,
-				'Color':None,
+				'Color':'000000',
 				'Handicap':None,
 				'Synced':1,
 				'AI':0,
@@ -263,10 +261,7 @@ class Lobby (threading.Thread):
 			self.BattleUsers[Arg[0]]['Handicap'] = int (Arg[1][17]) * 64 + int (Arg[1][16]) * 32 + int (Arg[1][15]) * 16 + int (Arg[1][14]) * 8 + int (Arg[1][13]) * 4 + int (Arg[1][12]) * 2 + int (Arg[1][11])
 			self.BattleUsers[Arg[0]]['Synced'] = int (Arg[1][23]) * 2 + int (Arg[1][22])
 			self.BattleUsers[Arg[0]]['Side'] = int (Arg[1][27]) * 8 + int (Arg[1][26]) * 4 + int (Arg[1][25]) * 2 + int (Arg[1][24])
-			self.BattleUsers[Arg[0]]['Color'] = self.ToHexColor (Arg[2]),
-#			self.BattleUsers[Arg[0]]['Color'] = "%X" % int (Arg[2])
-#			while (len (self.BattleUsers[Arg[0]]['Color']) < 6):
-#				self.BattleUsers[Arg[0]]['Color'] = str (0) + self.BattleUsers[Arg[0]]['Color']
+			self.BattleUsers[Arg[0]]['Color'] = self.ToHexColor (Arg[2])
 		elif Command == 'JOIN':
 			self.Channels[Arg[0]] = {'Users':{}}
 		elif Command == 'CLIENTS':
@@ -291,10 +286,7 @@ class Lobby (threading.Thread):
 					'Synced':int (Arg[3][23]) * 2 + int (Arg[3][22]),
 					'Side':int (Arg[3][27]) * 8 + int (Arg[3][26]) * 4 + int (Arg[3][25]) * 2 + int (Arg[3][24]),
 					'Color':self.ToHexColor (Arg[4]),
-#					'Color':'%X' % int (Arg[4]),
 				}
-#				while (len (self.BattleUsers[Arg[1]]['Color']) < 6):
-#					self.BattleUsers[Arg[1]]['Color'] = str (0) + self.BattleUsers[Arg[1]]['Color']
 		elif Command == 'REMOVEBOT':
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])

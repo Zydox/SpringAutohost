@@ -57,25 +57,14 @@ class Spring:
 		except:
 			return (False)
 
-	
-<<<<<<< HEAD
-	def GenerateBattleScript (self, FilePath):
-		self.Debug ('Spring::GenerateBattleScript::' + str (FilePath))
+	def GenerateBattleScript (self, FP):
+		self.Debug ('Spring::GenerateBattleScript::' + FP.name)
 		Battle = self.Lobby.Battles[self.Lobby.BattleID]
 		
 		self.Headless = 0
 		for User in Battle['Users']:
 			if not User == self.Lobby.User and self.Lobby.BattleUsers[User]['AI'] and self.Lobby.BattleUsers[User]['AIOwner'] == self.Lobby.User:
 				self.Headless = 1
-		
-		FP = open (FilePath, 'w')
-=======
-	def GenerateBattleScript (self, FP):
-		self.Debug ('Spring::GenerateBattleScript::' + FP.name)
-		self.Headless = 1
-		
-		Battle = self.Lobby.Battles[self.Lobby.BattleID]
->>>>>>> origin/zydox
 		FP.write ('[GAME]\n')
 		FP.write ('{\n')
 		FP.write ('\tMapname=' + str (Battle['Map']) + ';\n')

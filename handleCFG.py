@@ -10,7 +10,7 @@ class HandleCFG:
 	
 	def LoadCFG (self):
 		self.Debug ("Load CFG")
-		self.Server.Config = {}
+		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
 		if len (sys.argv) < 2:
 			print 'Missing config file (python server.py <conf file1> <font file2> ...)'
 			sys.exit ()
@@ -19,32 +19,6 @@ class HandleCFG:
 			self.LoadFile (File)
 #		print self.Server.Config
 #		sys.exit ()
-		
-		self.Server.Groups = {
-			'BA_Tourney':{
-				'Mod':'Balanced Annihilation V7.19',
-				'Map':'Comet Catcher Redux',
-				'ChannelsReport':[['tourney'], ['cn']],
-				'Accounts':[
-					['TourneyBot1','machine', 8460],
-					['TourneyBot2','machine', 8461],
-					['TourneyBot3','machine', 8462],
-					['TourneyBot4','machine', 8463],
-					['TourneyBot5','machine', 8464],
-					['TourneyBot6','machine', 8465],
-					['TourneyBot7','machine', 8466],
-					['TourneyBot8','machine', 8467],
-				]
-			},
-			'teh':{
-				'Mod':'Balanced Annihilation V7.19',
-				'Map':'Comet Catcher Redux',
-				'ChannelsReport':[['teh'], ['cn']],
-				'Accounts':[
-					['TourneyBot','DoxiePooh', 8468],
-				]
-			},
-		}
 		
 		self.Server.AccessCommands = {
 			'code':['owner', 'admin'],
@@ -69,19 +43,37 @@ class HandleCFG:
 	
 	def LoadFile (self, File):
 		self.Debug ("Load file: " + File)
-		ConfigType = ''
+		Type = ''
+		UserID = 0
+		GroupID = 0
 		FP = open (File, "r")
 		for Line in FP:
 			Line = Line.strip ()
 			if Line and not Line[0] == '#':
-				if Line[0:8] == '[MASTER]':
-					ConfigType = 'Master'
-				elif Line[0:7] == '[SLAVE]':
-					ConfigType = 'Slave'
+				if Line[0:9] == '[GENERAL]':
+					Type = 'General'
+					GroupID = UserID = 0
+				elif Line[0:7] == '[GROUP=' and Line[-1] == ']':
+					Type = 'Group'
+					GroupID = int (Line[7:-1])
+					UserID = 0
+				elif Line[0:6] == '[USER=' and Line[-1] == ']':
+					Type = 'User'
+					UserID = int (Line[6:-1])
 				elif Line.index ('='):
-#					print '::' + ConfigType + '::' + Line
-#					print Line.index ('=')
-#					print Line[0:Line.index ('='):]
-#					print Line[Line.index ('=') + 1:]
-					self.Server.Config[Line[0:Line.index ('='):]] = Line[Line.index ('=') + 1:]
+					Var = Line[0:Line.index ('='):].strip ()
+					Value = Line[Line.index ('=') + 1:].strip ()
+					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
+					if Type == 'General':
+						self.Server.Config['General'][Var] = Value
+					elif Type == 'Group':
+						if not self.Server.Config['Groups'].has_key (GroupID):
+							self.Server.Config['Groups'][GroupID] = {}
+						self.Server.Config['Groups'][GroupID][Var] = Value
+					elif Type == 'User':
+						if not self.Server.Config['GroupUsers'].has_key (GroupID):
+							self.Server.Config['GroupUsers'][GroupID] = {}
+						if not self.Server.Config['GroupUsers'][GroupID].has_key (UserID):
+							self.Server.Config['GroupUsers'][GroupID][UserID] = {}
+						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value
 		FP.close ()

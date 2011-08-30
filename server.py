@@ -32,12 +32,12 @@ class Server:
 		self.HandleCFG = handleCFG.HandleCFG (self)
 		self.ClassDebug.SetFile ('/tmp/Debug.log')
 		
-		self.Unitsync = unitsync.Unitsync (self.Config['PathUnitsync'])
+		self.Unitsync = unitsync.Unitsync (self.Config['General']['PathUnitsync'])
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps ()
 		self.LoadMods ()
 		
-		self.Master = master.Master (self)
+#		self.Master = master.Master (self)
 		self.Hosts = {}
 		
 		self.Start ()
@@ -46,21 +46,35 @@ class Server:
 	def Start (self):
 		self.Debug ("Start server")
 #		self.Master.start ()
-		print (self.Groups['teh']['Accounts'][0])
-		self.SpawnHost ('teh', self.Groups['teh']['Accounts'][0])		#Debug testing
+#		self.SpawnHost (1, 1)
+		self.SpawnHost ()
 		
 	
-	def SpawnHost (self, Group, HostAccount):
-		self.Debug ("Spawn Host (" + str (Group) + "/" + str (HostAccount) + ")")
-		if (self.Groups.has_key (Group)):
-			if (self.Hosts.has_key (HostAccount[0])):
-				self.Hosts[HostAccount[0]].HostBattle (Group)
-			else:
-				self.Hosts[HostAccount[0]] = host.Host (self, Group, HostAccount)
-				self.Hosts[HostAccount[0]].start ()
+	def SpawnHost (self, Group = None, Account = None):
+		self.Debug ("Spawn Host (" + str (Group) + "/" + str (Account) + ")")
+		
+		if Group:
+			GroupRange = [Group]
 		else:
-			self.Debug ("ERROR::Group unknown" + str (Group))
-	
+			GroupRange = self.Config['Groups'].keys ()
+		
+		if Account:
+			AccountRange = [Account]
+		else:
+			AccountRange = []
+			for Group in GroupRange:
+				for Account in self.Config['GroupUsers'][Group].keys ():
+					AccountRange.append (Account)
+		
+		for Group in GroupRange:
+			if self.Config['Groups'].has_key (Group):
+				for Account in AccountRange:
+					if self.Config['GroupUsers'][Group].has_key (Account):
+						print self.Config['GroupUsers'][Group][Account]
+						self.Hosts[Account] = host.Host (self, self.Config['Groups'][Group], self.Config['GroupUsers'][Group][Account])
+						self.Hosts[Account].start ()
+						break
+		
 
 	def LoadMaps (self):
 		self.Debug ('Load maps')

@@ -20,12 +20,12 @@ class Spring:
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('Spring::Start (' + Reason + ')')
-		ScriptURI = str (self.Server.Config['PathTemp']) + 'Script.txt'
+		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
 		if self.Headless:
-			self.SpringPID = subprocess.Popen([self.Server.Config['PathSpringHeadless'], ScriptURI]) 
+			self.SpringPID = subprocess.Popen([self.Server.Config['General']['PathSpringHeadless'], ScriptURI]) 
 		else:
-			self.SpringPID = subprocess.Popen([self.Server.Config['PathSpringDedicated'], ScriptURI]) 
+			self.SpringPID = subprocess.Popen([self.Server.Config['General']['PathSpringDedicated'], ScriptURI]) 
 		
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()

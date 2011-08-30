@@ -7,13 +7,13 @@ import spring
 
 
 class Host (threading.Thread):
-	def __init__ (self, ClassServer, Group, HostAccount):
+	def __init__ (self, ClassServer, GroupConfig, AccountConfig):
 		threading.Thread.__init__ (self)
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
-		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, HostAccount)
-		self.Group = Group
+		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
+		self.GroupConfig = GroupConfig
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
 		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1
@@ -22,9 +22,9 @@ class Host (threading.Thread):
 	def run (self):
 		self.Debug ('Start host')
 		self.Lobby.start ()
-		if len (self.Server.Groups[self.Group]['ChannelsReport']) > 0:
-			for Channel in self.Server.Groups[self.Group]['ChannelsReport']:
-				self.Lobby.ChannelJoin (Channel[0])
+		if len (self.GroupConfig['LobbyChannels']) > 0:
+			for Channel in self.GroupConfig['LobbyChannels'].split (','):
+				self.Lobby.ChannelJoin (Channel)
 		
 		self.HostBattle ()
 	
@@ -191,8 +191,8 @@ class Host (threading.Thread):
 	
 	def HostBattle (self):
 		self.Debug ("Host battle")
-		Mod = self.Server.Groups[self.Group]['Mod']
-		Map = self.Server.Groups[self.Group]['Map']
+		Mod = self.GroupConfig['Mod']
+		Map = self.GroupConfig['Map']
 		self.Lobby.BattleOpen (Mod, Map, 'Test', 16)
 	
 

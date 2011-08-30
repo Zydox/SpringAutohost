@@ -44,22 +44,26 @@ class HandleCFG:
 	def LoadFile (self, File):
 		self.Debug ("Load file: " + File)
 		Type = ''
-		UserID = 0
-		GroupID = 0
+		UserID = ''
+		GroupID = ''
 		FP = open (File, "r")
 		for Line in FP:
 			Line = Line.strip ()
 			if Line and not Line[0] == '#':
 				if Line[0:9] == '[GENERAL]':
 					Type = 'General'
-					GroupID = UserID = 0
+					GroupID = UserID = ''
 				elif Line[0:7] == '[GROUP=' and Line[-1] == ']':
 					Type = 'Group'
-					GroupID = int (Line[7:-1])
-					UserID = 0
+					GroupID = Line[7:-1].strip ()
+					UserID = ''
 				elif Line[0:6] == '[USER=' and Line[-1] == ']':
 					Type = 'User'
-					UserID = int (Line[6:-1])
+					UserID = Line[6:-1].strip ()
+					if not self.Server.Config['GroupUsers'].has_key (GroupID):
+						self.Server.Config['GroupUsers'][GroupID] = {}
+					if not self.Server.Config['GroupUsers'][GroupID].has_key (UserID):
+						self.Server.Config['GroupUsers'][GroupID][UserID] = {'Account':UserID}
 				elif Line.index ('='):
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ()
@@ -71,9 +75,5 @@ class HandleCFG:
 							self.Server.Config['Groups'][GroupID] = {}
 						self.Server.Config['Groups'][GroupID][Var] = Value
 					elif Type == 'User':
-						if not self.Server.Config['GroupUsers'].has_key (GroupID):
-							self.Server.Config['GroupUsers'][GroupID] = {}
-						if not self.Server.Config['GroupUsers'][GroupID].has_key (UserID):
-							self.Server.Config['GroupUsers'][GroupID][UserID] = {}
 						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value
 		FP.close ()

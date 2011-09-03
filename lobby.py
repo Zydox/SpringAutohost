@@ -307,8 +307,8 @@ class Lobby (threading.Thread):
 		self.Send ("LOGIN " + str (self.User) + " " + str (base64.b64encode (binascii.a2b_hex (hashlib.md5 (self.Passwd).hexdigest ()))) + " 0 " + str (self.IP) + " DoxBot\t\ta b sp", 1)
 		
 	
-	def BattleOpen (self, Mod, Map, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
-		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (self.Server.Mods[Mod]['Hash']) + ' ' + str (MinRank) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
+	def BattleOpen (self, Mod, ModHash, Map, MapHash, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
+		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (ModHash) + ' ' + str (MinRank) + ' ' + str (MapHash) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
 	
 	
 	def BattleMap (self, Map):
@@ -344,6 +344,10 @@ class Lobby (threading.Thread):
 	
 	def BattleKick (self, User):
 		self.Send ('KICKFROMBATTLE ' + str (User))
+	
+	
+	def BattleAddAI (self, Command):
+		self.Send (Command)
 	
 	
 	def BattleKickAI (self, AI):

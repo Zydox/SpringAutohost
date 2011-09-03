@@ -47,7 +47,7 @@ class Server:
 		self.Debug ("Start server")
 #		self.Master.start ()
 #		self.SpawnHost (1, 1)
-		self.SpawnHost ('BA', 'TourneyBot')
+		self.SpawnHost ('BACD', 'TourneyBot')
 		
 	
 	def SpawnHost (self, Group = None, Account = None):

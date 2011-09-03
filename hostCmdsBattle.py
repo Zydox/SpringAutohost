@@ -21,10 +21,11 @@ class HostCmdsBattle:
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
-			'addbot':[['I', 'I', 'V', 'V', 'V6'], 'Source', '!addbot 1 1 E323AI CORE FFFFFF', 'Add a bot to the battle (Team, Ally, Bot, Side, Hex RGB Color)'],
+			'addbot':[['I', 'I', 'V', 'V6', '*'], 'Source', '!addbot 1 1 CORE FFFFFF E323AI', 'Add a bot to the battle (Team, Ally, Side, Hex RGB Color, Bot)'],
 			'spec':[['V'], 'Source', '!spec <User>', 'Spectates the specified user'],
 			'fixid':[[], 'Source', '!fixid', 'Fix the player IDs'],
 			'balance':[[], 'Battle', '!balance', 'Balances the battle users based on rank'],
+			'openbattle':[[], 'Source', '!openbattle', 'Opens a battle'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -88,3 +89,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicFixID ())
 		elif Command == 'balance':
 			return (self.Logic.LogicBalance ())
+		elif Command == 'openbattle':
+			return (self.Logic.LogicOpenBattle ())

@@ -26,8 +26,10 @@ class Host (threading.Thread):
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
 		
-		self.HostBattle ()
-	
+		if len (self.GroupConfig['Startup']) > 0:
+			for Command in self.GroupConfig['Startup']:
+				self.HandleInput ('INTERNAL', '!' + Command)
+		
 	
 	def HandleEvent (self, Event, Data):
 #		self.Debug ('HandleEvent::' + str (Event) + '::' + str (Data))
@@ -35,30 +37,38 @@ class Host (threading.Thread):
 			self.SetAccessRoles (Data[0])
 		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
 			self.SetAccessRoles (Data[1])
+		elif Event == 'OPENBATTLE':
+			if len (self.GroupConfig['BattleOpened']) > 0:
+				for Command in self.GroupConfig['BattleOpened']:
+					self.HandleInput ('INTERNAL', '!' + Command)
 		
 	
 	def HandleInput (self, Source, Data):
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Data))
 		
 		Input = {'Raw':Source + ' ' + ' '.join (Data), 'Reference':None}
-		if (Source == 'SAIDPRIVATE'):
+		if Source == 'SAIDPRIVATE':
 			Input['Source'] = 'PM'
 			Input['Return'] = 'PM'
 			Input['User'] = Data[0]
 			Input['Reference'] = Data[0]
 			Input['Input'] = Data[1]
-		elif (Source == 'SAIDBATTLE'):
+		elif Source == 'SAIDBATTLE':
 			Input['Source'] = 'Battle'
 			Input['Return'] = 'BattleMe'
 			Input['User'] = Data[0]
 			Input['Reference'] = Data[0]
 			Input['Input'] = Data[1]
-			
 			if self.Lobby.BattleID and self.Lobby.Battles[self.Lobby.BattleID]['PassthoughBattleLobbyToSpring']:
 				self.Spring.SpringTalk ('<' + Input['User'] + '> ' + Input['Input'])
-
+		elif Source == 'INTERNAL':
+			Input['Source'] = 'Battle'
+			Input['Return'] = 'BattleMe'
+			Input['User'] = ''
+			Input['Reference'] = ''
+			Input['Input'] = Data
 		
-		if (len (Input) > 2):
+		if len (Input) > 2:
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':
 				Input['Command'] = self.Lobby.ReturnValue (Input['Input'], ' ')[1:]
 				Input['RawData'] = Input['Input'][len (Input['Command']) + 2:]
@@ -73,7 +83,7 @@ class Host (threading.Thread):
 							Input['Return'] = Input['Source']
 						else:
 							Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
-						if (Field == '*' or (Field == 'O*' and len (Data) > 0)):
+						if Field == '*' or (Field == 'O*' and len (Data) > 0):
 							NewArg = Data
 							if Field == '*' and len (NewArg) < 1:
 								Failed = 'Missing data'
@@ -189,12 +199,5 @@ class Host (threading.Thread):
 			print (self.UserRoles)
 	
 	
-	def HostBattle (self):
-		self.Debug ("Host battle")
-		Mod = self.GroupConfig['Mod']
-		Map = self.GroupConfig['Map']
-		self.Lobby.BattleOpen (Mod, Map, 'Test', 16)
-	
-
-	def Debug (self, Message):
-		print (Message)
+#	def Debug (self, Message):
+#		print (Message)

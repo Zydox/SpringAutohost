@@ -10,8 +10,21 @@ class HostCmdsBattleLogic:
 		
 	
 	def Refresh (self):
-		self.Battle = self.Host.Lobby.Battles[self.Host.Lobby.BattleID]
-		self.BattleUsers = self.Host.Lobby.BattleUsers
+		if self.Host.Lobby.BattleID:
+			self.Battle = self.Host.Lobby.Battles[self.Host.Lobby.BattleID]
+			self.BattleUsers = self.Host.Lobby.BattleUsers
+	
+	
+	def LogicOpenBattle (self):
+		if not self.Server.Mods.has_key (self.Host.GroupConfig['Mod']):
+			return ('Mod doesn\'t exist')
+		if not self.Server.Maps.has_key (self.Host.GroupConfig['Map']):
+			return ('Map doesn\'t exist')
+		Mod = self.Host.GroupConfig['Mod']
+		Map = self.Host.GroupConfig['Map']
+		ModHash = self.Server.Mods[Mod]['Hash']
+		MapHash = self.Server.Maps[Map]['Hash']
+		self.Lobby.BattleOpen (Mod, ModHash, Map, MapHash, 'Test', 16)
 	
 	
 	def LogicRing (self, User =''):
@@ -26,7 +39,9 @@ class HostCmdsBattleLogic:
 			return ('Ringing all unready users')
 	
 	
-	def LogicAddBot (self, Team, Ally, Bot, Side, Color):
+	def LogicAddBot (self, Team, Ally, Side, Color, Bot):
+		if not self.Host.Lobby.BattleID:
+			return ('No battle open')
 		self.Refresh ()
 		Version = 0
 		AI_ID = 0
@@ -34,16 +49,18 @@ class HostCmdsBattleLogic:
 			if self.Server.Mods[self.Battle['Mod']]['AI'][AI]['shortName'] == Bot:
 				if not self.Server.Mods[self.Battle['Mod']]['AI'][AI].has_key ('version') or Version < self.Server.Mods[self.Battle['Mod']]['AI'][AI]['version']:
 					if self.Server.Mods[self.Battle['Mod']]['AI'][AI].has_key ('version'):
-						Version = float (self.Server.Mods[self.Battle['Mod']]['AI'][AI]['version'])
+						print self.Server.Mods[self.Battle['Mod']]['AI'][AI]
+						try:
+							Version = float (self.Server.Mods[self.Battle['Mod']]['AI'][AI]['version'])
+						except:
+							Version = None
 						Name = self.Server.Mods[self.Battle['Mod']]['AI'][AI]['name']
 						if Version:
 							Name = Name + ' (v. ' + str (Version) + ')'
 						AI_ID = AI
 		if AI_ID:
 			AI_Data = self.Server.Mods[self.Battle['Mod']]['AI'][AI_ID]
-			self.Lobby.Send ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
-			#ADDBOT 730 Bot [CN]Zydox 68 200 E323AI
-			#ADDBOT BATTLE_ID name owner battlestatus teamcolor {AIDLL}
+			self.Lobby.BattleAddAI ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
 			return (Name)
 		return ('No AI found with that name')
 	

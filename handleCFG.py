@@ -24,6 +24,7 @@ class HandleCFG:
 			'code':['owner', 'admin'],
 			'udp':['owner'],
 			'start':['owner', 'admin', '%BattlePlayer%'],
+			'stop':['owner', 'admin'],
 			'kick':['owner', 'admin', 'operator'],
 			'ring':['admin', 'operator', '%BattlePlayer%', '%GamePlayer%'],
 			'forcestart':['owner', 'admin'],
@@ -57,6 +58,8 @@ class HandleCFG:
 					Type = 'Group'
 					GroupID = Line[7:-1].strip ()
 					UserID = ''
+					if not self.Server.Config['Groups'].has_key (GroupID):
+						self.Server.Config['Groups'][GroupID] = {}
 				elif Line[0:6] == '[USER=' and Line[-1] == ']':
 					Type = 'User'
 					UserID = Line[6:-1].strip ()
@@ -64,6 +67,14 @@ class HandleCFG:
 						self.Server.Config['GroupUsers'][GroupID] = {}
 					if not self.Server.Config['GroupUsers'][GroupID].has_key (UserID):
 						self.Server.Config['GroupUsers'][GroupID][UserID] = {'Account':UserID}
+				elif Line[0:9] == '[STARTUP=' and Line[-1] == ']':
+					if not self.Server.Config['Groups'][GroupID].has_key ('Startup'):
+						self.Server.Config['Groups'][GroupID]['Startup'] = []
+					self.Server.Config['Groups'][GroupID]['Startup'].append (Line[9:-1].strip ())
+				elif Line[0:14] == '[BATTLEOPENED=' and Line[-1] == ']':
+					if not self.Server.Config['Groups'][GroupID].has_key ('BattleOpened'):
+						self.Server.Config['Groups'][GroupID]['BattleOpened'] = []
+					self.Server.Config['Groups'][GroupID]['BattleOpened'].append (Line[14:-1].strip ())
 				elif Line.index ('='):
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ()
@@ -71,8 +82,6 @@ class HandleCFG:
 					if Type == 'General':
 						self.Server.Config['General'][Var] = Value
 					elif Type == 'Group':
-						if not self.Server.Config['Groups'].has_key (GroupID):
-							self.Server.Config['Groups'][GroupID] = {}
 						self.Server.Config['Groups'][GroupID][Var] = Value
 					elif Type == 'User':
 						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value

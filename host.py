@@ -38,7 +38,7 @@ class Host (threading.Thread):
 		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
 			self.SetAccessRoles (Data[1])
 		elif Event == 'OPENBATTLE':
-			if len (self.GroupConfig['BattleOpened']) > 0:
+			if self.GroupConfig.has_key ('BattleOpened') and len (self.GroupConfig['BattleOpened']) > 0:
 				for Command in self.GroupConfig['BattleOpened']:
 					self.HandleInput ('INTERNAL', '!' + Command)
 		

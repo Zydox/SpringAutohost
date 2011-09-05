@@ -67,14 +67,13 @@ class HandleCFG:
 						self.Server.Config['GroupUsers'][GroupID] = {}
 					if not self.Server.Config['GroupUsers'][GroupID].has_key (UserID):
 						self.Server.Config['GroupUsers'][GroupID][UserID] = {'Account':UserID}
-				elif Line[0:9] == '[STARTUP=' and Line[-1] == ']':
-					if not self.Server.Config['Groups'][GroupID].has_key ('Startup'):
-						self.Server.Config['Groups'][GroupID]['Startup'] = []
-					self.Server.Config['Groups'][GroupID]['Startup'].append (Line[9:-1].strip ())
-				elif Line[0:14] == '[BATTLEOPENED=' and Line[-1] == ']':
-					if not self.Server.Config['Groups'][GroupID].has_key ('BattleOpened'):
-						self.Server.Config['Groups'][GroupID]['BattleOpened'] = []
-					self.Server.Config['Groups'][GroupID]['BattleOpened'].append (Line[14:-1].strip ())
+				elif Line[0:7] == '[EVENT_' and Line[-1] == ']':
+					Event = Line[7:Line.index ('=')]
+					if not self.Server.Config['Groups'][GroupID].has_key ('Events'):
+						self.Server.Config['Groups'][GroupID]['Events'] = {}
+					if not self.Server.Config['Groups'][GroupID]['Events'].has_key (Event):
+						self.Server.Config['Groups'][GroupID]['Events'][Event] = []
+					self.Server.Config['Groups'][GroupID]['Events'][Event].append (Line[Line.index ('=') + 1:-1])
 				elif Line.index ('='):
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ()

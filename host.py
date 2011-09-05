@@ -25,11 +25,7 @@ class Host (threading.Thread):
 		if len (self.GroupConfig['LobbyChannels']) > 0:
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
-		
-		if len (self.GroupConfig['Startup']) > 0:
-			for Command in self.GroupConfig['Startup']:
-				self.HandleInput ('INTERNAL', '!' + Command)
-		
+	
 	
 	def HandleEvent (self, Event, Data):
 #		self.Debug ('HandleEvent::' + str (Event) + '::' + str (Data))
@@ -37,11 +33,11 @@ class Host (threading.Thread):
 			self.SetAccessRoles (Data[0])
 		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
 			self.SetAccessRoles (Data[1])
-		elif Event == 'OPENBATTLE':
-			if self.GroupConfig.has_key ('BattleOpened') and len (self.GroupConfig['BattleOpened']) > 0:
-				for Command in self.GroupConfig['BattleOpened']:
-					self.HandleInput ('INTERNAL', '!' + Command)
 		
+		if self.GroupConfig.has_key ('Events') and self.GroupConfig['Events'].has_key (Event):
+			for Command in self.GroupConfig['Events'][Event]:
+				self.HandleInput ('INTERNAL', '!' + Command)
+	
 	
 	def HandleInput (self, Source, Data):
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Data))

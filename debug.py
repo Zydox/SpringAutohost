@@ -18,7 +18,7 @@ class Debug:
 		if not info == 'SEND::PING':
 			if self.LogFile:
 				file = open (self.LogFile, 'a')
- 				file.write (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + filename + '\t' + function + '\t' + info + '\n')
+ 				file.write (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + filename + '\t' + function + '\t' + info + '\n')
  				file.close ()
 			else:
 				print (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + filename + '\t' + function + '\t' + info)

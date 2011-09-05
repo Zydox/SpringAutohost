@@ -1,5 +1,5 @@
-# -*- coding: ISO-8859-1 -*-
 #!/usr/bin/env python
+# -*- coding: ISO-8859-1 -*-
 import handleCFG
 import debug
 import master
@@ -45,10 +45,9 @@ class Server:
 	
 	def Start (self):
 		self.Debug ("Start server")
-#		self.Master.start ()
 #		self.SpawnHost (1, 1)
 		self.SpawnHost ('BACD', 'TourneyBot')
-		
+	
 	
 	def SpawnHost (self, Group = None, Account = None):
 		self.Debug ("Spawn Host (" + str (Group) + "/" + str (Account) + ")")
@@ -81,6 +80,7 @@ class Server:
 		self.Maps = {}
 		for iMap in range (0, self.Unitsync.GetMapCount ()):
 			Map = self.Unitsync.GetMapName (iMap)
+			self.Debug ('Load maps::' + str (Map))
 			self.Maps[Map] = {'Hash':self.SignInt (self.Unitsync.GetMapChecksum (iMap))}
 			if self.Unitsync.GetMapOptionCount (Map):
 				self.Maps[Map]['Options'] = {}
@@ -97,6 +97,7 @@ class Server:
 			self.Unitsync.Init (True, 1)
 			self.Unitsync.AddAllArchives (self.Unitsync.GetPrimaryModArchive (iMod))
 			Mod = self.Unitsync.GetPrimaryModName (iMod)
+			self.Debug ('Load mods::' + str (Mod))
 			self.Mods[Mod] = {
 				'Hash':self.SignInt (self.Unitsync.GetPrimaryModChecksum (iMod)),
 				'Title':self.Unitsync.GetPrimaryModName (iMod),

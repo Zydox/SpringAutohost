@@ -16,7 +16,7 @@ class Lobby (threading.Thread):
 		self.User = LoginInfo['Account']
 		self.Passwd = LoginInfo['Password']
 		self.BattlePort = LoginInfo['Port']
-		self.IP = '192.168.200.210'
+		self.IP = [IP for IP in socket.gethostbyname_ex (socket.gethostname ())[2] if not IP.startswith ("127.")][0]
 		self.Host = ClassServer.Config['General']['LobbyHost']
 		self.Port = ClassServer.Config['General']['LobbyPort']
 		self.Ping = LobbyPing (self, ClassServer.Debug)

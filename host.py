@@ -193,7 +193,3 @@ class Host (threading.Thread):
 			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
 			print (self.UserRoles[User])
 			print (self.UserRoles)
-	
-	
-#	def Debug (self, Message):
-#		print (Message)

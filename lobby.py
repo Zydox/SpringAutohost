@@ -16,7 +16,7 @@ class Lobby (threading.Thread):
 		self.User = LoginInfo['Account']
 		self.Passwd = LoginInfo['Password']
 		self.BattlePort = LoginInfo['Port']
-		self.IP = [IP for IP in socket.gethostbyname_ex (socket.gethostname ())[2] if not IP.startswith ("127.")][0]
+		self.IP = None
 		self.Host = ClassServer.Config['General']['LobbyHost']
 		self.Port = ClassServer.Config['General']['LobbyPort']
 		self.Ping = LobbyPing (self, ClassServer.Debug)
@@ -395,6 +395,7 @@ class Lobby (threading.Thread):
 		self.Debug ('Lobby connect')
 		self.Socket.connect ((str (self.Host), int (self.Port)))
 		self.Active = 1
+		self.SetIP ()
 	
 	
 	def SetLoggedIn (self):
@@ -435,6 +436,18 @@ class Lobby (threading.Thread):
 		Ignore = 1
 #		self.Debug ('SMURF_DATA::' + User + '::' + IP)
 	
+
+	def SetIP (self):
+		self.Debug ('Init')
+		try:
+			self.IP = self.Socket.getsockname ()[0]
+		except:
+			try:
+				self.IP = [IP for IP in socket.gethostbyname_ex (socket.gethostname ())[2] if not IP.startswith ("127.")][0]
+			except:
+				self.IP = '127.0.0.1'	#fallback
+		self.Debug ('IP:' + str (self.IP))
+
 
 class LobbyPing (threading.Thread):
 	def __init__ (self, ClassLobby, FunctionDebug):

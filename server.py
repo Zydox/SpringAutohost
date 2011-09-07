@@ -37,7 +37,6 @@ class Server:
 		self.LoadMaps ()
 		self.LoadMods ()
 		
-#		self.Master = master.Master (self)
 		self.Hosts = {}
 		
 		self.Start ()
@@ -94,7 +93,7 @@ class Server:
 		self.Debug ('Load mods')
 		self.Mods = {}
 		for iMod in range (0, self.Unitsync.GetPrimaryModCount ()):
-			self.Unitsync.Init (True, 1)
+			self.Unitsync.RemoveAllArchives ()
 			self.Unitsync.AddAllArchives (self.Unitsync.GetPrimaryModArchive (iMod))
 			Mod = self.Unitsync.GetPrimaryModName (iMod)
 			self.Debug ('Load mods::' + str (Mod))

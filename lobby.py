@@ -19,7 +19,7 @@ class Lobby (threading.Thread):
 		self.IP = None
 		self.Host = ClassServer.Config['General']['LobbyHost']
 		self.Port = ClassServer.Config['General']['LobbyPort']
-		self.Ping = LobbyPing (self, ClassServer.Debug)
+		self.Ping = LobbyPing (self, self.Ping, ClassServer.Debug)
 		self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.Active = 0
 		self.LoggedIn = 0
@@ -70,10 +70,10 @@ class Lobby (threading.Thread):
 		self.Debug ('Lobby start')
 		self.Connect ()
 		RawData = ''
-		while (self.Active):
+		while self.Active:
 			Info = {"Time":int (time.time ()), "Loops":0}
 			Data = ""
-			while (self.Active):
+			while self.Active:
 				Data = self.Socket.recv (1)
 				if (Data):
 					RawData = RawData + Data
@@ -127,7 +127,6 @@ class Lobby (threading.Thread):
 		if (Command == "TASServer"):
 			self.Login ()
 		elif (Command == "ACCEPTED"):
-			self.Ping.start ()
 			self.SetLoggedIn ()
 		elif (Command == 'LOGININFOEND' or Command == 'PONG' or Command == 'MOTD'):
 			pass
@@ -382,6 +381,11 @@ class Lobby (threading.Thread):
 		self.Send ('UPDATEBOT ' + str (AI) + ' ' + str (BattleStatus) + ' ' + str (Color))
 	
 	
+	def Ping (self):
+		self.Debug ()
+		self.Send ('PING')
+	
+	
 	def Send (self, Command, Force = 0):
 		if (self.LoggedIn or Force == 1):
 			self.Debug ("SEND::" + str (Command))
@@ -405,6 +409,7 @@ class Lobby (threading.Thread):
 			for Command in self.LoggedInQueue:
 				self.Send (Command)
 			self.LoggedInQueue = []
+		self.Ping.start ()
 	
 	
 	def dec2bin (self, value, numdigits):
@@ -436,7 +441,7 @@ class Lobby (threading.Thread):
 		Ignore = 1
 #		self.Debug ('SMURF_DATA::' + User + '::' + IP)
 	
-
+	
 	def SetIP (self):
 		self.Debug ('Init')
 		try:
@@ -447,19 +452,27 @@ class Lobby (threading.Thread):
 			except:
 				self.IP = '127.0.0.1'	#fallback
 		self.Debug ('IP:' + str (self.IP))
+	
+	
+	def Terminate (self):
+		self.Debug ()
+		self.Active = 0
 
 
 class LobbyPing (threading.Thread):
-	def __init__ (self, ClassLobby, FunctionDebug):
+	def __init__ (self, ClassLobby, FunctionPing, FunctionDebug):
 		threading.Thread.__init__ (self)
 		self.Lobby = ClassLobby
+		self.Ping = FunctionPing
 		self.Debug = FunctionDebug
-		self.Active = 1
+		self.SleepCounter = 0
 	
 	
 	def run (self):
 		self.Debug ('Lobby Ping start')
-		while (self.Active):
-#			self.Debug ('Lobby PING')
-			self.Lobby.Send ("PING")
-			time.sleep (25)
+		while self.Lobby.Active:
+			time.sleep (1)
+			self.SleepCounter = self.SleepCounter + 1
+			if self.SleepCounter == 25:
+				self.SleepCounter = 0
+				self.Ping ()

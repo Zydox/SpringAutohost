@@ -119,7 +119,7 @@ class Host (threading.Thread):
 					elif len (Data) > 0:
 						Input['Message'] = 'TO MUCH DATA/BAD DATA'
 					else:
-						Input = self.HandleAccess (Input)
+						Input = self.HandleAccess (Input, Source)
 				else:
 					Input['Message'] = ['UNKNOWN COMMAND ("' + str (Input['Command']) + '")', 'Use !help to list the available commands']
 					Input['Return'] = 'PM'
@@ -130,9 +130,11 @@ class Host (threading.Thread):
 			print (Input)
 	
 	
-	def HandleAccess (self, Input):
+	def HandleAccess (self, Input, Source = ''):
 		OK = 0
-		if self.Server.AccessCommands.has_key (Input['Command']):
+		if Source == 'INTERNAL':
+			OK = 1
+		elif self.Server.AccessCommands.has_key (Input['Command']):
 			if self.UserRoles.has_key (Input['User']):
 				for Role in self.Server.AccessCommands[Input['Command']]:
 					if self.UserRoles[Input['User']].has_key (Role):
@@ -193,3 +195,10 @@ class Host (threading.Thread):
 			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
 			print (self.UserRoles[User])
 			print (self.UserRoles)
+	
+	
+	def Terminate (self):
+		self.Debug ()
+		print '::::TERMINATE'
+		self.Spring.Terminate ()
+		self.Lobby.Terminate ()

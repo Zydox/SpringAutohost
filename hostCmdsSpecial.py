@@ -12,6 +12,7 @@ class HostCmdsSpecial:
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
 			'code':[[], 'Source', '!code', 'Displays the bots code files, bytes and last modified'],
 			'help':[[], 'PM', '!help', 'Displays help'],
+			'terminate':[[], 'Source', '!terminate', 'Shuts down the bot'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -43,7 +44,9 @@ class HostCmdsSpecial:
 			for Command in self.HostCmds.Commands:
 				Return.append (self.HostCmds.Commands[Command][2] + '   ' + self.HostCmds.Commands[Command][3])
 			return (Return)
-			
+		elif Command =='terminate':
+			self.Host.Terminate ()
+	
 	
 	def StringPad (self, String, Length, Char = '0'):
 		while len (String) < Length:

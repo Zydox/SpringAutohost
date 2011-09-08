@@ -224,6 +224,11 @@ class Spring:
 		FP.write ('\t}\n')
 		FP.write ('}\n')
 		FP.close ()
+	
+	
+	def Terminate (self):
+		self.Debug ()
+		self.SpringStop ('Terminate')
 
 
 class SpringUDP (threading.Thread): 

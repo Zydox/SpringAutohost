@@ -381,7 +381,6 @@ class Lobby (threading.Thread):
 	
 	
 	def Ping (self):
-		self.Debug ()
 		self.Send ('PING')
 	
 	

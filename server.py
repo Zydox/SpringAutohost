@@ -2,7 +2,6 @@
 # -*- coding: ISO-8859-1 -*-
 import handleCFG
 import debug
-import master
 import host
 import time
 import unitsync
@@ -12,9 +11,6 @@ import unitsync
 #		Debug - debug
 #		HandleCFG - handleCFG
 #		Unitsync - unitsync
-#		Master - master
-#			Lobby - lobby
-#				Ping - lobby
 #		Hosts = host {}
 #			Lobby - lobby
 #				Ping - lobby
@@ -44,7 +40,7 @@ class Server:
 	
 	def Start (self):
 		self.Debug ("Start server")
-#		self.SpawnHost (1, 1)
+#		self.SpawnHost ('BA', 'TourneyBot')
 		self.SpawnHost ('BACD', 'TourneyBot')
 	
 	

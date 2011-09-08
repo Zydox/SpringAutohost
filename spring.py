@@ -35,7 +35,6 @@ class Spring:
 	
 	
 	def SpringStop (self, Reason = 'UNKNOWN', Message = ''):
-		#UDP_SERVER_QUIT
 		self.Debug ('Spring::Stop (' + Reason + '::' + Message + ')')
 		try:
 			self.SpringUDP.Terminate (Message)
@@ -115,11 +114,8 @@ class Spring:
 			FP.write ('\t[PLAYER' + str (iP) + ']\n')
 			FP.write ('\t{\n')
 			FP.write ('\t\tName=' + str (self.Lobby.User) + ';\n')
-#			FP.write ('\t\tcountryCode=' + str (self.Lobby.Users[User]['Country']) + ';\n')
-#			FP.write ('\t\tRank=' + str (self.Lobby.Users[User]['Rank']) + ';\n')
 			FP.write ('\t\tPassword=2DD5A5ED;\n')
 			FP.write ('\t\tSpectator=1;\n')
-#			FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 			FP.write ('\t}\n')
 			iP = iP + 1
 		
@@ -134,10 +130,7 @@ class Spring:
 					FP.write ('\t[AI' + str (iAI) + ']\n')
 					FP.write ('\t{\n')
 					FP.write ('\t\tName=' + str (User) + ';\n')
-#					FP.write ('\t\tcountryCode=' + str (self.Lobby.Users[User]['Country']) + ';\n')
 					FP.write ('\t\tShortName=' + str (self.Lobby.BattleUsers[User]['AIDLL']) + ';\n')
-#					FP.write ('\t\tPassword=' + str (self.Lobby.BattleUsers[User]['Password']) + ';\n')
-#					FP.write ('\t\tSpectator=' + str (self.Lobby.BattleUsers[User]['Spectator']) + ';\n')
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t\tHost=0;\n')
 					FP.write ('\t}\n')
@@ -154,21 +147,11 @@ class Spring:
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t}\n')
 					iP = iP + 1
-#				print (User + '\t' + str (self.Lobby.BattleUsers[User]))
-#				if not Teams.has_key (self.Lobby.BattleUsers[User]['Team']) and self.Lobby.BattleUsers[User]['Spectator'] == 0:
-#					Teams[self.Lobby.BattleUsers[User]['Team']] = {
-#						'Leader':iP,
-#						'Ally':self.Lobby.BattleUsers[User]['Ally'],
-#						'Color':self.Lobby.BattleUsers[User]['Color'],
-#						'Side':self.Lobby.BattleUsers[User]['Side'],
-#						'Handicap':self.Lobby.BattleUsers[User]['Handicap'],
-#					}
-
-		print (AIs)
-		print (Teams)
-		print (Allys)
 		
-#		iT = 0
+#		print (AIs)
+#		print (Teams)
+#		print (Allys)
+		
 		FP.write ('\tNumTeams=' + str (len (Teams)) + ';\n')
 		
 		for User in Battle['Users']:
@@ -176,13 +159,11 @@ class Spring:
 				if not Allys.has_key (self.Lobby.BattleUsers[User]['Ally']):
 					Allys[self.Lobby.BattleUsers[User]['Ally']] = iA
 					iA = iA + 1
-#				Color = str (round (int (self.Lobby.BattleUsers[User]['Color'][4:6], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][2:4], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][0:2], 16) / 255.0, 5))
-
+				
 				FP.write ('\t[TEAM' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ']\n')
 				FP.write ('\t{\n')
 				if self.Lobby.BattleUsers[User]['AI']:
 					FP.write ('\t\tTeamLeader=0;\n')
-#					FP.write ('\t\tTeamLeader=' + str (AIs[User]) + ';\n')
 				else:
 					FP.write ('\t\tTeamLeader=' + str (Players[User]) + ';\n')
 				FP.write ('\t\tAllyTeam=' + str (Allys[self.Lobby.BattleUsers[User]['Ally']]) + ';\n')
@@ -190,37 +171,17 @@ class Spring:
 				FP.write ('\t\tSide=' + str (self.Server.Mods[Battle['Mod']]['Sides'][self.Lobby.BattleUsers[User]['Side']]) + ';\n')
 				FP.write ('\t\tHandicap=' + str (self.Lobby.BattleUsers[User]['Handicap']) + ';\n')
 				FP.write ('\t}\n')
-				
-
-#		for Team in Teams:
-#			if not Allys.has_key (Teams[Team]['Ally']):
-#				Allys[Teams[Team]['Ally']] = iA
-#				iA = iA + 1
-#			FP.write ('\t[TEAM' + str (iT) + ']\n')
-#			FP.write ('\t{\n')
-#			FP.write ('\t\tTeamLeader=' + str (Teams[Team]['Leader']) + ';\n')
-#			FP.write ('\t\tAllyTeam=' + str (Allys[Teams[Team]['Ally']]) + ';\n')
-#			FP.write ('\t\tRgbColor=' + str (Teams[Team]['Color']) + ';\n')
-#			FP.write ('\t\tSide=' + str (Teams[Team]['Side']) + ';\n')
-#			FP.write ('\t\tHandicap=' + str (Teams[Team]['Handicap']) + ';\n')
-#			FP.write ('\t}\n')
-#			iT = iT + 1
-
-#		iA = 0
+		
 		FP.write ('\tNumAllyTeams=' + str (len (Allys)) + ';\n')
 		for Ally in Allys:
 			FP.write ('\t[ALLYTEAM' + str (Allys[Ally]) + ']\n')
 			FP.write ('\t{\n')
 			FP.write ('\t\tNumAllies=0;\n')
 			FP.write ('\t}\n')
-#			iA = iA + 1
-
+		
 		FP.write ('\tNumRestrictions=0;\n')
 		FP.write ('\t[MAPOPTIONS]\n')
 		FP.write ('\t{\n')
-#		alt=1;
-#		fog=0;
-#		wc=0;
 		FP.write ('\t}\n')
 		FP.write ('}\n')
 		FP.close ()

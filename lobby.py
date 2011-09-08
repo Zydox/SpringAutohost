@@ -12,7 +12,6 @@ class Lobby (threading.Thread):
 		self.Server = ClassServer
 		self.CallbackChat = FunctionCallbackChat
 		self.CallbackEvent = FunctionCallbackEvent
-#		self.LobbyBS = LobbyBS.LobbyBS (ClassServer, self)
 		self.User = LoginInfo['Account']
 		self.Passwd = LoginInfo['Password']
 		self.BattlePort = LoginInfo['Port']
@@ -76,16 +75,16 @@ class Lobby (threading.Thread):
 			Data = ""
 			while self.Active:
 				Data = self.Socket.recv (1)
-				if (Data):
+				if Data:
 					RawData = RawData + Data
 					Lines = RawData.split ("\n")
-					if (len (Lines) > 1):
+					if len (Lines) > 1:
 						RawData = Lines[1]
 						self.HandleCommand (Lines[0])
 				else:
-					if (Info["Time"] == int (time.time ())):
+					if Info["Time"] == int (time.time ()):
 						Info["Loops"] = Info["Loops"] + 1
-						if (Info["Loops"] > 10):
+						if Info["Loops"] > 10:
 							print "TERMINATING"
 							self.Active = 0
 					else:
@@ -98,26 +97,26 @@ class Lobby (threading.Thread):
 
 		Command = self.ReturnValue (RawData, ' ')
 		Data = RawData[len (Command) + 1:]
-		if (self.Commands.has_key (Command)):
+		if self.Commands.has_key (Command):
 			Arg = []
 			for Field in self.Commands[Command]:
 				RawArg = ''
-				if (Field == 'I'):
+				if Field == 'I':
 					NewArg = int (self.ReturnValue (Data, ' '))
-				if (Field == 'F'):
+				if Field == 'F':
 					NewArg = float (self.ReturnValue (Data, ' '))
-				elif (Field == 'V'):
+				elif Field == 'V':
 					NewArg = str (self.ReturnValue (Data, ' '))
-				elif (Field[0:1] == 'B'):
+				elif Field[0:1] == 'B':
 					RawArg = self.ReturnValue (Data, ' ')
 					NewArg = self.dec2bin (RawArg, int (Field[1:]))
-				elif (Field == 'S'):
+				elif Field == 'S':
 					NewArg = self.ReturnValue (Data, '\t')
 				elif Field == '*':
 					NewArg = Data
 				try:
 					Arg.append (NewArg)
-					if (len (RawArg) > 0):
+					if len (RawArg) > 0:
 						NewArg = RawArg
 					Data = Data[len (str (NewArg)) + 1:]
 				except:
@@ -125,14 +124,14 @@ class Lobby (threading.Thread):
 		else:
 			self.Debug ('UnknownCommand::' + str (RawData))
 
-		if (Command == "TASServer"):
+		if Command == "TASServer":
 			self.Login ()
-		elif (Command == "ACCEPTED"):
+		elif Command == "ACCEPTED":
 			self.SetLoggedIn ()
-		elif (Command == 'LOGININFOEND' or Command == 'PONG' or Command == 'MOTD'):
+		elif Command == 'LOGININFOEND' or Command == 'PONG' or Command == 'MOTD':
 			pass
-		elif (Command == "ADDUSER"):
-			if (not self.Users.has_key (Arg[1])):
+		elif Command == "ADDUSER":
+			if not self.Users.has_key (Arg[1]):
 				self.Users[Arg[0]] = {
 					'Country':Arg[1],
 					'CPU':Arg[2],
@@ -146,13 +145,13 @@ class Lobby (threading.Thread):
 				}
 			else:
 				self.Debug ('ERROR::User exsits' + str (RawData))
-		elif (Command == "REMOVEUSER"):
-			if (self.Users.has_key (Arg[0])):
+		elif Command == "REMOVEUSER":
+			if self.Users.has_key (Arg[0]):
 				del (self.Users[Arg[0]])
 			else:
 				self.Debug ('ERROR::User doesn\'t exist::' + str (RawData))
-		elif (Command == "CLIENTSTATUS"):
-			if (self.Users.has_key (Arg[0])):
+		elif Command == "CLIENTSTATUS":
+			if self.Users.has_key (Arg[0]):
 				self.Users[Arg[0]]["InGame"] = Arg[1][0]
 				self.Users[Arg[0]]["Away"] = Arg[1][1]
 				self.Users[Arg[0]]['Rank'] = Arg[1][4] * 4 + Arg[1][3] * 2 + Arg[1][2]
@@ -161,7 +160,7 @@ class Lobby (threading.Thread):
 			else:
 				self.Debug ('ERROR::User doesn\'t exsits::' + str (RawData))
 		elif Command == 'BATTLEOPENED':
-			if (not self.Battles.has_key (Arg[0])):
+			if not self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]] = {
 					'Type':{0:'B', 1:'R'}[Arg[1]],
 					'Nat':Arg[2],
@@ -206,7 +205,7 @@ class Lobby (threading.Thread):
 			self.Battles[self.BattleID]['PassthoughSpringSpecToBattleLobby'] = 1
 
 		elif Command == 'JOINEDBATTLE':
-			if (self.Battles.has_key (Arg[0])):
+			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])
 				if Arg[0] == self.BattleID:
 					self.BattleUsers[Arg[1]] = {
@@ -217,26 +216,26 @@ class Lobby (threading.Thread):
 					}
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
-			if (self.Users.has_key (Arg[1])):
+			if self.Users.has_key (Arg[1]):
 				self.Users[Arg[1]]['InBattle'] = Arg[0]
 			else:
 				self.Debug ('ERROR::User doesn\'t exsits::' + str (RawData))
-		elif (Command == "LEFTBATTLE"):
+		elif Command == "LEFTBATTLE":
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
-			if (self.Users.has_key (Arg[1])):
+			if self.Users.has_key (Arg[1]):
 				self.Users[Arg[1]]['InBattle'] = 0
 			else:
 				self.Debug ('ERROR::User doesn\'t exsits::' + str (RawData))
-		elif (Command == "BATTLECLOSED"):
-			if (self.Battles.has_key (Arg[0])):
+		elif Command == "BATTLECLOSED":
+			if self.Battles.has_key (Arg[0]):
 				del (self.Battles[Arg[0]])
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'UPDATEBATTLEINFO':
-			if (self.Battles.has_key (Arg[0])):
+			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Spectators'] = Arg[1]
 				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - Arg[1]
 				self.Battles[Arg[0]]['Locked'] = Arg[2]
@@ -245,7 +244,6 @@ class Lobby (threading.Thread):
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'SAIDPRIVATE' or Command == 'SAID' or Command == 'SAIDEX' or Command == 'SAIDBATTLE' or Command == 'SAIDBATTLEEX' or Command == 'SAIDPRIVATEEX':
-#			print (RawData)
 			if Arg[0] != self.User:
 				self.CallbackChat (Command, Arg)
 		elif Command == 'REQUESTBATTLESTATUS':
@@ -288,7 +286,7 @@ class Lobby (threading.Thread):
 					'Color':self.ToHexColor (Arg[4]),
 				}
 		elif Command == 'REMOVEBOT':
-			if (self.Battles.has_key (Arg[0])):
+			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
@@ -296,7 +294,7 @@ class Lobby (threading.Thread):
 			self.Debug ('DENIED::' + str (Arg[0]))
 		
 		
-		if (self.Commands.has_key (Command)):
+		if self.Commands.has_key (Command):
 			self.CallbackEvent (Command, Arg)
 	
 	
@@ -312,11 +310,10 @@ class Lobby (threading.Thread):
 	def BattleMap (self, Map):
 		self.Battles[self.BattleID]['Map'] = Map
 		self.BattleUpdate ()
-#		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Server.Maps[Map]['Hash']) + ' ' + str (Map))
 	
 	
 	def BattleSay (self, Message, Me = 0):
-		if (Me):
+		if Me:
 			self.Send ('SAYBATTLEEX ' + str (Message))
 		else:
 			self.Send ('SAYBATTLE ' + str (Message))
@@ -385,7 +382,7 @@ class Lobby (threading.Thread):
 	
 	
 	def Send (self, Command, Force = 0):
-		if (self.LoggedIn or Force == 1):
+		if self.LoggedIn or Force == 1:
 			self.Debug ("SEND::" + str (Command))
 			self.Socket.send (Command + "\n")
 		else:
@@ -403,7 +400,7 @@ class Lobby (threading.Thread):
 	def SetLoggedIn (self):
 		self.Debug ('Logged in')
 		self.LoggedIn = 1
-		if (len (self.LoggedInQueue)):
+		if len (self.LoggedInQueue):
 			for Command in self.LoggedInQueue:
 				self.Send (Command)
 			self.LoggedInQueue = []
@@ -427,11 +424,8 @@ class Lobby (threading.Thread):
 	
 	
 	def ReturnValue (self, String, StopChar):
-#		print 'Return::' + str (String) + '::[[' + str (StopChar) + ']]'
-		if (String.find (StopChar) != -1):
-#			print 'Found[[' + str (String[0:String.find (StopChar)]) + ']]'
+		if String.find (StopChar) != -1:
 			return (String[0:String.find (StopChar)])
-#		print 'NotFound[[' + str (String) + ']]'
 		return (String)
 	
 	

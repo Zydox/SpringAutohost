@@ -17,11 +17,11 @@ class HostCmds:
 	def HandleInput (self, Source, Command, Data):
 		self.Debug ('HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
 		
-		if (self.HostCmdsBattle.Commands.has_key (Command)):
+		if self.HostCmdsBattle.Commands.has_key (Command):
 			return (self.HostCmdsBattle.HandleInput (Command, Data))
-		elif (self.HostCmdsSpecial.Commands.has_key (Command)):
+		elif self.HostCmdsSpecial.Commands.has_key (Command):
 			return (self.HostCmdsSpecial.HandleInput (Command, Data))
-		elif (self.HostCmdsLadderbot.Commands.has_key (Command)):
+		elif self.HostCmdsLadderbot.Commands.has_key (Command):
 			return (self.HostCmdsLadderbot.HandleInput (Command, Data))
 		else:
 			return ('Unknown command type')

@@ -14,16 +14,14 @@ class Debug:
 		filename = os.path.basename (frame.f_back.f_code.co_filename)
 		fileline = frame.f_back.f_lineno
 		function = frame.f_back.f_code.co_name
-#		print (function)
 		if self.LogFile:
 			file = open (self.LogFile, 'a')
 			file.write (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + filename + '\t' + function + '\t' + info + '\n')
 			file.close ()
 		else:
 			print (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + filename + '\t' + function + '\t' + info)
-#			print (time.strftime ('%Y%m%d %H:%M') + '\t' + filename + ':' + str (fileline) + '\t' + function + '\t' + info)
-
-
+	
+	
 	def SetFile (self, LogFile):
 		self.LogFile = LogFile
 		file = open (self.LogFile, 'w')

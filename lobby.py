@@ -63,6 +63,7 @@ class Lobby (threading.Thread):
 			'LEFT':['V', 'V'],
 			'ADDBOT':['I', 'V', 'V', 'B32', 'I', 'S'],
 			'REMOVEBOT':['I', 'V'],
+			'DENIED':['S'],
 		}
 	
 	
@@ -291,15 +292,13 @@ class Lobby (threading.Thread):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
-			
+		elif Command == 'DENIED':
+			self.Debug ('DENIED::' + str (Arg[0]))
 		
 		
-#			print ('\n' + str (RawData))
-#			print (str (Arg))
-#			print (self.BattleUsers[Arg[0]])
 		if (self.Commands.has_key (Command)):
 			self.CallbackEvent (Command, Arg)
-
+	
 	
 	def Login (self):
 		self.Debug ('Lobby Login')

@@ -33,6 +33,8 @@ class Host (threading.Thread):
 			self.SetAccessRoles (Data[0])
 		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
 			self.SetAccessRoles (Data[1])
+		elif Event == 'DENIED':
+			self.Terminate ('LOGIN_DENIED::' + str (Data[0]))
 		
 		if self.GroupConfig.has_key ('Events') and self.GroupConfig['Events'].has_key (Event):
 			for Command in self.GroupConfig['Events'][Event]:
@@ -197,8 +199,7 @@ class Host (threading.Thread):
 			print (self.UserRoles)
 	
 	
-	def Terminate (self):
-		self.Debug ()
-		print '::::TERMINATE'
+	def Terminate (self, Reason = '', Info = ''):
+		self.Debug (str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()

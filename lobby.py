@@ -334,7 +334,7 @@ class Lobby (threading.Thread):
 	
 	
 	def BattleUpdate (self):		
-		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Server.Maps[self.Battles[self.BattleID]['Map']]['Hash']) + ' ' + str (self.Battles[self.BattleID]['Map']))
+		self.Send ('UPDATEBATTLEINFO ' + str (self.Battles[self.BattleID]['Spectators']) + ' ' + str (self.Battles[self.BattleID]['Locked']) + ' ' + str (self.Battles[self.BattleID]['MapHash']) + ' ' + str (self.Battles[self.BattleID]['Map']))
 	
 	
 	def BattleKick (self, User):

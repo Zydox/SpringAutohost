@@ -56,7 +56,7 @@ class Spring:
 	def GenerateBattleScript (self, FilePath):
 		self.Debug ('Spring::GenerateBattleScript::' + str (FilePath))
 		Battle = self.Lobby.Battles[self.Lobby.BattleID]
-		
+		UnitsyncMod = self.Host.GetUnitsyncMod (Battle['Mod'])
 		self.Headless = 0
 		for User in Battle['Users']:
 			if not User == self.Lobby.User and self.Lobby.BattleUsers[User]['AI'] and self.Lobby.BattleUsers[User]['AIOwner'] == self.Lobby.User:
@@ -66,19 +66,19 @@ class Spring:
 		FP.write ('[GAME]\n')
 		FP.write ('{\n')
 		FP.write ('\tMapname=' + str (Battle['Map']) + ';\n')
-		FP.write ('\tMaphash=' + str (self.Server.Maps[Battle['Map']]['Hash']) + ';\n')
+		FP.write ('\tMaphash=' + str (Battle['MapHash']) + ';\n')
 		FP.write ('\t[modoptions]\n')
 		FP.write ('\t{\n')
-		for iOpt in self.Server.Mods[Battle['Mod']]['Options']:
-			FP.write ('\t\t' + str (self.Server.Mods[Battle['Mod']]['Options'][iOpt]['Key']) + '=' + str (self.Server.Mods[Battle['Mod']]['Options'][iOpt]['Default']) + ';\n')
-			if self.Server.Mods[Battle['Mod']]['Options'][iOpt]['Key'] == 'minspeed':
-				self.HeadlessSpeed[0] = self.Server.Mods[Battle['Mod']]['Options'][iOpt]['Default']
-			if self.Server.Mods[Battle['Mod']]['Options'][iOpt]['Key'] == 'maxspeed':
-				self.HeadlessSpeed[1] = self.Server.Mods[Battle['Mod']]['Options'][iOpt]['Default']
+		for iOpt in UnitsyncMod['Options']:
+			FP.write ('\t\t' + str (UnitsyncMod['Options'][iOpt]['Key']) + '=' + str (UnitsyncMod['Options'][iOpt]['Default']) + ';\n')
+			if UnitsyncMod['Options'][iOpt]['Key'] == 'minspeed':
+				self.HeadlessSpeed[0] = UnitsyncMod['Options'][iOpt]['Default']
+			if UnitsyncMod['Options'][iOpt]['Key'] == 'maxspeed':
+				self.HeadlessSpeed[1] = UnitsyncMod['Options'][iOpt]['Default']
 		FP.write ('\t}\n')
 		FP.write ('\tStartPosType=2;\n')
 		FP.write ('\tGameType=' + str (Battle['Mod']) + ';\n')
-		FP.write ('\tModHash=' + str (self.Server.Mods[Battle['Mod']]['Hash']) + ';\n')
+		FP.write ('\tModHash=' + str (UnitsyncMod['Hash']) + ';\n')
 		FP.write ('\tHostIP=' + str (self.Lobby.IP) + ';\n')
 		FP.write ('\tHostPort=' + str (self.Lobby.BattlePort) + ';\n')
 		if self.Headless:
@@ -168,7 +168,7 @@ class Spring:
 					FP.write ('\t\tTeamLeader=' + str (Players[User]) + ';\n')
 				FP.write ('\t\tAllyTeam=' + str (Allys[self.Lobby.BattleUsers[User]['Ally']]) + ';\n')
 				FP.write ('\t\tRgbColor=' + str (round (int (self.Lobby.BattleUsers[User]['Color'][4:6], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][2:4], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][0:2], 16) / 255.0, 5)) + ';\n')
-				FP.write ('\t\tSide=' + str (self.Server.Mods[Battle['Mod']]['Sides'][self.Lobby.BattleUsers[User]['Side']]) + ';\n')
+				FP.write ('\t\tSide=' + str (UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']]) + ';\n')
 				FP.write ('\t\tHandicap=' + str (self.Lobby.BattleUsers[User]['Handicap']) + ';\n')
 				FP.write ('\t}\n')
 		

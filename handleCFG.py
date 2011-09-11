@@ -78,7 +78,7 @@ class HandleCFG:
 				elif Line.index ('='):
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ()
-					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
+#					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
 					if Type == 'General':
 						self.Server.Config['General'][Var] = Value
 					elif Type == 'Group':

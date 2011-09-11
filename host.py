@@ -12,8 +12,9 @@ class Host (threading.Thread):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
-		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
 		self.GroupConfig = GroupConfig
+		self.SpringVersion = self.GetSpringVersion ()
+		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
 		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1
@@ -197,6 +198,39 @@ class Host (threading.Thread):
 			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
 			print (self.UserRoles[User])
 			print (self.UserRoles)
+	
+	
+	def GetSpringVersion (self):
+		print self.GroupConfig
+		if self.GroupConfig.has_key ('SpringBuild') and self.GroupConfig['SpringBuild']:
+			Version = self.GroupConfig['SpringBuild']
+		elif  self.Server.Config['General'].has_key ('SpringBuildDefault'):
+			Version = self.Server.Config['General']['SpringBuildDefault']
+		else:
+			Version = 'Default'
+		self.Debug (Version)
+		return (Version)
+	
+	
+	def GetUnitsyncMod (self, Mod):
+		print 'Mod:0'
+		if self.Server.SpringUnitsync.Mods.has_key (self.SpringVersion):
+			print 'Mod:1'
+			if self.Server.SpringUnitsync.Mods[self.SpringVersion].has_key (Mod):
+				print 'Mod:2'
+				return (self.Server.SpringUnitsync.Mods[self.SpringVersion][Mod])
+	
+	
+	def GetUnitsyncMap (self, Map):
+		print 'Map:0'
+		if self.Server.SpringUnitsync.Maps.has_key (self.SpringVersion):
+			print 'Map:1'
+			if self.Server.SpringUnitsync.Maps[self.SpringVersion].has_key (Map):
+				print 'Map:2'
+				return (self.Server.SpringUnitsync.Maps[self.SpringVersion][Map])
+			elif Map == '#KEYS#':
+				print 'Map:3'
+				return (self.Server.SpringUnitsync.Maps[self.SpringVersion].keys ())
 	
 	
 	def Terminate (self, Reason = '', Info = ''):

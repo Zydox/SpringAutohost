@@ -35,17 +35,9 @@ class HostCmdsBattle:
 		self.Debug ('HandleInput::' + str (Command) + '::' + str (Data))
 		
 		if Command == 'map':
-			if (self.Server.Maps.has_key (Data[0])):
-				self.Host.Lobby.BattleMap (Data[0])
-				return ('Map changed to ' + str (Data[0]))
-			else:
-				return ('Map "' + str (Data[0]) + '" not found')
+			return (self.Logic.LogicChangeMap (Data[0]))
 		elif Command == 'maps':
-			Return = []
-			for Map in self.Server.Maps:
-				Return.append (Map)
-			Return.sort ()
-			return (Return)
+			return (self.Logic.LogicListMaps ())
 		elif Command == 'start':
 			self.Host.Spring.SpringStart ()
 			self.Host.Lobby.BattleStart ()

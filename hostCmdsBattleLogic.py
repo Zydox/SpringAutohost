@@ -16,15 +16,15 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicOpenBattle (self):
-		if not self.Server.Mods.has_key (self.Host.GroupConfig['Mod']):
-			return ('Mod doesn\'t exist')
-		if not self.Server.Maps.has_key (self.Host.GroupConfig['Map']):
-			return ('Map doesn\'t exist')
 		Mod = self.Host.GroupConfig['Mod']
 		Map = self.Host.GroupConfig['Map']
-		ModHash = self.Server.Mods[Mod]['Hash']
-		MapHash = self.Server.Maps[Map]['Hash']
-		self.Lobby.BattleOpen (Mod, ModHash, Map, MapHash, 'Test', 16)
+		UnitsyncMod = self.Host.GetUnitsyncMod (Mod)
+		if not UnitsyncMod:
+			return ('Mod doesn\'t exist')
+		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
+		if not UnitsyncMap:
+			return ('Map doesn\'t exist')
+		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], 'Test', 16)
 	
 	
 	def LogicRing (self, User =''):
@@ -45,21 +45,22 @@ class HostCmdsBattleLogic:
 		self.Refresh ()
 		Version = 0
 		AI_ID = 0
-		for AI in self.Server.Mods[self.Battle['Mod']]['AI']:
-			if self.Server.Mods[self.Battle['Mod']]['AI'][AI]['shortName'] == Bot:
-				if not self.Server.Mods[self.Battle['Mod']]['AI'][AI].has_key ('version') or Version < self.Server.Mods[self.Battle['Mod']]['AI'][AI]['version']:
-					if self.Server.Mods[self.Battle['Mod']]['AI'][AI].has_key ('version'):
-						print self.Server.Mods[self.Battle['Mod']]['AI'][AI]
+		UnitsyncMod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
+		for AI in UnitsyncMod['AI']:
+			if UnitsyncMod['AI'][AI]['shortName'] == Bot:
+				if not UnitsyncMod['AI'][AI].has_key ('version') or Version < UnitsyncMod['AI'][AI]['version']:
+					if UnitsyncMod['AI'][AI].has_key ('version'):
+						print UnitsyncMod['AI'][AI]
 						try:
-							Version = float (self.Server.Mods[self.Battle['Mod']]['AI'][AI]['version'])
+							Version = float (UnitsyncMod['AI'][AI]['version'])
 						except:
 							Version = None
-						Name = self.Server.Mods[self.Battle['Mod']]['AI'][AI]['name']
+						Name = UnitsyncMod['AI'][AI]['name']
 						if Version:
 							Name = Name + ' (v. ' + str (Version) + ')'
 						AI_ID = AI
 		if AI_ID:
-			AI_Data = self.Server.Mods[self.Battle['Mod']]['AI'][AI_ID]
+			AI_Data = UnitsyncMod['AI'][AI_ID]
 			self.Lobby.BattleAddAI ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
 			return (Name)
 		return ('No AI found with that name')
@@ -120,6 +121,24 @@ class HostCmdsBattleLogic:
 				if ID < 15:
 					ID = ID + 1
 		return ('IDs fixed')
+	
+	
+	def LogicChangeMap (self, Map):
+		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
+		if UnitsyncMap:
+			self.Host.Lobby.BattleMap (Map, UnitsyncMap['Hash'])
+			return ('Map changed to ' + str (Map))
+		else:
+			return ('Map "' + str (Map) + '" not found')
+	
+	
+	def LogicListMaps (self):
+		Return = []
+		UnitsyncMap = self.Host.GetUnitsyncMap ('#KEYS#')
+		for Map in UnitsyncMap:
+			Return.append (Map)
+		Return.sort ()
+		return (Return)
 	
 	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):

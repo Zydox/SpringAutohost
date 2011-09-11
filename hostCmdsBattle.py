@@ -26,6 +26,7 @@ class HostCmdsBattle:
 			'fixid':[[], 'Source', '!fixid', 'Fix the player IDs'],
 			'balance':[[], 'Battle', '!balance', 'Balances the battle users based on rank'],
 			'openbattle':[[], 'Source', '!openbattle', 'Opens a battle'],
+			'spring':[['V'], 'Source', '!spring <spring version>', 'Sets the spring version to the specified tag'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -83,3 +84,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicBalance ())
 		elif Command == 'openbattle':
 			return (self.Logic.LogicOpenBattle ())
+		elif Command == 'spring':
+			return (self.Logic.LogicSetSpringVersion (Data[0]))

@@ -17,9 +17,7 @@ class SpringUnitsync:
 		self.Debug (str (Version))
 		if not Version and self.Server.Config['General'].has_key ('SpringBuildDefault'):
 			Version = self.Server.Config['General']['SpringBuildDefault']
-			
-#		self.SpringCompile.GetSpringVersion ('5426266fedd945716ac1d70769af37494f7165e3')
-#		self.SpringCompile.GetSpringVersion ('8d837f634280bdc05e7e68d8f25c6ce005785edc')
+		
 		if Version:
 			if not self.SpringCompile:
 				self.SpringCompile = springCompile.SpringCompile (self.Server)

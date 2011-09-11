@@ -25,7 +25,7 @@ class SpringCompile (threading.Thread):
 		Return = {}
 		Path = self.BasePath + str (VersionPath)
 		
-		if not os.path.exists (Path) or not os.path.exists (Path + '/libunitsync.so') or not os.path.exists (Path + '/spring-headless') or not os.path.exists (Path + '/spring-dedicated'):
+		if not self.ExistsSpringVersion (Version):
 			self.Debug ('Compile start')
 			os.chdir (self.BasePath)
 			self.Exec ('/usr/bin/git clone git://github.com/spring/spring.git')
@@ -56,6 +56,13 @@ class SpringCompile (threading.Thread):
 			Return['Path'] = Path
 		return (Return)
 	
+	
+	def ExistsSpringVersion (self, Version):
+		Path = self.BasePath + str (self.Prefix) + str (Version)
+		if os.path.exists (Path) and os.path.exists (Path + '/libunitsync.so') and os.path.exists (Path + '/spring-headless') and os.path.exists (Path + '/spring-dedicated'):
+			return (True)
+		return (False)
+		
 	
 	def Exec (self, Command):
 		op = subprocess.Popen([Command], stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True)

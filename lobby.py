@@ -307,6 +307,10 @@ class Lobby (threading.Thread):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (ModHash) + ' ' + str (MinRank) + ' ' + str (MapHash) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
 	
 	
+	def BattleClose (self):
+		self.Send ('LEAVEBATTLE')
+	
+	
 	def BattleMap (self, Map, MapHash):
 		self.Battles[self.BattleID]['Map'] = Map
 		self.Battles[self.BattleID]['MapHash'] = MapHash

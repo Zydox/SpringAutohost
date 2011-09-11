@@ -29,11 +29,15 @@ class HandleCFG:
 			'ring':['admin', 'operator', '%BattlePlayer%', '%GamePlayer%'],
 			'forcestart':['owner', 'admin'],
 			'terminate':['owner'],
-			'compile':['owner'],
+			'compile':['owner', 'devel'],
+			'spring':['owner', 'devel'],
 		}
 		self.Server.AccessRoles = {
 			'owner':{
 				'[CN]Zydox':1,
+			},
+			'devel':{
+				'[ARP]hoijui_g5':1,
 			},
 			'admin':{
 				'[CN]Zydox':1,

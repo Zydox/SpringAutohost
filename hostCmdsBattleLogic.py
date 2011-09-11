@@ -141,6 +141,17 @@ class HostCmdsBattleLogic:
 		return (Return)
 	
 	
+	def LogicSetSpringVersion (self, SpringVersion):
+		if self.Server.SpringUnitsync.SpringCompile.ExistsSpringVersion (SpringVersion):
+			Result = self.Server.SpringUnitsync.Load (SpringVersion)
+			self.Host.SpringVersion = SpringVersion
+			self.Lobby.BattleClose ()
+			self.LogicOpenBattle ()
+			return ('Spring "' + str (SpringVersion) + '" loaded')
+		else:
+			return ('Spring "' + str (SpringVersion) + '" not found (use !compile to add it)')
+	
+	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
 		self.Refresh ()
 		TeamRank = {}

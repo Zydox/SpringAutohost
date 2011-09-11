@@ -36,6 +36,7 @@ class SpringUnitsync:
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps (Version)
 		self.LoadMods (Version)
+		return (True)
 
 
 	def LoadMaps (self, Version):

@@ -29,6 +29,7 @@ class HandleCFG:
 			'ring':['admin', 'operator', '%BattlePlayer%', '%GamePlayer%'],
 			'forcestart':['owner', 'admin'],
 			'terminate':['owner'],
+			'compile':['owner'],
 		}
 		self.Server.AccessRoles = {
 			'owner':{

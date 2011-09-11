@@ -13,6 +13,7 @@ class HostCmdsSpecial:
 			'code':[[], 'Source', '!code', 'Displays the bots code files, bytes and last modified'],
 			'help':[[], 'PM', '!help', 'Displays help'],
 			'terminate':[[], 'Source', '!terminate', 'Shuts down the bot'],
+			'compile':[['V'], 'Source', '!compile <spring tag>', 'Compiles the provided spring version'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -44,9 +45,20 @@ class HostCmdsSpecial:
 			for Command in self.HostCmds.Commands:
 				Return.append (self.HostCmds.Commands[Command][2] + '   ' + self.HostCmds.Commands[Command][3])
 			return (Return)
-		elif Command =='terminate':
+		elif Command == 'terminate':
 			self.Host.Terminate ()
-	
+		elif Command == 'compile':
+			self.Host.Lobby.BattleLock (1)
+			self.Host.Lobby.BattleSay ('Battle locked, building spring "' + str (Data[0]) + '"...', 1)
+			Result = self.Server.SpringUnitsync.Load (Data[0])
+			if Result:
+				Return = 'Spring "' + str (Data[0]) + '" compiled'
+			else:
+				Return = 'Spring "' + str (Data[0]) + '" compile failed'
+			self.Host.Lobby.BattleSay ('Battle un-locked, build completed', 1)
+			self.Host.Lobby.BattleLock (0)
+			return (Return)
+			
 	
 	def StringPad (self, String, Length, Char = '0'):
 		while len (String) < Length:

@@ -22,10 +22,7 @@ class Spring:
 		self.Debug ('Spring::Start (' + Reason + ')')
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
-		if self.Headless:
-			self.SpringPID = subprocess.Popen([self.Server.Config['General']['PathSpringHeadless'], ScriptURI]) 
-		else:
-			self.SpringPID = subprocess.Popen([self.Server.Config['General']['PathSpringDedicated'], ScriptURI]) 
+		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI]) 
 		
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()

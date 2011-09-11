@@ -233,6 +233,19 @@ class Host (threading.Thread):
 				return (self.Server.SpringUnitsync.Maps[self.SpringVersion].keys ())
 	
 	
+	def GetSpringBinary (self, Headless = 0):
+		self.Debug ()
+		if self.Server.Config['General'].has_key ('PathSpringBuilds'):
+			Spring = self.Server.Config['General']['PathSpringBuilds'] + 'Version_' + str (self.SpringVersion)
+		
+			if Headless:
+				Spring = Spring + '/spring-headless'
+			else:
+				Spring = Spring + '/spring-dedicated'
+		self.Debug (Spring)
+		return (Spring)
+	
+	
 	def Terminate (self, Reason = '', Info = ''):
 		self.Debug (str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()

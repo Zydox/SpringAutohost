@@ -21,10 +21,10 @@ class SpringUnitsync:
 #		self.SpringCompile.GetSpringVersion ('5426266fedd945716ac1d70769af37494f7165e3')
 #		self.SpringCompile.GetSpringVersion ('8d837f634280bdc05e7e68d8f25c6ce005785edc')
 		if Version:
+			if not self.SpringCompile:
+				self.SpringCompile = springCompile.SpringCompile (self.Server)
 			Result = self.SpringCompile.GetSpringVersion (Version)
 			if Result and type (Result) is dict and Result.has_key ('Path'):
-				if not self.SpringCompile:
-					self.SpringCompile = springCompile.SpringCompile (self)
 				self.Unitsync = unitsync.Unitsync (Result['Path'] + '/libunitsync.so')
 			else:
 				print 'BUILD FAILED'

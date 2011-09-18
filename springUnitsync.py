@@ -47,9 +47,9 @@ class SpringUnitsync:
 			if self.Unitsync.GetMapOptionCount (Map):
 				self.Maps[Version][Map]['Options'] = {}
 				for iOpt in range (0, self.Unitsync.GetMapOptionCount (Map)):
-					self.Maps[Version][Map]['Options'][iOpt] = self.LoadOption (iOpt)
-					if len (self.Maps[Version][Map]['Options'][iOpt]) == 0:
-						del (self.Maps[Version][Map]['Options'][iOpt])
+					Option = self.LoadOption (iOpt)
+					if len (Option) > 0:
+						self.Maps[Version][Map]['Options'][Option['Key']] = Option
 	
 	
 	def LoadMods (self, Version):
@@ -72,9 +72,9 @@ class SpringUnitsync:
 					self.Mods[Version][Mod]['Sides'][iSide] = self.Unitsync.GetSideName (iSide)
 			if self.Unitsync.GetModOptionCount ():
 				for iOpt in xrange (self.Unitsync.GetModOptionCount ()):
-					self.Mods[Version][Mod]['Options'][iOpt] = self.LoadOption (iOpt)
-					if len (self.Mods[Version][Mod]['Options'][iOpt]) == 0:
-						del (self.Mods[Version][Mod]['Options'][iOpt])
+					Option = self.LoadOption (iOpt)
+					if len (Option) > 0:
+						self.Mods[Version][Mod]['Options'][Option['Key']] = Option
 			if self.Unitsync.GetSkirmishAICount ():
 				for iAI in range (0, self.Unitsync.GetSkirmishAICount ()):
 					self.Mods[Version][Mod]['AI'][iAI] = {}

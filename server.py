@@ -10,7 +10,8 @@ import springUnitsync
 #	Server
 #		Debug - debug
 #		HandleCFG - handleCFG
-#		Unitsync - unitsync
+#		SpringUnitsync - springUnitsync
+#			SpringCompile - springCompile
 #		Hosts = host {}
 #			Lobby - lobby
 #				Ping - lobby
@@ -38,6 +39,7 @@ class Server:
 		self.Debug ("Start server")
 		self.SpawnHost ('BA', 'TourneyBot')
 #		self.SpawnHost ('BACD', 'TourneyBot')
+		
 	
 	
 	def SpawnHost (self, Group = None, Account = None):

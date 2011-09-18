@@ -1,23 +1,19 @@
 # -*- coding: ISO-8859-1 -*-
 import os
 import subprocess
-import threading
 import time
 import socket
 
 
-class SpringCompile (threading.Thread):
+class SpringCompile:
 	def __init__ (self, ClassServer):
 		self.Debug = ClassServer.Debug
+		self.Debug ()
 		self.Server = ClassServer
 		self.BasePath = self.Server.Config['General']['PathSpringBuilds']
 		self.BuildJobs = self.Server.Config['General']['SpringBuildJobs']
 		self.Prefix = 'Version_'
 		
-	
-	def run (self):
-		self.Debug ()
-	
 	
 	def GetSpringVersion (self, Version):
 		VersionPath = self.Prefix + Version + ''
@@ -44,6 +40,7 @@ class SpringCompile (threading.Thread):
 			self.Exec ('git submodule update --init')
 #			self.Exec ('git pull')
 #			self.Exec ('git pull --rebase')
+#			self.Exec ('cmake -DSPRING_DATADIR="' + str (Path) + '" -DCMAKE_INSTALL_PREFIX="" -DBINDIR=. -DLIBDIR=. -DMANDIR=. -DDOCDIR=doc -DDATADIR=. -DUSERDOCS_PLAIN=FALSE -DUSERDOCS_HTML=FALSE -DNO_SOUND=TRUE -DHEADLESS_SYSTEM=TRUE -DCMAKE_BUILD_TYPE=DEBUG2')
 			self.Exec ('cmake -DSPRING_DATADIR="' + str (Path) + '" -DCMAKE_INSTALL_PREFIX="" -DBINDIR=. -DLIBDIR=. -DMANDIR=. -DDOCDIR=doc -DDATADIR=. -DUSERDOCS_PLAIN=FALSE -DUSERDOCS_HTML=FALSE -DNO_SOUND=TRUE -DHEADLESS_SYSTEM=TRUE')
 			self.Exec ('make -j' + str (self.BuildJobs) + ' spring-dedicated')
 			self.Exec ('make install-spring-dedicated DESTDIR="' + str (Path) + '"')

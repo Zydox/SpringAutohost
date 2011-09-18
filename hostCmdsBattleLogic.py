@@ -152,6 +152,35 @@ class HostCmdsBattleLogic:
 			return ('Spring "' + str (SpringVersion) + '" not found (use !compile to add it)')
 	
 	
+	def LogicSetModOption (self, Option, Value):
+		self.Debug (str (Option) + '=>' + str (Value))
+		UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
+		if self.Host.Battle['ModOptions'].has_key (Option):
+			Result = self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value)
+			self.Debug (str (Value) + ' => ' + str (Result))
+			if not Result == False:
+				self.Host.Battle['ModOptions'][Option] = Result
+				self.Host.BattleUpdateScript ()
+				return ('OK')
+			else:
+				return (self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value, 1))
+		else:
+			Return = ['Valid ModOptions are:']
+			for Key in UnitsyncMod['Options']:
+				Return.append (Key)
+			return (Return)
+		
+	
+	def LogicSetStartPos (self, StartPos):
+		self.Debug (StartPos)
+		if StartPos < 4:
+			self.Host.Battle['StartPosType'] = StartPos
+			self.Host.BattleUpdateScript ()
+			return ('StartPos set') 
+		else:
+			return ('StartPos must be between 0 and 2')
+	
+	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
 		self.Refresh ()
 		TeamRank = {}
@@ -170,6 +199,33 @@ class HostCmdsBattleLogic:
 		print ''
 		
 		return ('Testing')
+	
+	
+	def LogicFunctionModOptionValueValid (self, ModOption, Value, Help = 0):
+		Return = False
+		if ModOption['Type'] == 'Select':
+			if ModOption['Options'].has_key (Value):
+				Return = Value
+			elif Help == 1:
+				Return = ['Valid keys for "' + str (ModOption['Key']) + '" are :']
+				for Key in ModOption['Options']:
+					Return.append (str (Key) + ' - ' + str (ModOption['Options'][Key]))
+		elif ModOption['Type'] == 'Numeric':
+			try:
+				Value = float (Value)
+				self.Debug (Value)
+				self.Debug (Value >= ModOption['Min'])
+				self.Debug (Value <= ModOption['Max'])
+				self.Debug (not Value % ModOption['Step'])
+				if Value >= ModOption['Min'] and Value <= ModOption['Max'] and not Value % ModOption['Step']:
+					if int (Value) == Value:
+						Value = int (Value)
+					Return = Value
+			except:
+				Return = False
+			if Return == False and Help == 1:
+				Return = 'Value values are between ' + str (ModOption['Min']) + ' to ' + str (ModOption['Max']) + ' with a stepping of ' + str (ModOption['Step'])
+		return (Return)
 	
 	
 	def LogicFunctionBattleStatus (self, Ready, Team, Ally, Spec, Hcp, Sync, Side):

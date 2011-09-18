@@ -1,7 +1,8 @@
 # -*- coding: ISO-8859-1 -*-
-import lobby
 import threading
 import time
+import sys
+import lobby
 import hostCmds
 import spring
 
@@ -18,6 +19,12 @@ class Host (threading.Thread):
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
 		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1
+		self.Battle = {
+			'Mod':self.GroupConfig['Mod'],
+			'StartPosType':None,
+			'MapOptions':{},
+			'ModOptions':{},
+		}
 		
 	
 	def run (self):
@@ -26,6 +33,9 @@ class Host (threading.Thread):
 		if len (self.GroupConfig['LobbyChannels']) > 0:
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
+		
+#		print self.GetUnitsyncMod (self.GroupConfig['Mod'])['Options']
+#		sys.exit ()
 	
 	
 	def HandleEvent (self, Event, Data):
@@ -40,6 +50,9 @@ class Host (threading.Thread):
 		if self.GroupConfig.has_key ('Events') and self.GroupConfig['Events'].has_key (Event):
 			for Command in self.GroupConfig['Events'][Event]:
 				self.HandleInput ('INTERNAL', '!' + Command)
+		
+		if Event == 'OPENBATTLE':	# Load the default settings for a battle
+			self.LoadBattleDefaults ()
 	
 	
 	def HandleInput (self, Source, Data):
@@ -200,6 +213,37 @@ class Host (threading.Thread):
 			print (self.UserRoles)
 	
 	
+	def LoadBattleDefaults (self):
+		self.Debug ()
+		UnitsyncMod = self.GetUnitsyncMod (self.Battle['Mod'])
+		if len (UnitsyncMod['Options']):
+			for Key in UnitsyncMod['Options'].keys ():
+				if not self.Battle['ModOptions'].has_key (Key):
+					self.Battle['ModOptions'][Key] = UnitsyncMod['Options'][Key]['Default']
+		try:
+			if not self.Battle.has_key ('StartPosType') or not int (self.Battle['StartPosType']) == self.Battle['StartPosType']:
+				self.Battle['StartPosType'] = 1
+		except:
+			self.Battle['StartPosType'] = 1
+		self.BattleUpdateScript ()
+	
+	
+	def BattleUpdateScript (self):
+		self.Debug ()
+		Tags = [['GAME/StartPosType', self.Battle['StartPosType']]]
+		if self.Lobby.BattleID and self.Battle.has_key ('ModOptions'):
+			for Key in self.Battle['ModOptions'].keys ():
+				Value = self.Battle['ModOptions'][Key]
+				try:
+					if int (Value) == Value:
+						Value = int (Value)
+					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
+				except:
+					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
+		self.Lobby.BattleUpdateScript (Tags)
+
+	
+	
 	def GetSpringVersion (self):
 		print self.GroupConfig
 		if self.GroupConfig.has_key ('SpringBuild') and self.GroupConfig['SpringBuild']:
@@ -250,3 +294,6 @@ class Host (threading.Thread):
 		self.Debug (str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
+		self.Debug ('sys.exit ()')
+		sys.exit ()
+		self.Debug ('sys.exit () done')

@@ -203,7 +203,6 @@ class Lobby (threading.Thread):
 			self.Battles[self.BattleID]['PassthoughSpringNormalToBattleLobby'] = 1
 			self.Battles[self.BattleID]['PassthoughSpringAllyToBattleLobby'] = 0
 			self.Battles[self.BattleID]['PassthoughSpringSpecToBattleLobby'] = 1
-
 		elif Command == 'JOINEDBATTLE':
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])
@@ -305,7 +304,7 @@ class Lobby (threading.Thread):
 	
 	def BattleOpen (self, Mod, ModHash, Map, MapHash, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (ModHash) + ' ' + str (MinRank) + ' ' + str (MapHash) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
-	
+		
 	
 	def BattleClose (self):
 		self.Send ('LEAVEBATTLE')
@@ -382,6 +381,13 @@ class Lobby (threading.Thread):
 		self.Send ('UPDATEBOT ' + str (AI) + ' ' + str (BattleStatus) + ' ' + str (Color))
 	
 	
+	def BattleUpdateScript (self, Tags):
+		Script = ''
+		for Tag in Tags:
+			Script = Script + Tag[0] + '=' + str (Tag[1]) + '\t'
+		self.Send ('SETSCRIPTTAGS ' + Script[0:-1])
+	
+	
 	def Ping (self):
 		self.Send ('PING')
 	
@@ -400,6 +406,13 @@ class Lobby (threading.Thread):
 		self.Socket.connect ((str (self.Host), int (self.Port)))
 		self.Active = 1
 		self.SetIP ()
+	
+	
+	def Disconnect (self):
+		self.Debug ()
+		self.Active = 0
+		self.Socket.shutdown (2)
+		self.Socket.close ()
 	
 	
 	def SetLoggedIn (self):
@@ -453,7 +466,7 @@ class Lobby (threading.Thread):
 	
 	def Terminate (self):
 		self.Debug ()
-		self.Active = 0
+		self.Disconnect ()
 
 
 class LobbyPing (threading.Thread):
@@ -468,8 +481,8 @@ class LobbyPing (threading.Thread):
 	def run (self):
 		self.Debug ('Lobby Ping start')
 		while self.Lobby.Active:
-			time.sleep (1)
-			self.SleepCounter = self.SleepCounter + 1
 			if self.SleepCounter == 25:
 				self.SleepCounter = 0
 				self.Ping ()
+			self.SleepCounter = self.SleepCounter + 1
+			time.sleep (1)

@@ -9,17 +9,17 @@ class Debug:
 		self.LogFile = None
 	
 	
-	def Debug (self, info = ''):
+	def Debug (self, Info = ''):
 		frame = inspect.currentframe ()
 		filename = os.path.basename (frame.f_back.f_code.co_filename)
 		fileline = frame.f_back.f_lineno
 		function = frame.f_back.f_code.co_name
 		if self.LogFile:
 			file = open (self.LogFile, 'a')
-			file.write (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + filename + '\t' + function + '\t' + info + '\n')
+			file.write (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + filename + '\t' + function + '\t' + str (Info) + '\n')
 			file.close ()
 		else:
-			print (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + filename + '\t' + function + '\t' + info)
+			print (time.strftime ('%Y%m%d %H:%M:%S') + '\t' + filename + '\t' + function + '\t' + str (Info))
 	
 	
 	def SetFile (self, LogFile):

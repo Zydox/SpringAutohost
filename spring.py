@@ -4,6 +4,7 @@ import subprocess
 import threading
 import time
 import socket
+import sys
 
 
 class Spring:
@@ -34,11 +35,19 @@ class Spring:
 	def SpringStop (self, Reason = 'UNKNOWN', Message = ''):
 		self.Debug ('Spring::Stop (' + Reason + '::' + Message + ')')
 		try:
+			self.Debug (1)
 			self.SpringUDP.Terminate (Message)
+			self.Debug (2)
 			self.SpringPID.terminate ()
+			self.Debug (3)
+			self.SpringPID.wait ()
+			self.Debug (5)
+#			self.SpringPID.kill ()
 			self.Lobby.BattleStop ()
+			self.Debug (6)
 			return (True)
 		except:
+			self.Debug (7)
 			return (False)
 	
 	
@@ -66,14 +75,15 @@ class Spring:
 		FP.write ('\tMaphash=' + str (Battle['MapHash']) + ';\n')
 		FP.write ('\t[modoptions]\n')
 		FP.write ('\t{\n')
-		for iOpt in UnitsyncMod['Options']:
-			FP.write ('\t\t' + str (UnitsyncMod['Options'][iOpt]['Key']) + '=' + str (UnitsyncMod['Options'][iOpt]['Default']) + ';\n')
-			if UnitsyncMod['Options'][iOpt]['Key'] == 'minspeed':
-				self.HeadlessSpeed[0] = UnitsyncMod['Options'][iOpt]['Default']
-			if UnitsyncMod['Options'][iOpt]['Key'] == 'maxspeed':
-				self.HeadlessSpeed[1] = UnitsyncMod['Options'][iOpt]['Default']
+		if self.Host.Battle.has_key ('ModOptions'):
+			for Key in self.Host.Battle['ModOptions'].keys ():
+				FP.write ('\t\t' + str (Key) + '=' + str (self.Host.Battle['ModOptions'][Key]) + ';\n')
+				if Key == 'minspeed':
+					self.HeadlessSpeed[0] = self.Host.Battle['ModOptions'][Key]
+				if Key == 'maxspeed':
+					self.HeadlessSpeed[1] = self.Host.Battle['ModOptions'][Key]
 		FP.write ('\t}\n')
-		FP.write ('\tStartPosType=2;\n')
+		FP.write ('\tStartPosType=' + str (self.Host.Battle['StartPosType']) + ';\n')
 		FP.write ('\tGameType=' + str (Battle['Mod']) + ';\n')
 		FP.write ('\tModHash=' + str (UnitsyncMod['Hash']) + ';\n')
 		FP.write ('\tHostIP=' + str (self.Lobby.IP) + ';\n')
@@ -207,24 +217,24 @@ class SpringUDP (threading.Thread):
 		while self.Active:
 			Data, self.ServerAddr = self.Socket.recvfrom (8192)
 			if Data:
-				if ord (Data[0]) == 1:
+				if ord (Data[0]) == 1:	# Game stop
 					self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
-				if ord (Data[0]) == 2:
+				if ord (Data[0]) == 2:	# Game start
 					if self.Spring.Headless:
 						self.Talk ('/setminspeed 1')
 						self.Talk ('/setmaxspeed 1')
 						self.Talk ('/setminspeed ' + str (self.Spring.HeadlessSpeed[0]))
 						self.Talk ('/setmaxspeed ' + str (self.Spring.HeadlessSpeed[1]))
-				if ord (Data[0]) == 3:
+				if ord (Data[0]) == 3:	# Battle ended
 					self.Spring.Lobby.BattleSay ('Battle ended', 1)
-				if ord (Data[0]) == 10:
+				if ord (Data[0]) == 10:	# User joined
 					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0}
-				if ord (Data[0]) == 11:
+				if ord (Data[0]) == 11:	# User left
 					del (self.SpringUsers[Data[1]])
-				if ord (Data[0]) == 12:
+				if ord (Data[0]) == 12:	# User ready
 					self.SpringUsers[Data[1]]['Ready'] = 1
 					self.SpringUsers[Data[1]]['Alive'] = 1
-				if ord (Data[0]) == 14:
+				if ord (Data[0]) == 14:	# User died
 					self.SpringUsers[Data[1]]['Alive'] = 0
 				
 				if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
@@ -236,27 +246,17 @@ class SpringUDP (threading.Thread):
 						except:
 							self.Debug ('UDP::' + str (ord (Data[0])))
 				
-				if ord (Data[0]) == 13:
-					if ord (Data[2]) == 252:
+				if ord (Data[0]) == 13:	# Battle chat
+					if ord (Data[2]) == 252:	# Ally chat
 						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringAllyToBattleLobby']:
 							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> Ally: ' + str (Data[3:]))
-					if ord (Data[2]) == 253:
+					if ord (Data[2]) == 253:	# Spec chat
 						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringSpecToBattleLobby']:
 							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> Spec: ' + str (Data[3:]))
-					if ord (Data[2]) == 254:
+					if ord (Data[2]) == 254:	# Public chat
 						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringNormalToBattleLobby']:
 							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> ' + str (Data[3:]))
-				try:
-					if ord (Data[0]) == 10:
-						print '10::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
-					if ord (Data[0]) == 11:
-						print '11::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
-					if ord (Data[0]) == 12:
-						print '12::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
-					if ord (Data[0]) == 14:
-						print '14::' + str (ord (Data[1])) + '::' + str (ord (Data[2])) + '::' + str (Data[3:])
-				except:
-					i = 1
+		self.Terminate ()
 	
 	
 	def IsReady (self, SearchUser):
@@ -276,10 +276,22 @@ class SpringUDP (threading.Thread):
 	
 	
 	def Talk (self, Message):
-		self.Debug ('Talk::' + str (Message))
+		self.Debug (str (Message))
 		self.Socket.sendto (str (Message), self.ServerAddr)
 	
 	
 	def Terminate (self, Message = ''):
-		self.Debug ('SpringUDP terminate (' + str (Message) + ')')
+		self.Debug (str (Message))
 		self.Active = 0
+		self.Talk ('/quit')
+		try:
+			self.Debug ('Terminate & close UDP socked')
+			self.Socket.terminate (2)
+			self.Socket.close ()
+		except:
+			self.Debug ('FAILED: Terminate & close UDP socked')
+		self.Debug ('SystemExit')
+		raise SystemExit ()
+		self.Debug ('SystemExit OK')
+		sys.exit ()
+		self.Debug ('sys.exit ()')

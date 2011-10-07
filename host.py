@@ -14,6 +14,9 @@ class Host (threading.Thread):
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
 		self.GroupConfig = GroupConfig
+		self.GroupConfig['Alias'] = {
+			'ai4':['addbot 2 2 CORE 00BFFF KAIK', 'addbot 3 2 CORE 00FFFF KAIK', 'addbot 4 2 CORE 00FF7F KAIK', 'addbot 5 2 CORE 32CD32 KAIK'],
+		}
 		self.SpringVersion = self.GetSpringVersion ()
 		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
@@ -21,6 +24,7 @@ class Host (threading.Thread):
 		self.UserRoles = {}		# [User][Role] = 1
 		self.Battle = {
 			'Mod':self.GroupConfig['Mod'],
+			'Map':self.GroupConfig['Map'],
 			'StartPosType':None,
 			'MapOptions':{},
 			'ModOptions':{},
@@ -79,6 +83,12 @@ class Host (threading.Thread):
 			Input['User'] = ''
 			Input['Reference'] = ''
 			Input['Input'] = Data
+		elif Source == 'INTERAL_RETURN':
+			Input['Source'] = 'PM'
+			Input['Return'] = 'Return'
+			Input['User'] = ''
+			Input['Reference'] = ''
+			Input['Input'] = Data
 		
 		if len (Input) > 2:
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':
@@ -91,7 +101,9 @@ class Host (threading.Thread):
 					Failed = 0
 					for Field in self.HostCmds.Commands[Input['Command']][0]:
 						NewArg = ''
-						if self.HostCmds.Commands[Input['Command']][1] == 'Source':
+						if Source == 'INTERAL_RETURN':
+							Input['Return'] = 'Return'
+						elif self.HostCmds.Commands[Input['Command']][1] == 'Source':
 							Input['Return'] = Input['Source']
 						else:
 							Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
@@ -142,13 +154,16 @@ class Host (threading.Thread):
 			else:
 				Input['Message'] = ''	# Everything which doesn't start with ! ?
 			
+			if Input['Return'] == 'Return':
+				return (Input['Message'])
+			
 			self.ReturnInput (Input)
-			print (Input)
+#			print (Input)
 	
 	
 	def HandleAccess (self, Input, Source = ''):
 		OK = 0
-		if Source == 'INTERNAL':
+		if Source == 'INTERNAL' or Source == 'INTERAL_RETURN':
 			OK = 1
 		elif self.Server.AccessCommands.has_key (Input['Command']):
 			if self.UserRoles.has_key (Input['User']):
@@ -175,9 +190,9 @@ class Host (threading.Thread):
 		elif isinstance (Data['Message'], list):
 			Messages = Data['Message']
 		
-		if len (Messages) > 0:
+		if Messages and len (Messages) > 0:
 			for Message in Messages:
-				if len (Message) > 0:
+				if Message and len (Message) > 0:
 					if Data['Return'] == 'PM':
 						self.Lobby.UserSay (Data['Reference'], Message)
 					elif Data['Return'] == 'Battle':
@@ -256,24 +271,23 @@ class Host (threading.Thread):
 		return (Version)
 	
 	
-	def GetUnitsyncMod (self, Mod):
-		print 'Mod:0'
+	def GetUnitsyncMod (self, Mod = None):
+		if not Mod:
+			Mod = self.Battle['Mod']
 		if self.Server.SpringUnitsync.Mods.has_key (self.SpringVersion):
-			print 'Mod:1'
 			if self.Server.SpringUnitsync.Mods[self.SpringVersion].has_key (Mod):
-				print 'Mod:2'
 				return (self.Server.SpringUnitsync.Mods[self.SpringVersion][Mod])
+			elif Mod == '#KEYS#':
+				return (self.Server.SpringUnitsync.Mods[self.SpringVersion].keys ())
 	
 	
-	def GetUnitsyncMap (self, Map):
-		print 'Map:0'
+	def GetUnitsyncMap (self, Map = None):
+		if not Map:
+			Map = self.Battle['Map']
 		if self.Server.SpringUnitsync.Maps.has_key (self.SpringVersion):
-			print 'Map:1'
 			if self.Server.SpringUnitsync.Maps[self.SpringVersion].has_key (Map):
-				print 'Map:2'
 				return (self.Server.SpringUnitsync.Maps[self.SpringVersion][Map])
 			elif Map == '#KEYS#':
-				print 'Map:3'
 				return (self.Server.SpringUnitsync.Maps[self.SpringVersion].keys ())
 	
 	

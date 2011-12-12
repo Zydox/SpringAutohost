@@ -1,4 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
+import os
 import sys
 
 class HandleCFG:
@@ -9,7 +10,7 @@ class HandleCFG:
 	
 	
 	def LoadCFG (self):
-		self.Debug ("Load CFG")
+		self.Debug ()
 		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
 		if len (sys.argv) < 2:
 			print 'Missing config file (python server.py <conf file1> <font file2> ...)'
@@ -17,6 +18,7 @@ class HandleCFG:
 		
 		for File in sys.argv[1:]:
 			self.LoadFile (File)
+		self.CheckBaseConfig ()
 #		print self.Server.Config
 #		sys.exit ()
 		
@@ -35,18 +37,24 @@ class HandleCFG:
 		self.Server.AccessRoles = {
 			'owner':{
 				'[CN]Zydox':1,
+				'[CN]Doxie':1,
+				'[teh]Slartibartfast':1,
 			},
 			'devel':{
 				'[ARP]hoijui_g5':1,
+				'abma_irc':1,
+				'[AG]abma':1,
 			},
 			'admin':{
 				'[CN]Zydox':1,
 				'[Fx]Droid':1,
 				'BrainDamage':1,
+				'_koshi_':1,
 			},
 			'operator':{
 			},
 		}
+	
 	
 	def LoadFile (self, File):
 		self.Debug ("Load file: " + File)
@@ -91,3 +99,34 @@ class HandleCFG:
 					elif Type == 'User':
 						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value
 		FP.close ()
+	
+	
+	def CheckBaseConfig (self):
+		self.Debug ()
+		Errors = []
+		Paths = [
+			'PathSpringBuilds',
+			'PathTemp'
+		]
+		
+		for Path in Paths:
+			if not self.Server.Config['General'].has_key (Path):
+				Errors.append ('The path for "' + Path + '" is missing')
+			elif not os.path.exists (self.Server.Config['General'][Path]):
+				Errors.append ('The path for "' + Path + '" (' + self.Server.Config['General'][Path] + ') is missing')
+			else:
+				FilePath = self.Server.Config['General'][Path] + '___WRITE_TEST_FILE___.DELETE'
+				try:
+					File = open (FilePath, 'w')
+					File.close ()
+					os.remove (FilePath)
+				except:
+					Errors.append ('The path for "' + Path + '" (' + self.Server.Config['General'][Path] + ') is not writable')
+		
+		if Errors:
+			self.Debug ('ERRORS')
+			print 'Config errors found, please correct before trying to start again'
+			for Error in Errors:
+				print '* ' + Error
+				self.Debug (Error)
+			sys.exit ()

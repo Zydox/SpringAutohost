@@ -90,7 +90,7 @@ class HandleCFG:
 					self.Server.Config['Groups'][GroupID]['Events'][Event].append (Line[Line.index ('=') + 1:-1])
 				elif Line.index ('='):
 					Var = Line[0:Line.index ('='):].strip ()
-					Value = Line[Line.index ('=') + 1:].strip ()
+					Value = Line[Line.index ('=') + 1:].strip ().replace ('~', os.environ['HOME'])
 #					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
 					if Type == 'General':
 						self.Server.Config['General'][Var] = Value
@@ -102,11 +102,14 @@ class HandleCFG:
 	
 	
 	def CheckBaseConfig (self):
+		# Check for cmake, make, gcc, gcc-c++
 		self.Debug ()
 		Errors = []
 		Paths = [
 			'PathSpringBuilds',
-			'PathTemp'
+			'PathTemp',
+			'PathMods',
+			'PathMaps'
 		]
 		
 		for Path in Paths:

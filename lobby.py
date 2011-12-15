@@ -199,10 +199,6 @@ class Lobby (threading.Thread):
 				'AIOwner':None,
 				'AIDLL':None,
 			}
-			self.Battles[self.BattleID]['PassthoughBattleLobbyToSpring'] = 1
-			self.Battles[self.BattleID]['PassthoughSpringNormalToBattleLobby'] = 1
-			self.Battles[self.BattleID]['PassthoughSpringAllyToBattleLobby'] = 0
-			self.Battles[self.BattleID]['PassthoughSpringSpecToBattleLobby'] = 1
 		elif Command == 'JOINEDBATTLE':
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])

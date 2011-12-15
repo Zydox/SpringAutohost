@@ -15,7 +15,7 @@ class Host (threading.Thread):
 		self.Debug ('Host Init')
 		self.GroupConfig = GroupConfig
 		self.GroupConfig['Alias'] = {
-			'ai4':['addbot 2 2 CORE 00BFFF KAIK', 'addbot 3 2 CORE 00FFFF KAIK', 'addbot 4 2 CORE 00FF7F KAIK', 'addbot 5 2 CORE 32CD32 KAIK'],
+			'ai4':['addbot 2 2 CORE 00BFFF KAIK', 'addbot 3 2 CORE 00FFFF KAIK', 'addbot 4 2 ARM 00FF7F KAIK', 'addbot 5 2 ARM 32CD32 KAIK'],
 		}
 		self.SpringVersion = self.GetSpringVersion ()
 		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
@@ -75,7 +75,7 @@ class Host (threading.Thread):
 			Input['User'] = Data[0]
 			Input['Reference'] = Data[0]
 			Input['Input'] = Data[1]
-			if self.Lobby.BattleID and self.Lobby.Battles[self.Lobby.BattleID]['PassthoughBattleLobbyToSpring']:
+			if self.Lobby.BattleID and self.GroupConfig['PassthoughBattleLobbyToSpring']:
 				self.Spring.SpringTalk ('<' + Input['User'] + '> ' + Input['Input'])
 		elif Source == 'INTERNAL':
 			Input['Source'] = 'Battle'

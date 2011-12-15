@@ -19,10 +19,25 @@ class Spring:
 		self.HeadlessSpeed = [1, 3]
 	
 	
+	def SpringEvent (self, Event, Data = ''):
+		self.Debug (str (Event) + '::' + str (Data))
+		
+		if Event == 'USER_CHAT_ALLY':
+			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringAllyToBattleLobby']:
+				self.Lobby.BattleSay ('<' + str (Data[0]) + '> Ally: ' + str (Data[1]))
+		elif Event == 'USER_CHAT_SPEC':
+			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringSpecToBattleLobby']:
+				self.Lobby.BattleSay ('<' + str (Data[0]) + '> Spec: ' + str (Data[1]))
+		elif Event == 'USER_CHAT_PUBLIC':
+			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringNormalToBattleLobby']:
+				self.Lobby.BattleSay ('<' + str (Data[0]) + '> ' + str (Data[1]))
+	
+	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('Spring::Start (' + Reason + ')')
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
+		print '::' + str (ScriptURI)
 		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI]) 
 		
 		self.SpringUDP = SpringUDP (self, self.Debug)
@@ -218,23 +233,30 @@ class SpringUDP (threading.Thread):
 			Data, self.ServerAddr = self.Socket.recvfrom (8192)
 			if Data:
 				if ord (Data[0]) == 1:	# Game stop
+					self.Spring.SpringEvent ('SERVER_QUIT')
 					self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
 				if ord (Data[0]) == 2:	# Game start
+					self.Spring.SpringEvent ('GAME_START')
 					if self.Spring.Headless:
 						self.Talk ('/setminspeed 1')
 						self.Talk ('/setmaxspeed 1')
 						self.Talk ('/setminspeed ' + str (self.Spring.HeadlessSpeed[0]))
 						self.Talk ('/setmaxspeed ' + str (self.Spring.HeadlessSpeed[1]))
 				if ord (Data[0]) == 3:	# Battle ended
+					self.Spring.SpringEvent ('GAME_END')
 					self.Spring.Lobby.BattleSay ('Battle ended', 1)
 				if ord (Data[0]) == 10:	# User joined
+					self.Spring.SpringEvent ('USER_JOINED', Data[2:])
 					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0}
 				if ord (Data[0]) == 11:	# User left
+					self.Spring.SpringEvent ('USER_LEFT', self.SpringUsers[Data[1]]['Alias'])
 					del (self.SpringUsers[Data[1]])
 				if ord (Data[0]) == 12:	# User ready
+					self.Spring.SpringEvent ('USER_READY', self.SpringUsers[Data[1]]['Alias'])
 					self.SpringUsers[Data[1]]['Ready'] = 1
 					self.SpringUsers[Data[1]]['Alive'] = 1
 				if ord (Data[0]) == 14:	# User died
+					self.Spring.SpringEvent ('USER_DIED', self.SpringUsers[Data[1]]['Alias'])
 					self.SpringUsers[Data[1]]['Alive'] = 0
 				
 				if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
@@ -248,14 +270,11 @@ class SpringUDP (threading.Thread):
 				
 				if ord (Data[0]) == 13:	# Battle chat
 					if ord (Data[2]) == 252:	# Ally chat
-						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringAllyToBattleLobby']:
-							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> Ally: ' + str (Data[3:]))
+						self.Spring.SpringEvent ('USER_CHAT_ALLY', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
 					if ord (Data[2]) == 253:	# Spec chat
-						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringSpecToBattleLobby']:
-							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> Spec: ' + str (Data[3:]))
+						self.Spring.SpringEvent ('USER_CHAT_SPEC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
 					if ord (Data[2]) == 254:	# Public chat
-						if self.Spring.Lobby.BattleID and self.Spring.Lobby.Battles[self.Spring.Lobby.BattleID]['PassthoughSpringNormalToBattleLobby']:
-							self.Spring.Lobby.BattleSay ('<' + self.SpringUsers[Data[1]]['Alias'] + '> ' + str (Data[3:]))
+						self.Spring.SpringEvent ('USER_CHAT_PUBLIC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
 		self.Terminate ()
 	
 	
@@ -285,13 +304,18 @@ class SpringUDP (threading.Thread):
 		self.Active = 0
 		self.Talk ('/quit')
 		try:
-			self.Debug ('Terminate & close UDP socked')
+			self.Debug ('Terminate UDP socked')
 			self.Socket.terminate (2)
+		except:
+			self.Debug ('FAILED: Terminate UDP socked')
+		try:
+			self.Debug ('Close UDP socked')
 			self.Socket.close ()
 		except:
-			self.Debug ('FAILED: Terminate & close UDP socked')
-		self.Debug ('SystemExit')
-		raise SystemExit ()
-		self.Debug ('SystemExit OK')
-		sys.exit ()
-		self.Debug ('sys.exit ()')
+			self.Debug ('FAILED: Close UDP socked')
+		
+#		self.Debug ('SystemExit')
+#		raise SystemExit ()
+#		self.Debug ('SystemExit OK')
+#		sys.exit ()
+#		self.Debug ('sys.exit ()')

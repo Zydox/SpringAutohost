@@ -33,6 +33,8 @@ class HandleCFG:
 			'terminate':['owner'],
 			'compile':['owner', 'devel'],
 			'spring':['owner', 'devel'],
+			'downloadmod':['owner'],
+			'downloadmap':['owner'],
 		}
 		self.Server.AccessRoles = {
 			'owner':{

@@ -62,8 +62,12 @@ class Server:
 			if self.Config['Groups'].has_key (Group):
 				for Account in AccountRange:
 					if self.Config['GroupUsers'][Group].has_key (Account):
-						print self.Config['GroupUsers'][Group][Account]
-						self.Hosts[Account] = host.Host (self, self.Config['Groups'][Group], self.Config['GroupUsers'][Group][Account])
+#						print self.Config['GroupUsers'][Group][Account]
+						Config = self.Config['Groups'][Group]
+						for Key in Config.keys ():
+							if self.Config['GroupUsers'][Group][Account].has_key (Key):
+								Config[Key] = self.Config['GroupUsers'][Group][Account][Key]
+						self.Hosts[Account] = host.Host (self, Config, self.Config['GroupUsers'][Group][Account])
 						self.Hosts[Account].start ()
 						break
 		

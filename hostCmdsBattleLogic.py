@@ -256,13 +256,15 @@ class HostCmdsBattleLogic:
 		#2097152
 		if Sync == 1:	Status = Status + 4194304
 		elif Sync == 2:	Status = Status + 8388608
-		if Side == 'CORE':	iSide = 1
-		else:	iSide = 0
-		Tmp = self.Lobby.dec2bin (int (iSide), 4)
-		if Tmp[0]:	Status = Status + 16777216
-		if Tmp[1]:	Status = Status + 33554432
-		if Tmp[2]:	Status = Status + 67108864
-		if Tmp[3]:	Status = Status + 134217728
+		
+		Mod = self.Host.GetUnitsyncMod ()
+		for iSide in Mod['Sides'].keys ():
+			if Mod['Sides'][iSide] == Side:
+				Tmp = self.Lobby.dec2bin (int (iSide), 4)
+				if Tmp[0]:	Status = Status + 16777216
+				if Tmp[1]:	Status = Status + 33554432
+				if Tmp[2]:	Status = Status + 67108864
+				if Tmp[3]:	Status = Status + 134217728
 		
 		return (Status)
 

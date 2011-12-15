@@ -47,7 +47,6 @@ class HostCmdsBattle:
 			return ('Battle started')
 		elif Command == 'stop':
 			Return = self.Host.Spring.SpringStop ()
-			self.Host.Lobby.BattleStop ()
 			return (Return)
 		elif Command == 'lock':
 			if len (Data) == 1:

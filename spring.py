@@ -296,7 +296,10 @@ class SpringUDP (threading.Thread):
 	
 	def Talk (self, Message):
 		self.Debug (str (Message))
-		self.Socket.sendto (str (Message), self.ServerAddr)
+		try:
+			self.Socket.sendto (str (Message), self.ServerAddr)
+		except:
+			self.Debug ('Socked send failed')
 	
 	
 	def Terminate (self, Message = ''):

@@ -14,9 +14,6 @@ class Host (threading.Thread):
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
 		self.GroupConfig = GroupConfig
-		self.GroupConfig['Alias'] = {
-			'ai4':['addbot 2 2 CORE 00BFFF KAIK', 'addbot 3 2 CORE 00FFFF KAIK', 'addbot 4 2 ARM 00FF7F KAIK', 'addbot 5 2 ARM 32CD32 KAIK'],
-		}
 		self.SpringVersion = self.GetSpringVersion ()
 		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)

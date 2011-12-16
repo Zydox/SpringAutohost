@@ -90,7 +90,14 @@ class HandleCFG:
 					if not self.Server.Config['Groups'][GroupID]['Events'].has_key (Event):
 						self.Server.Config['Groups'][GroupID]['Events'][Event] = []
 					self.Server.Config['Groups'][GroupID]['Events'][Event].append (Line[Line.index ('=') + 1:-1])
-				elif Line.index ('='):
+				elif Line[0:7] == '[ALIAS=' and Line[-1] == ']':
+					Type = 'Alias'
+					Alias = Line[7:-1].strip ()
+					if not self.Server.Config['Groups'][GroupID].has_key ('Alias'):
+						self.Server.Config['Groups'][GroupID]['Alias'] = {}
+					if not self.Server.Config['Groups'][GroupID]['Alias'].has_key (Alias):
+						self.Server.Config['Groups'][GroupID]['Alias'][Alias] = []
+				elif '=' in Line:
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ().replace ('~', os.environ['HOME'])
 #					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
@@ -100,6 +107,9 @@ class HandleCFG:
 						self.Server.Config['Groups'][GroupID][Var] = Value
 					elif Type == 'User':
 						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value
+				elif Line and Type == 'Alias':
+					self.Server.Config['Groups'][GroupID]['Alias'][Alias].append (Line)
+					
 		FP.close ()
 	
 	

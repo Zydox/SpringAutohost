@@ -30,7 +30,8 @@ class SpringUnitsync:
 		else:
 			Version = 'Default'
 			self.Unitsync = unitsync.Unitsync (self.Server.Config['General']['PathUnitsync'])
-
+		
+		self.Unitsync.UnInit ()
 		self.Unitsync.Init (True, 1)
 		self.LoadMaps (Version)
 		self.LoadMods (Version)

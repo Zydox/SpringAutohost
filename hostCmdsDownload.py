@@ -88,7 +88,10 @@ class HostCmdsDownload:
 				self.Debug ('Download:' + str (Mirror))
 				urllib.urlretrieve (Mirror, FilePath)
 				if self.DownloadFileVerify (FilePath, Mirror, Result):
-					return (True)
+					if self.Server.SpringUnitsync.Load (self.Host.SpringVersion):
+						return (True)
+					else:
+						self.Debug ('Unitsync re-load failed')
 	
 	
 	def DownloadFileVerify (self, FilePath, Mirror, Result):

@@ -42,9 +42,7 @@ class HostCmdsBattle:
 		elif Command == 'maps':
 			return (self.Logic.LogicListMaps ())
 		elif Command == 'start':
-			self.Host.Spring.SpringStart ()
-			self.Host.Lobby.BattleStart ()
-			return ('Battle started')
+			return (self.Logic.LogicStartBattle ())
 		elif Command == 'stop':
 			Return = self.Host.Spring.SpringStop ()
 			return (Return)

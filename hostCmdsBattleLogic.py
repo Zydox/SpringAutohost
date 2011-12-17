@@ -1,4 +1,5 @@
 # -*- coding: ISO-8859-1 -*-
+import time
 
 class HostCmdsBattleLogic:
 	def __init__ (self, ClassHostCmdsBattle, ClassServer, ClassHost):
@@ -181,6 +182,23 @@ class HostCmdsBattleLogic:
 			return ('StartPos must be between 0 and 2')
 	
 	
+	def LogicStartBattle (self):
+		self.Debug ()
+		
+		Locked = self.Lobby.Battles[self.Lobby.BattleID]['Locked']
+		self.Lobby.BattleLock (1)
+		self.Lobby.BattleSay ('Preparing to start the battle...', 1)
+		time.sleep (1)
+		
+		if self.Host.Spring.SpringStart ():
+			self.Lobby.BattleStart ()
+			self.Lobby.BattleLock (Locked)
+			return ('Battle started')
+		else:
+			self.Lobby.BattleLock (Locked)
+			return ('Battle failed to start')
+	
+	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
 		self.Refresh ()
 		TeamRank = {}
@@ -267,8 +285,8 @@ class HostCmdsBattleLogic:
 				if Tmp[3]:	Status = Status + 134217728
 		
 		return (Status)
-
-
+	
+	
 	def LogicFunctionBattleColor (self, HexColor):
 		Color = int (HexColor[4:6] + HexColor[2:4] + HexColor[0:2], 16)
 		return (Color)

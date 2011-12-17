@@ -35,15 +35,14 @@ class Spring:
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('Spring::Start (' + Reason + ')')
+		
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
-		print '::' + str (ScriptURI)
 		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI]) 
-		
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()
-		self.Host.HostCmds.Notifications ('BATTLE_STARTED')
 		
+		self.Host.HostCmds.Notifications ('BATTLE_STARTED')
 		return (True)
 	
 	

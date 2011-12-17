@@ -92,7 +92,7 @@ class Host (threading.Thread):
 				Input['Command'] = self.Lobby.ReturnValue (Input['Input'], ' ')[1:]
 				Input['RawData'] = Input['Input'][len (Input['Command']) + 2:]
 				Input['Data'] = []
-			
+				
 				if self.HostCmds.Commands.has_key (Input['Command']):
 					Data = Input['RawData']
 					Failed = 0

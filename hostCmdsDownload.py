@@ -29,7 +29,7 @@ class HostCmdsDownload:
 		self.Debug ('HandleInput::' + str (Command) + '::' + str (Data))
 		
 		if Command == 'downloadsearch':
-			Results = self.XMLRPC_Proxy.springfiles.search ({"logical" : "or", "tag" : Data[0], "filename" : Data[0], "springname" : Data[0], "torrent" : True})
+			Results = self.XMLRPC_Proxy.springfiles.search ({"logical" : "or", "tag" : Data[0], "filename" : Data[0], "springname" : Data[0], "torrent" : True, "nosensitive":True})
 			if Results:
 				Return = ['Found matcher (top 10 max):']
 				for Result in Results:
@@ -73,7 +73,7 @@ class HostCmdsDownload:
 	
 	def XMLRPC_Init (self):
 		self.Debug ()
-		self.XMLRPC_Proxy = ServerProxy ('http://springfiles.com/xmlrpc.php')
+		self.XMLRPC_Proxy = ServerProxy ('http://api.springfiles.com/xmlrpc.php')
 	
 	
 	def DownloadFile (self, Result, Type):

@@ -82,7 +82,7 @@ class HandleCFG:
 					if not self.Server.Config['GroupUsers'].has_key (GroupID):
 						self.Server.Config['GroupUsers'][GroupID] = {}
 					if not self.Server.Config['GroupUsers'][GroupID].has_key (UserID):
-						self.Server.Config['GroupUsers'][GroupID][UserID] = {'Account':UserID}
+						self.Server.Config['GroupUsers'][GroupID][UserID] = {'ID':UserID}
 				elif Line[0:7] == '[EVENT_' and Line[-1] == ']':
 					Event = Line[7:Line.index ('=')]
 					if not self.Server.Config['Groups'][GroupID].has_key ('Events'):

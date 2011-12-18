@@ -37,9 +37,8 @@ class Server:
 	
 	def Start (self):
 		self.Debug ("Start server")
-		self.SpawnHost ('BA', 'TourneyBot')
-#		self.SpawnHost ('BACD', 'TourneyBot')
-		
+		for Group in self.Config['Groups'].keys ():
+			self.SpawnHost (Group)
 	
 	
 	def SpawnHost (self, Group = None, Account = None):
@@ -57,12 +56,12 @@ class Server:
 			for Group in GroupRange:
 				for Account in self.Config['GroupUsers'][Group].keys ():
 					AccountRange.append (Account)
+		AccountRange.sort ()
 		
 		for Group in GroupRange:
 			if self.Config['Groups'].has_key (Group):
 				for Account in AccountRange:
 					if self.Config['GroupUsers'][Group].has_key (Account):
-#						print self.Config['GroupUsers'][Group][Account]
 						Config = self.Config['Groups'][Group]
 						for Key in Config.keys ():
 							if self.Config['GroupUsers'][Group][Account].has_key (Key):

@@ -13,7 +13,7 @@ class Lobby (threading.Thread):
 		self.Server = ClassServer
 		self.CallbackChat = FunctionCallbackChat
 		self.CallbackEvent = FunctionCallbackEvent
-		self.User = LoginInfo['Account']
+		self.User = LoginInfo['Login']
 		self.Passwd = LoginInfo['Password']
 		self.BattlePort = LoginInfo['Port']
 		self.IP = None

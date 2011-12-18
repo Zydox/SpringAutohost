@@ -25,6 +25,7 @@ class HostCmdsBattleLogic:
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if not UnitsyncMap:
 			return ('Map doesn\'t exist')
+		Desc = 'Test'
 		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], 'Test', 16)
 	
 	
@@ -118,7 +119,7 @@ class HostCmdsBattleLogic:
 				AIs.append (User)
 		if len (AIs):
 			for AI in AIs:
-				self.Lobby.BattleUpdateAI (AI, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[AI]['Ally'], 0, 0, 0, self.BattleUsers[AI]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[AI]['Color']))
+				self.Lobby.BattleUpdateAI (AI, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[AI]['Ally'], 0, self.BattleUsers[AI]['Handicap'], 0, self.BattleUsers[AI]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[AI]['Color']))
 				if ID < 15:
 					ID = ID + 1
 		return ('IDs fixed')
@@ -199,6 +200,20 @@ class HostCmdsBattleLogic:
 			return ('Battle failed to start')
 	
 	
+	def LogicSetHandicap (self, User, Hcp):
+		self.Debug ('User:' + str (User) + ', Hcp:' + str (Hcp))
+		if self.Host.Lobby.BattleUsers.has_key (User):
+			if Hcp >= 0 and Hcp <= 100:
+				if self.BattleUsers[User]['AI']:
+					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, int (Hcp), 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
+				else:
+					self.Lobby.BattleHandicap (User, Hcp)
+			else:
+				return ('Handicap must be in the range of 0 - 100')
+		else:
+			return ('User "' + str (User) + '" is not in this battle')
+	
+	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
 		self.Refresh ()
 		TeamRank = {}
@@ -276,13 +291,17 @@ class HostCmdsBattleLogic:
 		elif Sync == 2:	Status = Status + 8388608
 		
 		Mod = self.Host.GetUnitsyncMod ()
+		SideOK = -1
 		for iSide in Mod['Sides'].keys ():
 			if Mod['Sides'][iSide] == Side:
-				Tmp = self.Lobby.dec2bin (int (iSide), 4)
-				if Tmp[0]:	Status = Status + 16777216
-				if Tmp[1]:	Status = Status + 33554432
-				if Tmp[2]:	Status = Status + 67108864
-				if Tmp[3]:	Status = Status + 134217728
+				SideOK = iSide
+		if SideOK == -1:
+			SideOK = int (Side)
+		Tmp = self.Lobby.dec2bin (int (SideOK), 4)
+		if Tmp[0]:	Status = Status + 16777216
+		if Tmp[1]:	Status = Status + 33554432
+		if Tmp[2]:	Status = Status + 67108864
+		if Tmp[3]:	Status = Status + 134217728
 		
 		return (Status)
 	

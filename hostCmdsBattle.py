@@ -29,6 +29,7 @@ class HostCmdsBattle:
 			'spring':[['V'], 'Source', '!spring <spring version>', 'Sets the spring version to the specified tag'],
 			'modoption':[['V', '*'], 'Source', '!modoption <option> <value>', 'Sets a mod option'],
 			'startpos':[['I'], 'Source', '!startpos <0-3>', 'Sets the start pos (0 Fixed, 1 Randon, 2 Choose in-game, 3 Choose now)'],
+			'hcp':[['V', 'I'], 'Source', '!hcp <user> <hcp>', 'Sets the handicap for the specified user'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -89,3 +90,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicSetModOption (Data[0], Data[1]))
 		elif Command == 'startpos':
 			return (self.Logic.LogicSetStartPos (Data[0]))
+		elif Command == 'hcp':
+			return (self.Logic.LogicSetHandicap (Data[0], Data[1]))

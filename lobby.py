@@ -4,6 +4,7 @@ import time
 import socket
 import hashlib, base64, binascii
 import random
+import sys
 
 class Lobby (threading.Thread):
 	def __init__ (self, ClassServer, FunctionCallbackChat, FunctionCallbackEvent, LoginInfo):
@@ -63,6 +64,7 @@ class Lobby (threading.Thread):
 			'ADDBOT':['I', 'V', 'V', 'B32', 'I', 'S'],
 			'REMOVEBOT':['I', 'V'],
 			'DENIED':['S'],
+			'UPDATEBOT':['I', 'V', 'B32', 'I'],
 		}
 	
 	
@@ -287,6 +289,16 @@ class Lobby (threading.Thread):
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'DENIED':
 			self.Debug ('DENIED::' + str (Arg[0]))
+		elif Command == 'UPDATEBOT':
+			if Arg[0] == self.BattleID:
+				self.BattleUsers[Arg[1]]['Ready'] = int (Arg[2][1])
+				self.BattleUsers[Arg[1]]['Team'] = int (Arg[2][5]) * 8 + int (Arg[2][4]) * 4 + int (Arg[2][3]) * 2 + int (Arg[2][2])
+				self.BattleUsers[Arg[1]]['Ally'] = int (Arg[2][9]) * 8 + int (Arg[2][8]) * 4 + int (Arg[2][7]) * 2 + int (Arg[2][6])
+				self.BattleUsers[Arg[1]]['Spectator'] = {0:1, 1:0}[int (Arg[2][10])]
+				self.BattleUsers[Arg[1]]['Handicap'] = int (Arg[2][17]) * 64 + int (Arg[2][16]) * 32 + int (Arg[2][15]) * 16 + int (Arg[2][14]) * 8 + int (Arg[2][13]) * 4 + int (Arg[2][12]) * 2 + int (Arg[2][11])
+				self.BattleUsers[Arg[1]]['Synced'] = int (Arg[2][23]) * 2 + int (Arg[2][22])
+				self.BattleUsers[Arg[1]]['Side'] = int (Arg[2][27]) * 8 + int (Arg[2][26]) * 4 + int (Arg[2][25]) * 2 + int (Arg[2][24])
+				self.BattleUsers[Arg[1]]['Color'] = self.ToHexColor (Arg[3])
 		
 		
 		if self.Commands.has_key (Command):
@@ -377,6 +389,10 @@ class Lobby (threading.Thread):
 		self.Send ('UPDATEBOT ' + str (AI) + ' ' + str (BattleStatus) + ' ' + str (Color))
 	
 	
+	def BattleHandicap (self, User, Handicap):
+		self.Send ('HANDICAP ' + str (User) + ' ' + str (Handicap))
+	
+	
 	def BattleUpdateScript (self, Tags):
 		Script = ''
 		for Tag in Tags:
@@ -462,7 +478,9 @@ class Lobby (threading.Thread):
 	
 	def Terminate (self):
 		self.Debug ()
+		self.Ping.Terminate ()
 		self.Disconnect ()
+		sys.exit ()
 
 
 class LobbyPing (threading.Thread):
@@ -472,13 +490,21 @@ class LobbyPing (threading.Thread):
 		self.Ping = FunctionPing
 		self.Debug = FunctionDebug
 		self.SleepCounter = 0
+		self.Active = 0
 	
 	
 	def run (self):
 		self.Debug ('Lobby Ping start')
-		while self.Lobby.Active:
+		self.Active = 1
+		while self.Lobby.Active and self.Active:
 			if self.SleepCounter == 25:
 				self.SleepCounter = 0
 				self.Ping ()
 			self.SleepCounter = self.SleepCounter + 1
 			time.sleep (1)
+	
+	
+	def Terminate (self):
+		self.Debug ()
+		self.Active = 0
+		sys.exit ()

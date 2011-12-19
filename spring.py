@@ -86,7 +86,6 @@ class Spring:
 		FP.write ('[GAME]\n')
 		FP.write ('{\n')
 		FP.write ('\tMapname=' + str (Battle['Map']) + ';\n')
-		FP.write ('\tMaphash=' + str (Battle['MapHash']) + ';\n')
 		FP.write ('\t[modoptions]\n')
 		FP.write ('\t{\n')
 		if self.Host.Battle.has_key ('ModOptions'):
@@ -99,7 +98,6 @@ class Spring:
 		FP.write ('\t}\n')
 		FP.write ('\tStartPosType=' + str (self.Host.Battle['StartPosType']) + ';\n')
 		FP.write ('\tGameType=' + str (Battle['Mod']) + ';\n')
-		FP.write ('\tModHash=' + str (UnitsyncMod['Hash']) + ';\n')
 		FP.write ('\tHostIP=' + str (self.Lobby.IP) + ';\n')
 		FP.write ('\tHostPort=' + str (self.Lobby.BattlePort) + ';\n')
 		if self.Headless:

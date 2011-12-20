@@ -25,8 +25,14 @@ class HostCmdsBattleLogic:
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if not UnitsyncMap:
 			return ('Map doesn\'t exist')
-		Desc = 'Test'
-		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], 'Test', 16)
+		Desc = self.Host.GroupConfig['BattleDescription']
+		if self.Host.GroupConfig.has_key ('SpringBuild'):
+			DefaultBuild = self.Host.GroupConfig['SpringBuild']
+		else:
+			DefaultBuild = self.Server.Config['General']['SpringBuildDefault']
+		if DefaultBuild != self.Host.SpringVersion:
+			Desc = 'Dev build:' + str (self.Host.SpringVersion) + ', ' + Desc
+		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], Desc, 16)
 	
 	
 	def LogicRing (self, User =''):

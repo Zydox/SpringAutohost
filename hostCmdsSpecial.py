@@ -1,6 +1,8 @@
 # -*- coding: ISO-8859-1 -*-
 import os, time, datetime
 import inspect
+from collections import deque
+
 
 class HostCmdsSpecial:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
@@ -14,6 +16,7 @@ class HostCmdsSpecial:
 			'help':[[], 'PM', '!help', 'Displays help'],
 			'terminate':[[], 'Source', '!terminate', 'Shuts down the bot'],
 			'compile':[['V'], 'Source', '!compile <spring tag>', 'Compiles the provided spring version'],
+			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -58,7 +61,15 @@ class HostCmdsSpecial:
 			self.Host.Lobby.BattleSay ('Battle un-locked, build completed', 1)
 			self.Host.Lobby.BattleLock (0)
 			return (Return)
-			
+		elif Command == 'infolog':
+			File = open('/root/.spring/infolog.txt', 'r')
+			Return = deque ([])
+			for Line in File:
+				Return.append (Line)
+				if len (Return) > 20:
+					Return.popleft ()
+			File.close ()
+			return (list (Return))
 	
 	def StringPad (self, String, Length, Char = '0'):
 		while len (String) < Length:

@@ -232,46 +232,48 @@ class SpringUDP (threading.Thread):
 				if ord (Data[0]) == 1:	# Game stop
 					self.Spring.SpringEvent ('SERVER_QUIT')
 					self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
-				if ord (Data[0]) == 2:	# Game start
+				elif ord (Data[0]) == 2:	# Game start
 					self.Spring.SpringEvent ('GAME_START')
 					if self.Spring.Headless:
 						self.Talk ('/setminspeed 1')
 						self.Talk ('/setmaxspeed 1')
 						self.Talk ('/setminspeed ' + str (self.Spring.HeadlessSpeed[0]))
 						self.Talk ('/setmaxspeed ' + str (self.Spring.HeadlessSpeed[1]))
-				if ord (Data[0]) == 3:	# Battle ended
+				elif ord (Data[0]) == 3:	# Battle ended
 					self.Spring.SpringEvent ('GAME_END')
 					self.Spring.Lobby.BattleSay ('Battle ended', 1)
-				if ord (Data[0]) == 10:	# User joined
+				elif ord (Data[0]) == 4:	# Information
+					self.Spring.SpringEvent ('INFORMATION', Data[1:])
+				elif ord (Data[0]) == 10:	# User joined
 					self.Spring.SpringEvent ('USER_JOINED', Data[2:])
 					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0}
-				if ord (Data[0]) == 11:	# User left
+				elif ord (Data[0]) == 11:	# User left
 					self.Spring.SpringEvent ('USER_LEFT', self.SpringUsers[Data[1]]['Alias'])
 					del (self.SpringUsers[Data[1]])
-				if ord (Data[0]) == 12:	# User ready
+				elif ord (Data[0]) == 12:	# User ready
 					self.Spring.SpringEvent ('USER_READY', self.SpringUsers[Data[1]]['Alias'])
 					self.SpringUsers[Data[1]]['Ready'] = 1
 					self.SpringUsers[Data[1]]['Alive'] = 1
-				if ord (Data[0]) == 14:	# User died
-					self.Spring.SpringEvent ('USER_DIED', self.SpringUsers[Data[1]]['Alias'])
-					self.SpringUsers[Data[1]]['Alive'] = 0
-				
-				if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
-					try:
-						self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
-					except:
-						try:
-							self.Debug ('UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
-						except:
-							self.Debug ('UDP::' + str (ord (Data[0])))
-				
-				if ord (Data[0]) == 13:	# Battle chat
+				elif ord (Data[0]) == 13:	# Battle chat
 					if ord (Data[2]) == 252:	# Ally chat
 						self.Spring.SpringEvent ('USER_CHAT_ALLY', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
 					if ord (Data[2]) == 253:	# Spec chat
 						self.Spring.SpringEvent ('USER_CHAT_SPEC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
 					if ord (Data[2]) == 254:	# Public chat
 						self.Spring.SpringEvent ('USER_CHAT_PUBLIC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+				elif ord (Data[0]) == 14:	# User died
+					self.Spring.SpringEvent ('USER_DIED', self.SpringUsers[Data[1]]['Alias'])
+					self.SpringUsers[Data[1]]['Alive'] = 0
+				else:
+					if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
+						try:
+							self.Debug ('UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
+						except:
+							try:
+								self.Debug ('UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
+							except:
+								self.Debug ('UNKNOWN_UDP::' + str (ord (Data[0])))
+				
 		self.Terminate ()
 	
 	

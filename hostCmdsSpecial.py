@@ -16,6 +16,7 @@ class HostCmdsSpecial:
 			'help':[[], 'PM', '!help', 'Displays help'],
 			'terminate':[[], 'Source', '!terminate', 'Shuts down the bot'],
 			'compile':[['V'], 'Source', '!compile <spring tag>', 'Compiles the provided spring version'],
+			'recompile':[['V'], 'Source', '!recompile <spring tag>', 'Re-compiles the provided spring version'],
 			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog'],
 		}
 		for Command in self.Commands:
@@ -50,10 +51,13 @@ class HostCmdsSpecial:
 			return (Return)
 		elif Command == 'terminate':
 			self.Host.Terminate ()
-		elif Command == 'compile':
+		elif Command == 'compile' or Command == 'recompile':
 			self.Host.Lobby.BattleLock (1)
 			self.Host.Lobby.BattleSay ('Battle locked, building spring "' + str (Data[0]) + '"...', 1)
-			Result = self.Server.SpringUnitsync.Load (Data[0])
+			if Command == 'compile':
+				Result = self.Server.SpringUnitsync.Load (Data[0])
+			elif Command == 'recompile':
+				Result = self.Server.SpringUnitsync.Load (Data[0], 1)
 			if Result:
 				Return = 'Spring "' + str (Data[0]) + '" compiled'
 			else:

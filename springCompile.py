@@ -16,13 +16,13 @@ class SpringCompile:
 		self.Prefix = 'Version_'
 		
 	
-	def GetSpringVersion (self, Version):
+	def GetSpringVersion (self, Version, ReCompile = 0):
 		VersionPath = self.Prefix + Version + ''
-		self.Debug (str (Version) + '/' + str (VersionPath))
+		self.Debug (str (Version) + '/' + str (VersionPath) + '/' + str (ReCompile))
 		Return = {}
 		Path = self.BasePath + str (VersionPath)
 		
-		if not self.ExistsSpringVersion (Version):
+		if ReCompile or not self.ExistsSpringVersion (Version):
 			self.Debug ('Compile start')
 			os.chdir (self.BasePath)
 			if os.path.exists (self.BasePath + 'spring'):

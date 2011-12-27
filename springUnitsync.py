@@ -13,7 +13,7 @@ class SpringUnitsync:
 		self.Load ()
 	
 	
-	def Load (self, Version = ''):
+	def Load (self, Version = '', ReCompile = 0):
 		self.Debug (str (Version))
 		if not Version and self.Server.Config['General'].has_key ('SpringBuildDefault'):
 			Version = self.Server.Config['General']['SpringBuildDefault']
@@ -21,7 +21,7 @@ class SpringUnitsync:
 		if Version:
 			if not self.SpringCompile:
 				self.SpringCompile = springCompile.SpringCompile (self.Server)
-			Result = self.SpringCompile.GetSpringVersion (Version)
+			Result = self.SpringCompile.GetSpringVersion (Version, ReCompile)
 			if Result and type (Result) is dict and Result.has_key ('Path'):
 				self.Unitsync = unitsync.Unitsync (Result['Path'] + '/libunitsync.so')
 			else:

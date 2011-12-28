@@ -8,7 +8,7 @@ import lobby
 class Collection:
 	def __init__ (self):
 		self.Debug ("Initiate")
-		self.HandleCFG = handleCFG.HandleCFG (self)
+		self.HandleCFG = handleCFG.HandleCFG (self, 0)
 		self.Start ()
 	
 	

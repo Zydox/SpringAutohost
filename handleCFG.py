@@ -3,13 +3,13 @@ import os
 import sys
 
 class HandleCFG:
-	def __init__ (self, Class):
+	def __init__ (self, Class, CheckCFG = 1):
 		self.Server = Class
 		self.Debug = Class.Debug
-		self.LoadCFG ()
+		self.LoadCFG (CheckCFG)
 	
 	
-	def LoadCFG (self):
+	def LoadCFG (self, CheckCFG):
 		self.Debug ()
 		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
 		if len (sys.argv) < 2:
@@ -18,7 +18,8 @@ class HandleCFG:
 		
 		for File in sys.argv[1:]:
 			self.LoadFile (File)
-		self.CheckBaseConfig ()
+		if CheckCFG:
+			self.CheckBaseConfig ()
 #		print self.Server.Config
 #		sys.exit ()
 		

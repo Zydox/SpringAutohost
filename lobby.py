@@ -12,12 +12,13 @@ class Lobby (threading.Thread):
 		self.Debug = FunctionCallbackDebug
 		self.CallbackChat = FunctionCallbackChat
 		self.CallbackEvent = FunctionCallbackEvent
-		self.User = LoginInfo['Login']
-		self.Passwd = LoginInfo['Password']
-		self.BattlePort = LoginInfo['Port']
+		self.User = None
+		self.Passwd = None
+		self.BattlePort = None
+		self.HostIP = None
+		self.HostPort = None
 		self.IP = None
-		self.HostIP = LoginInfo['LobbyHost']
-		self.HostPort = LoginInfo['LobbyPort']
+		self.SetLoginInfo (LoginInfo)
 		self.Ping = LobbyPing (self, self.Ping, self.Debug)
 		self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.Active = 0
@@ -91,11 +92,25 @@ class Lobby (threading.Thread):
 					else:
 						Info = {"Time":int (time.time ()), "Loops":0}
 					print "*** No data :/"
-		
-
+	
+	
+	def SetLoginInfo (self, LoginInfo):
+		self.Debug ()
+		if LoginInfo.has_key ('Login'):
+			self.User = LoginInfo['Login']
+		if LoginInfo.has_key ('Password'):
+			self.Passwd = LoginInfo['Password']
+		if LoginInfo.has_key ('Port'):
+			self.BattlePort = LoginInfo['Port']
+		if LoginInfo.has_key ('LobbyHost'):
+			self.HostIP = LoginInfo['LobbyHost']
+		if LoginInfo.has_key ('LobbyPort'):
+			self.HostPort = LoginInfo['LobbyPort']
+	
+	
 	def HandleCommand (self, RawData):
 #		self.Debug ('Command::' + str (Command))
-
+		
 		Command = self.ReturnValue (RawData, ' ')
 		Data = RawData[len (Command) + 1:]
 		if self.Commands.has_key (Command):

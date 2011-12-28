@@ -203,6 +203,7 @@ class Lobby (threading.Thread):
 		elif Command == 'JOINEDBATTLE':
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])
+				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - self.Battles[Arg[0]]['Spectators']
 				if Arg[0] == self.BattleID:
 					self.BattleUsers[Arg[1]] = {
 						'Password':Arg[2],
@@ -219,6 +220,7 @@ class Lobby (threading.Thread):
 		elif Command == "LEFTBATTLE":
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
+				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - self.Battles[Arg[0]]['Spectators']
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 			if self.Users.has_key (Arg[1]):

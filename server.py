@@ -68,8 +68,7 @@ class Server:
 								Config[Key] = self.Config['GroupUsers'][Group][Account][Key]
 						self.Hosts[Account] = host.Host (self, Config, self.Config['GroupUsers'][Group][Account])
 						self.Hosts[Account].start ()
-						break
-		
+						break	# only spawn one host for each group
 
 
 S = Server ()

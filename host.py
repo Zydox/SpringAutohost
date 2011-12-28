@@ -34,7 +34,7 @@ class Host (threading.Thread):
 		if len (self.GroupConfig['LobbyChannels']) > 0:
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
-		
+		self.Debug ('Run finnished')
 #		print self.GetUnitsyncMod (self.GroupConfig['Mod'])['Options']
 #		sys.exit ()
 	
@@ -219,10 +219,10 @@ class Host (threading.Thread):
 				else:
 					self.UserRoles[User]['%BattlePlayer%'] = 1
 			
-		if self.UserRoles.has_key (User):
-			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
-			print (self.UserRoles[User])
-			print (self.UserRoles)
+#		if self.UserRoles.has_key (User):
+#			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
+#			print (self.UserRoles[User])
+#			print (self.UserRoles)
 	
 	
 	def LoadBattleDefaults (self):
@@ -257,7 +257,6 @@ class Host (threading.Thread):
 	
 	
 	def GetSpringVersion (self):
-		print self.GroupConfig
 		if self.GroupConfig.has_key ('SpringBuild') and self.GroupConfig['SpringBuild']:
 			Version = self.GroupConfig['SpringBuild']
 		elif  self.Server.Config['General'].has_key ('SpringBuildDefault'):
@@ -305,6 +304,6 @@ class Host (threading.Thread):
 		self.Debug (str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
-		self.Debug ('sys.exit ()')
-		sys.exit ()
-		self.Debug ('sys.exit () done')
+#		self.Debug ('sys.exit ()')
+#		sys.exit ()
+#		self.Debug ('sys.exit () done')

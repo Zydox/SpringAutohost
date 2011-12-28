@@ -92,6 +92,7 @@ class Lobby (threading.Thread):
 					else:
 						Info = {"Time":int (time.time ()), "Loops":0}
 					print "*** No data :/"
+		self.Debug ('Lobby run finnished')
 	
 	
 	def SetLoginInfo (self, LoginInfo):
@@ -504,7 +505,7 @@ class Lobby (threading.Thread):
 		self.Debug ()
 		self.Ping.Terminate ()
 		self.Disconnect ()
-		sys.exit ()
+#		sys.exit ()
 
 
 class LobbyPing (threading.Thread):
@@ -526,9 +527,10 @@ class LobbyPing (threading.Thread):
 				self.Ping ()
 			self.SleepCounter = self.SleepCounter + 1
 			time.sleep (1)
+		self.Debug ('LobbyPing run finnished')
 	
 	
 	def Terminate (self):
 		self.Debug ()
 		self.Active = 0
-		sys.exit ()
+#		sys.exit ()

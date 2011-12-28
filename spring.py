@@ -115,7 +115,6 @@ class Spring:
 			iP = 0
 		
 		for User in Battle['Users']:
-			print self.Lobby.BattleUsers[User]
 			if not User == self.Lobby.User and not self.Lobby.BattleUsers[User]['AI']:
 				iP = iP + 1
 		FP.write ('\tNumPlayers=' + str (iP) + ';\n')
@@ -166,10 +165,6 @@ class Spring:
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t}\n')
 					iP = iP + 1
-		
-#		print (AIs)
-#		print (Teams)
-#		print (Allys)
 		
 		FP.write ('\tNumTeams=' + str (len (Teams)) + ';\n')
 		

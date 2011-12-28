@@ -203,7 +203,7 @@ class Lobby (threading.Thread):
 					'Players':0,
 					'Locked':0,
 				}
-				
+				self.Users[Arg[3]]['InBattle'] = Arg[0]
 				self.SmurfDetection (Arg[3], Arg[4])
 			else:
 				self.Debug ('ERROR::Battle exsits::' + str (RawData))

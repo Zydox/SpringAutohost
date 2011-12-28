@@ -7,19 +7,18 @@ import random
 import sys
 
 class Lobby (threading.Thread):
-	def __init__ (self, ClassServer, FunctionCallbackChat, FunctionCallbackEvent, LoginInfo):
+	def __init__ (self, FunctionCallbackDebug, FunctionCallbackChat, FunctionCallbackEvent, LoginInfo):
 		threading.Thread.__init__ (self)
-		self.Debug = ClassServer.Debug
-		self.Server = ClassServer
+		self.Debug = FunctionCallbackDebug
 		self.CallbackChat = FunctionCallbackChat
 		self.CallbackEvent = FunctionCallbackEvent
 		self.User = LoginInfo['Login']
 		self.Passwd = LoginInfo['Password']
 		self.BattlePort = LoginInfo['Port']
 		self.IP = None
-		self.Host = ClassServer.Config['General']['LobbyHost']
-		self.Port = ClassServer.Config['General']['LobbyPort']
-		self.Ping = LobbyPing (self, self.Ping, ClassServer.Debug)
+		self.HostIP = LoginInfo['LobbyHost']
+		self.HostPort = LoginInfo['LobbyPort']
+		self.Ping = LobbyPing (self, self.Ping, self.Debug)
 		self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.Active = 0
 		self.LoggedIn = 0
@@ -306,7 +305,7 @@ class Lobby (threading.Thread):
 	
 	
 	def Login (self):
-		self.Debug ('Lobby Login')
+		self.Debug ()
 		self.Send ("LOGIN " + str (self.User) + " " + str (base64.b64encode (binascii.a2b_hex (hashlib.md5 (self.Passwd).hexdigest ()))) + " 0 " + str (self.IP) + " DoxBot\t\ta b sp", 1)
 		
 	
@@ -414,8 +413,8 @@ class Lobby (threading.Thread):
 	
 	
 	def Connect (self):
-		self.Debug ('Lobby connect')
-		self.Socket.connect ((str (self.Host), int (self.Port)))
+		self.Debug ()
+		self.Socket.connect ((str (self.HostIP), int (self.HostPort)))
 		self.Active = 1
 		self.SetIP ()
 	
@@ -428,7 +427,7 @@ class Lobby (threading.Thread):
 	
 	
 	def SetLoggedIn (self):
-		self.Debug ('Logged in')
+		self.Debug ()
 		self.LoggedIn = 1
 		if len (self.LoggedInQueue):
 			for Command in self.LoggedInQueue:
@@ -465,7 +464,7 @@ class Lobby (threading.Thread):
 	
 	
 	def SetIP (self):
-		self.Debug ('Init')
+		self.Debug ()
 		try:
 			self.IP = self.Socket.getsockname ()[0]
 		except:

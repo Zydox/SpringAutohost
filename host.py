@@ -15,7 +15,7 @@ class Host (threading.Thread):
 		self.Debug ('Host Init')
 		self.GroupConfig = GroupConfig
 		self.SpringVersion = self.GetSpringVersion ()
-		self.Lobby = lobby.Lobby (ClassServer, self.HandleInput, self.HandleEvent, AccountConfig)
+		self.Lobby = lobby.Lobby (self.Debug, self.HandleInput, self.HandleEvent, dict (AccountConfig, **{'LobbyHost':ClassServer.Config['General']['LobbyHost'], 'LobbyPort':ClassServer.Config['General']['LobbyPort']}))
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
 		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1

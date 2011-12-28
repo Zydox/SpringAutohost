@@ -110,33 +110,39 @@ class Lobby (threading.Thread):
 	
 	def HandleCommand (self, RawData):
 #		self.Debug ('Command::' + str (Command))
-		
 		Command = self.ReturnValue (RawData, ' ')
 		Data = RawData[len (Command) + 1:]
 		if self.Commands.has_key (Command):
 			Arg = []
-			for Field in self.Commands[Command]:
-				RawArg = ''
-				if Field == 'I':
-					NewArg = int (self.ReturnValue (Data, ' '))
-				if Field == 'F':
-					NewArg = float (self.ReturnValue (Data, ' '))
-				elif Field == 'V':
-					NewArg = str (self.ReturnValue (Data, ' '))
-				elif Field[0:1] == 'B':
-					RawArg = self.ReturnValue (Data, ' ')
-					NewArg = self.dec2bin (RawArg, int (Field[1:]))
-				elif Field == 'S':
-					NewArg = self.ReturnValue (Data, '\t')
-				elif Field == '*':
-					NewArg = Data
-				try:
-					Arg.append (NewArg)
-					if len (RawArg) > 0:
-						NewArg = RawArg
-					Data = Data[len (str (NewArg)) + 1:]
-				except:
-					print '\n\nCOMMAND FAILED\n\n'
+			try:
+				for Field in self.Commands[Command]:
+					RawArg = ''
+					if Field == 'I':
+						NewArg = int (self.ReturnValue (Data, ' '))
+					if Field == 'F':
+						NewArg = float (self.ReturnValue (Data, ' '))
+					elif Field == 'V':
+						NewArg = str (self.ReturnValue (Data, ' '))
+					elif Field[0:1] == 'B':
+						RawArg = self.ReturnValue (Data, ' ')
+						NewArg = self.dec2bin (RawArg, int (Field[1:]))
+					elif Field == 'S':
+						NewArg = self.ReturnValue (Data, '\t')
+					elif Field == '*':
+						NewArg = Data
+					try:
+						Arg.append (NewArg)
+						if len (RawArg) > 0:
+								NewArg = RawArg
+						Data = Data[len (str (NewArg)) + 1:]
+					except:
+						print '\n\nCOMMAND FAILED\n\n'
+			except:
+				self.Debug ('WrongFormatedCommand::' + str (RawData))
+				print '\n\nCOMMAND FAILED'
+				print RawData
+				print '\n'
+				return (None)
 		else:
 			self.Debug ('UnknownCommand::' + str (RawData))
 
@@ -149,6 +155,7 @@ class Lobby (threading.Thread):
 		elif Command == "ADDUSER":
 			if not self.Users.has_key (Arg[1]):
 				self.Users[Arg[0]] = {
+					'User':Arg[0],
 					'Country':Arg[1],
 					'CPU':Arg[2],
 					'ID':Arg[3],
@@ -178,6 +185,7 @@ class Lobby (threading.Thread):
 		elif Command == 'BATTLEOPENED':
 			if not self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]] = {
+					'ID':Arg[0],
 					'Type':{0:'B', 1:'R'}[Arg[1]],
 					'Nat':Arg[2],
 					'Founder':Arg[3],

@@ -34,9 +34,8 @@ class Host (threading.Thread):
 		if len (self.GroupConfig['LobbyChannels']) > 0:
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
+		self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleLoadDefaults ()
 		self.Debug ('Run finnished')
-#		print self.GetUnitsyncMod (self.GroupConfig['Mod'])['Options']
-#		sys.exit ()
 	
 	
 	def HandleEvent (self, Event, Data):
@@ -53,7 +52,7 @@ class Host (threading.Thread):
 				self.HandleInput ('INTERNAL', '!' + Command)
 		
 		if Event == 'OPENBATTLE':	# Load the default settings for a battle
-			self.LoadBattleDefaults ()
+			self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleUpdateScript ()
 	
 	
 	def HandleInput (self, Source, Data):
@@ -223,37 +222,6 @@ class Host (threading.Thread):
 #			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
 #			print (self.UserRoles[User])
 #			print (self.UserRoles)
-	
-	
-	def LoadBattleDefaults (self):
-		self.Debug ()
-		UnitsyncMod = self.GetUnitsyncMod (self.Battle['Mod'])
-		if len (UnitsyncMod['Options']):
-			for Key in UnitsyncMod['Options'].keys ():
-				if not self.Battle['ModOptions'].has_key (Key):
-					self.Battle['ModOptions'][Key] = UnitsyncMod['Options'][Key]['Default']
-		try:
-			if not self.Battle.has_key ('StartPosType') or not int (self.Battle['StartPosType']) == self.Battle['StartPosType']:
-				self.Battle['StartPosType'] = 1
-		except:
-			self.Battle['StartPosType'] = 1
-		self.BattleUpdateScript ()
-	
-	
-	def BattleUpdateScript (self):
-		self.Debug ()
-		Tags = [['GAME/StartPosType', self.Battle['StartPosType']]]
-		if self.Lobby.BattleID and self.Battle.has_key ('ModOptions'):
-			for Key in self.Battle['ModOptions'].keys ():
-				Value = self.Battle['ModOptions'][Key]
-				try:
-					if int (Value) == Value:
-						Value = int (Value)
-					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
-				except:
-					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
-		self.Lobby.BattleUpdateScript (Tags)
-
 	
 	
 	def GetSpringVersion (self):

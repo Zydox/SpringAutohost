@@ -164,7 +164,7 @@ class HostCmdsBattleLogic:
 			self.Debug (str (Value) + ' => ' + str (Result))
 			if not Result == False:
 				self.Host.Battle['ModOptions'][Option] = Result
-				self.Host.BattleUpdateScript ()
+				self.LogicFunctionBattleUpdateScript ()
 				return ('OK')
 			else:
 				return (self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value, 1))
@@ -179,7 +179,7 @@ class HostCmdsBattleLogic:
 		self.Debug (StartPos)
 		if StartPos < 4:
 			self.Host.Battle['StartPosType'] = StartPos
-			self.Host.BattleUpdateScript ()
+			self.LogicFunctionBattleUpdateScript ()
 			return ('StartPos set') 
 		else:
 			return ('StartPos must be between 0 and 2')
@@ -311,3 +311,36 @@ class HostCmdsBattleLogic:
 	def LogicFunctionBattleColor (self, HexColor):
 		Color = int (HexColor[4:6] + HexColor[2:4] + HexColor[0:2], 16)
 		return (Color)
+	
+	
+	def LogicFunctionBattleUpdateScript (self):
+		self.Debug ()
+		Tags = [['GAME/StartPosType', self.Host.Battle['StartPosType']]]
+		if self.Host.Lobby.BattleID and self.Host.Battle.has_key ('ModOptions'):
+			for Key in self.Host.Battle['ModOptions'].keys ():
+				Value = self.Host.Battle['ModOptions'][Key]
+				try:
+					if int (Value) == Value:
+						Value = int (Value)
+					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
+				except:
+					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
+		self.Lobby.BattleUpdateScript (Tags)
+	
+	
+	def LogicFunctionBattleLoadDefaults (self):
+		self.Debug ()
+		if self.Host.Lobby.BattleID:
+			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
+		else:
+			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Battle['Mod'])
+		if len (UnitsyncMod['Options']):
+			for Key in UnitsyncMod['Options'].keys ():
+				if not self.Host.Battle['ModOptions'].has_key (Key):
+					self.Host.Battle['ModOptions'][Key] = UnitsyncMod['Options'][Key]['Default']
+		try:
+			if not self.Host.Battle.has_key ('StartPosType') or not int (self.Host.Battle['StartPosType']) == self.Host.Battle['StartPosType']:
+				self.Host.Battle['StartPosType'] = 1
+		except:
+			self.Host.Battle['StartPosType'] = 1
+#		self.LogicFunctionBattleUpdateScript ()

@@ -23,9 +23,12 @@ class Collection:
 	
 	
 	def Event (self, Event, Data):
-		print ""
-		print Event
-		print Data
+		if Event == 'CLIENTSTATUS' and self.Lobby.Users[Data[0]]['InBattle']:
+			print ""
+			print Event
+			print Data
+			print self.Lobby.Users[Data[0]]
+			print self.Lobby.Battles[self.Lobby.Users[Data[0]]['InBattle']]
 
 
 C = Collection ()

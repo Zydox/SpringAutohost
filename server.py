@@ -66,9 +66,19 @@ class Server:
 						for Key in Config.keys ():
 							if self.Config['GroupUsers'][Group][Account].has_key (Key):
 								Config[Key] = self.Config['GroupUsers'][Group][Account][Key]
-						self.Hosts[Account] = host.Host (self, Config, self.Config['GroupUsers'][Group][Account])
+						self.Hosts[Account] = host.Host (Account, self, Config, self.Config['GroupUsers'][Group][Account])
 						self.Hosts[Account].start ()
 						break	# only spawn one host for each group
-
+	
+	
+	def RemoveHost (self, Account):
+		self.Debug ()
+		del (self.Hosts[Account])
+	
+	
+	def Terminate (self):
+		self.Debug ()
+		for Host in self.Hosts.keys ():
+			self.Hosts[Host].Terminate ()
 
 S = Server ()

@@ -8,8 +8,9 @@ import spring
 
 
 class Host (threading.Thread):
-	def __init__ (self, ClassServer, GroupConfig, AccountConfig):
+	def __init__ (self, ID, ClassServer, GroupConfig, AccountConfig):
 		threading.Thread.__init__ (self)
+		self.ID = ID
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
@@ -272,6 +273,4 @@ class Host (threading.Thread):
 		self.Debug (str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
-#		self.Debug ('sys.exit ()')
-#		sys.exit ()
-#		self.Debug ('sys.exit () done')
+		self.Server.RemoveHost (self.ID)

@@ -12,9 +12,10 @@ class HostCmdsSpecial:
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
-			'code':[[], 'Source', '!code', 'Displays the bots code files, bytes and last modified'],
+			'code':[[], 'PM', '!code', 'Displays the bots code files, bytes and last modified'],
 			'help':[[], 'PM', '!help', 'Displays help'],
-			'terminate':[[], 'Source', '!terminate', 'Shuts down the bot'],
+			'terminate':[[], 'PM', '!terminate', 'Shuts down the bot'],
+			'terminateall':[[], 'PM', '!terminateall', 'Shuts down all bots'],
 			'compile':[['V'], 'Source', '!compile <spring tag>', 'Compiles the provided spring version'],
 			'recompile':[['V'], 'Source', '!recompile <spring tag>', 'Re-compiles the provided spring version'],
 			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog'],
@@ -51,6 +52,8 @@ class HostCmdsSpecial:
 			return (Return)
 		elif Command == 'terminate':
 			self.Host.Terminate ()
+		elif Command == 'terminateall':
+			self.Server.Terminate ()
 		elif Command == 'compile' or Command == 'recompile':
 			self.Host.Lobby.BattleLock (1)
 			self.Host.Lobby.BattleSay ('Battle locked, building spring "' + str (Data[0]) + '"...', 1)

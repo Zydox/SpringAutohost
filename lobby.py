@@ -19,10 +19,11 @@ class Lobby (threading.Thread):
 		self.HostPort = None
 		self.IP = None
 		self.SetLoginInfo (LoginInfo)
-		self.Ping = LobbyPing (self, self.Ping, self.Debug)
+		self.ClassPing = None	# Ping class
 		self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.Active = 0
 		self.LoggedIn = 0
+		self.AllowReConnect = 1
 		self.LoggedInQueue = []
 		
 		self.Users = {}
@@ -65,6 +66,7 @@ class Lobby (threading.Thread):
 			'REMOVEBOT':['I', 'V'],
 			'DENIED':['S'],
 			'UPDATEBOT':['I', 'V', 'B32', 'I'],
+			'SERVERMSG':['S'],
 		}
 	
 	
@@ -87,8 +89,7 @@ class Lobby (threading.Thread):
 					if Info["Time"] == int (time.time ()):
 						Info["Loops"] = Info["Loops"] + 1
 						if Info["Loops"] > 10:
-							print "TERMINATING"
-							self.Active = 0
+							self.ReConnect ()
 					else:
 						Info = {"Time":int (time.time ()), "Loops":0}
 					print "*** No data :/"
@@ -324,6 +325,11 @@ class Lobby (threading.Thread):
 				self.BattleUsers[Arg[1]]['Synced'] = int (Arg[2][23]) * 2 + int (Arg[2][22])
 				self.BattleUsers[Arg[1]]['Side'] = int (Arg[2][27]) * 8 + int (Arg[2][26]) * 4 + int (Arg[2][25]) * 2 + int (Arg[2][24])
 				self.BattleUsers[Arg[1]]['Color'] = self.ToHexColor (Arg[3])
+		elif Command == 'SERVERMSG':
+			if Arg[0][0:35] == 'You\'ve been kicked from server by <':
+				self.AllowReConnect = 0
+				print 'KICKED FROM SERVER'
+				print Arg[0]
 		
 		
 		if self.Commands.has_key (Command):
@@ -443,6 +449,12 @@ class Lobby (threading.Thread):
 		self.Socket.connect ((str (self.HostIP), int (self.HostPort)))
 		self.Active = 1
 		self.SetIP ()
+		self.ClassPing = LobbyPing (self, self.Ping, self.Debug)
+		self.Users = {}
+		self.Battles = {}
+		self.BattleUsers = {}
+		self.BattleID = 0
+		self.Channels = {}
 	
 	
 	def Disconnect (self):
@@ -459,7 +471,7 @@ class Lobby (threading.Thread):
 			for Command in self.LoggedInQueue:
 				self.Send (Command)
 			self.LoggedInQueue = []
-		self.Ping.start ()
+		self.ClassPing.start ()
 	
 	
 	def dec2bin (self, value, numdigits):
@@ -503,9 +515,22 @@ class Lobby (threading.Thread):
 	
 	def Terminate (self):
 		self.Debug ()
-		self.Ping.Terminate ()
+		self.AllowReConnect = 0
+		self.ClassPing.Terminate ()
 		self.Disconnect ()
-#		sys.exit ()
+	
+	
+	def ReConnect (self):
+		self.Debug ()
+		self.LoggedIn = 0
+		self.Active = 0
+		SleepTime = 1
+		while not self.Active and self.AllowReConnect:
+			self.Disconnect ()
+			self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self.Connect ()
+			time.sleep (SleepTime)
+			SleepTime = min (60, SleepTime + 2)
 
 
 class LobbyPing (threading.Thread):
@@ -521,6 +546,7 @@ class LobbyPing (threading.Thread):
 	def run (self):
 		self.Debug ('Lobby Ping start')
 		self.Active = 1
+		self.SleepCounter = 0
 		while self.Lobby.Active and self.Active:
 			if self.SleepCounter == 25:
 				self.SleepCounter = 0
@@ -533,4 +559,3 @@ class LobbyPing (threading.Thread):
 	def Terminate (self):
 		self.Debug ()
 		self.Active = 0
-#		sys.exit ()

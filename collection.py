@@ -34,6 +34,7 @@ class Collection:
 	def Event (self, Event, Data):
 		if Event == 'ACCEPTED':
 			self.InitLoad = 1
+			self.CollectionReset ()
 		elif Event == 'LOGININFOEND':
 			self.InitLoad = 0
 			self.CollectionInit ()
@@ -54,6 +55,11 @@ class Collection:
 					else:
 						self.CollectionBattleOpen (Battle)
 				self.Battles[Battle['ID']] = User['InGame']
+	
+	
+	def CollectionReset (self):
+		# Resets the cache...
+		self.Battles = {}
 	
 	
 	def CollectionInit (self):

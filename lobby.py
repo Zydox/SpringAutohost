@@ -67,6 +67,8 @@ class Lobby (threading.Thread):
 			'DENIED':['S'],
 			'UPDATEBOT':['I', 'V', 'B32', 'I'],
 			'SERVERMSG':['S'],
+			'ADDSTARTRECT':['I', 'I', 'I', 'I', 'I'],
+			'REMOVESTARTRECT':['I'],
 		}
 	
 	
@@ -110,7 +112,7 @@ class Lobby (threading.Thread):
 			self.HostPort = LoginInfo['LobbyPort']
 	
 	
-	def HandleCommand (self, RawData):
+	def HandleCommand (self, RawData, Echo = 0):
 #		self.Debug ('Command::' + str (Command))
 		Command = self.ReturnValue (RawData, ' ')
 		Data = RawData[len (Command) + 1:]
@@ -204,6 +206,7 @@ class Lobby (threading.Thread):
 					'Spectators':0,
 					'Players':0,
 					'Locked':0,
+					'Boxes':{},
 				}
 				self.Users[Arg[3]]['InBattle'] = Arg[0]
 				self.SmurfDetection (Arg[3], Arg[4])
@@ -330,7 +333,13 @@ class Lobby (threading.Thread):
 				self.AllowReConnect = 0
 				print 'KICKED FROM SERVER'
 				print Arg[0]
-		
+		elif Command == 'ADDSTARTRECT':
+			self.Battles[self.BattleID]['Boxes'][Arg[0]] = [Arg[1], Arg[2], Arg[3], Arg[4]]
+			print ''
+			print self.Battles[self.BattleID]
+			print self.BattleUsers
+		elif Command == 'REMOVESTARTRECT':
+			del (self.Battles[self.BattleID]['Boxes'][Arg[0]])
 		
 		if self.Commands.has_key (Command):
 			self.CallbackEvent (Command, Arg)
@@ -405,7 +414,15 @@ class Lobby (threading.Thread):
 	
 	
 	def BattleAddBox (self, Ally, Left, Top, Right, Bottom):
-		self.Send ('ADDSTARTRECT ' + str (Ally) + ' ' + str (Left) + ' ' + str (Top) + ' ' + str (Right) + ' ' + str (Bottom))
+		Command = 'ADDSTARTRECT ' + str (Ally) + ' ' + str (Left) + ' ' + str (Top) + ' ' + str (Right) + ' ' + str (Bottom)
+		self.Send (Command)
+		self.HandleCommand (Command, 1)
+	
+	
+	def BattleRemoveBox (self, Ally):
+		Command = 'REMOVESTARTRECT ' + str (Ally)
+		self.Send (Command)
+		self.HandleCommand (Command, 1)
 	
 	
 	def UserSay (self, User, Message):

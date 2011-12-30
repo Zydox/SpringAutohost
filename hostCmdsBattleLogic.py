@@ -17,18 +17,22 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicOpenBattle (self):
-		Mod = self.Host.GroupConfig['Mod']
-		Map = self.Host.GroupConfig['Map']
+		Mod = self.Host.Battle['Mod']
+		Map = self.Host.Battle['Map']
 		UnitsyncMod = self.Host.GetUnitsyncMod (Mod)
 		if not UnitsyncMod:
 			return ('Mod doesn\'t exist')
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if not UnitsyncMap:
 			return ('Map doesn\'t exist')
-		Desc = self.Host.GroupConfig['BattleDescription']
+		Desc = self.Host.Battle['BattleDescription']
 		if self.Server.Config['General']['SpringBuildDefault'] != self.Host.SpringVersion:
 			Desc = 'Dev build:' + str (self.Host.SpringVersion) + ', ' + Desc
 		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], Desc, 16)
+	
+	
+	def LogicCloseBattle (self):
+		self.Lobby.BattleClose ()
 	
 	
 	def LogicRing (self, User =''):
@@ -215,6 +219,20 @@ class HostCmdsBattleLogic:
 		else:
 			return ('User "' + str (User) + '" is not in this battle')
 	
+	
+	def LogicReHostWithMod (self, Mod):
+		self.Refresh ()
+		if self.Battle['Mod'] == Mod:
+			return ('"' + str (Mod) + '" is already hosted')
+		else:
+			if not self.Host.GetUnitsyncMod (Mod):
+				return ('"' + str (Mod) + '" doesn\'t exist on this host')
+			else:
+				self.Host.Battle['Mod'] = Mod
+				self.LogicCloseBattle ()
+				self.LogicOpenBattle ()
+				return ('OK')
+		
 	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
 		self.Refresh ()

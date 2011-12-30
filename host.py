@@ -23,6 +23,7 @@ class Host (threading.Thread):
 		self.Battle = {
 			'Mod':self.GroupConfig['Mod'],
 			'Map':self.GroupConfig['Map'],
+			'BattleDescription':self.GroupConfig['BattleDescription'],
 			'StartPosType':None,
 			'MapOptions':{},
 			'ModOptions':{},

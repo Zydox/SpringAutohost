@@ -335,9 +335,6 @@ class Lobby (threading.Thread):
 				print Arg[0]
 		elif Command == 'ADDSTARTRECT':
 			self.Battles[self.BattleID]['Boxes'][Arg[0]] = [Arg[1], Arg[2], Arg[3], Arg[4]]
-			print ''
-			print self.Battles[self.BattleID]
-			print self.BattleUsers
 		elif Command == 'REMOVESTARTRECT':
 			del (self.Battles[self.BattleID]['Boxes'][Arg[0]])
 		

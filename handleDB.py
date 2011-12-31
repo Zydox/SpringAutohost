@@ -114,7 +114,7 @@ class HandleDB:
 			}
 	
 	
-	def Query (self, Query, ReturnType = 'Array'):
+	def Query (self, Query, ReturnType = '2D'):
 		self.Debug (Query)
 		Result = self.Engine.execute (Query)
 #		print ''

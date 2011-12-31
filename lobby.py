@@ -7,11 +7,12 @@ import random
 import sys
 
 class Lobby (threading.Thread):
-	def __init__ (self, FunctionCallbackDebug, FunctionCallbackChat, FunctionCallbackEvent, LoginInfo):
+	def __init__ (self, FunctionCallbackDebug, FunctionCallbackChat, FunctionCallbackEvent, FunctionCallbackInternalEvent, LoginInfo):
 		threading.Thread.__init__ (self)
 		self.Debug = FunctionCallbackDebug
 		self.CallbackChat = FunctionCallbackChat
 		self.CallbackEvent = FunctionCallbackEvent
+		self.CallbackInternalEvent = FunctionCallbackInternalEvent
 		self.User = None
 		self.Passwd = None
 		self.BattlePort = None
@@ -157,7 +158,7 @@ class Lobby (threading.Thread):
 		elif Command == 'LOGININFOEND' or Command == 'PONG' or Command == 'MOTD':
 			pass
 		elif Command == "ADDUSER":
-			if not self.Users.has_key (Arg[1]):
+			if not self.Users.has_key (Arg[0]):
 				self.Users[Arg[0]] = {
 					'User':Arg[0],
 					'Country':Arg[1],
@@ -170,10 +171,12 @@ class Lobby (threading.Thread):
 					'Bot':0,
 					'InBattle':0,
 				}
+				self.SmurfDetection (Arg[0])
 			else:
 				self.Debug ('ERROR::User exsits' + str (RawData))
 		elif Command == "REMOVEUSER":
 			if self.Users.has_key (Arg[0]):
+				self.SmurfDetection (Arg[0])
 				del (self.Users[Arg[0]])
 			else:
 				self.Debug ('ERROR::User doesn\'t exist::' + str (RawData))
@@ -510,9 +513,8 @@ class Lobby (threading.Thread):
 		return (String)
 	
 	
-	def SmurfDetection (self, User, IP):
-		Ignore = 1
-#		self.Debug ('SMURF_DATA::' + User + '::' + IP)
+	def SmurfDetection (self, User, IP = ''):
+		self.CallbackInternalEvent ('SMURF_DETECTION', [self.Users[User]['ID'], User, IP, self.Users[User]['Country'], self.Users[User]['CPU']])
 	
 	
 	def SetIP (self):

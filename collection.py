@@ -20,7 +20,7 @@ class Collection:
 	
 	def Start (self):
 		self.Debug ()
-		self.Lobby = lobby.Lobby (self.Debug, self.Chat, self.Event, self.Config['General'])
+		self.Lobby = lobby.Lobby (self.Debug, self.Chat, self.Event, self.Debug, self.Config['General'])
 		self.Lobby.start ()
 	
 	

@@ -17,7 +17,7 @@ class Host (threading.Thread):
 		self.Group = Group
 		self.GroupConfig = GroupConfig
 		self.SpringVersion = self.GetSpringVersion ()
-		self.Lobby = lobby.Lobby (self.Debug, self.HandleInput, self.HandleEvent, dict (AccountConfig, **{'LobbyHost':ClassServer.Config['General']['LobbyHost'], 'LobbyPort':ClassServer.Config['General']['LobbyPort']}))
+		self.Lobby = lobby.Lobby (self.Debug, self.HandleInput, self.HandleEvent, self.HandleLocalEvent, dict (AccountConfig, **{'LobbyHost':ClassServer.Config['General']['LobbyHost'], 'LobbyPort':ClassServer.Config['General']['LobbyPort']}))
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
 		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
 		self.UserRoles = {}		# [User][Role] = 1
@@ -57,6 +57,15 @@ class Host (threading.Thread):
 		
 		if Event == 'OPENBATTLE':	# Load the default settings for a battle
 			self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleUpdateScript ()
+	
+	
+	def HandleLocalEvent (self, Event, Data):
+		if Event == 'SMURF_DETECTION':
+			self.Server.HandleDB.StoreSmurf (Data[0], Data[1], Data[2], Data[3], Data[4])
+		else:
+			print ''
+			print Event
+			print Data
 	
 	
 	def HandleInput (self, Source, Data):

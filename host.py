@@ -8,12 +8,13 @@ import spring
 
 
 class Host (threading.Thread):
-	def __init__ (self, ID, ClassServer, GroupConfig, AccountConfig):
+	def __init__ (self, ID, Group, ClassServer, GroupConfig, AccountConfig):
 		threading.Thread.__init__ (self)
 		self.ID = ID
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
 		self.Debug ('Host Init')
+		self.Group = Group
 		self.GroupConfig = GroupConfig
 		self.SpringVersion = self.GetSpringVersion ()
 		self.Lobby = lobby.Lobby (self.Debug, self.HandleInput, self.HandleEvent, dict (AccountConfig, **{'LobbyHost':ClassServer.Config['General']['LobbyHost'], 'LobbyPort':ClassServer.Config['General']['LobbyPort']}))
@@ -27,6 +28,7 @@ class Host (threading.Thread):
 			'StartPosType':None,
 			'MapOptions':{},
 			'ModOptions':{},
+			'Teams':2,
 		}
 		
 	

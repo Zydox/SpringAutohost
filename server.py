@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: ISO-8859-1 -*-
-import handleCFG
+import handleCFG, handleDB
 import debug
 import host
 import time
@@ -29,6 +29,7 @@ class Server:
 		self.HandleCFG = handleCFG.HandleCFG (self)
 		self.ClassDebug.SetFile ('/tmp/Debug.log')
 		self.SpringUnitsync = springUnitsync.SpringUnitsync (self)
+		self.HandleDB = handleDB.HandleDB (self)
 		
 		self.Hosts = {}
 		
@@ -66,7 +67,7 @@ class Server:
 						for Key in Config.keys ():
 							if self.Config['GroupUsers'][Group][Account].has_key (Key):
 								Config[Key] = self.Config['GroupUsers'][Group][Account][Key]
-						self.Hosts[Account] = host.Host (Account, self, Config, self.Config['GroupUsers'][Group][Account])
+						self.Hosts[Account] = host.Host (Account, Group, self, Config, self.Config['GroupUsers'][Group][Account])
 						self.Hosts[Account].start ()
 						break	# only spawn one host for each group
 	

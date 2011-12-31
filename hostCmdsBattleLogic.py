@@ -132,9 +132,18 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicChangeMap (self, Map):
+		self.Refresh ()
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if UnitsyncMap:
 			self.Host.Lobby.BattleMap (Map, UnitsyncMap['Hash'])
+			
+			Boxes = self.Server.HandleDB.LoadBoxes (self.Host.Group, self.Battle['Map'], self.Host.Battle['Teams'], self.Host.Battle['StartPosType'])
+			if Boxes:
+				self.LogicRemoveBoxes ()
+				for Box in Boxes.split ('\n'):
+					Box = Box.split (' ')
+					self.LogicAddBox (int (Box[0]) + 1, int (Box[1]) / 2, int (Box[2]) / 2, int (Box[3]) / 2, int (Box[4]) / 2)
+			
 			return ('Map changed to ' + str (Map))
 		else:
 			return ('Map "' + str (Map) + '" not found')
@@ -233,6 +242,44 @@ class HostCmdsBattleLogic:
 				self.LogicOpenBattle ()
 				return ('OK')
 		
+	
+	def LogicAddBox (self, Team, Left, Top, Right, Bottom):
+		self.Refresh ()
+		if Left > 100 or Top > 100 or Right > 100 or Bottom > 100:
+			return ('Max value is 100')
+		Team = Team - 1
+		
+		if self.Battle['Boxes'].has_key (Team):
+			self.LogicRemoveBox (Team + 1)
+		self.Lobby.BattleAddBox (Team, Left * 2, Top * 2, Right * 2, Bottom * 2)
+		return ('Box added')
+
+	
+	def LogicRemoveBox (self, Team):
+		self.Lobby.BattleRemoveBox (Team - 1)
+	
+	
+	def LogicRemoveBoxes (self):
+		self.Refresh ()
+		for Team in self.Battle['Boxes'].keys ():
+			self.Lobby.BattleRemoveBox (Team)
+	
+	
+	def LogicSaveBoxes (self):
+		self.Refresh ()
+		if self.Host.Battle['StartPosType'] != 2:
+			return ('Can only save boxes for "Choose in game"')
+		
+		Boxes = []
+		for Team in self.Battle['Boxes'].keys ():
+			Boxes.append (str (Team) + ' ' + str (self.Battle['Boxes'][Team][0]) + ' ' + str (self.Battle['Boxes'][Team][1]) + ' ' + str (self.Battle['Boxes'][Team][2]) + ' ' + str (self.Battle['Boxes'][Team][3]))
+		if len (Boxes) > 0:
+			Boxes = '\n'.join (Boxes)
+			self.Server.HandleDB.StoreBoxes (self.Host.Group, self.Battle['Map'], self.Host.Battle['Teams'], self.Host.Battle['StartPosType'], Boxes)
+			return ('Saved')
+		else:
+			return ('No boxes to save')
+	
 	
 	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
 		self.Refresh ()

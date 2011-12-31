@@ -17,7 +17,7 @@ class HostCmdsBattle:
 			'lock':[['OB'], 'Source', '!lock [0/1]', 'Locks/unlocks the battle'],
 			'kick':[['V'], 'Source', '!kick <user>', 'Kicks <user> from the battle'],
 			'ring':[['OV'], 'Source', '!ring [<user>]', 'Rings a specific user or all unready users'],
-			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <Team> <Left> <Top> <Right> <Bottom> (0-200)', 'Adds a startbox'],
+			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <Team> <Left> <Top> <Right> <Bottom> (0-100)', 'Adds a startbox'],
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
@@ -31,6 +31,7 @@ class HostCmdsBattle:
 			'startpos':[['I'], 'Source', '!startpos <0-3>', 'Sets the start pos (0 Fixed, 1 Randon, 2 Choose in-game, 3 Choose now)'],
 			'hcp':[['V', 'I'], 'Source', '!hcp <user> <hcp>', 'Sets the handicap for the specified user'],
 			'mod':[['*'], 'Source', '!mod <mod>', 'Rehosts with the specified mod'],
+			'saveboxes':[[], 'Source', '!saveboxes', 'Saves the current box setup'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -66,8 +67,7 @@ class HostCmdsBattle:
 			else:
 				return (self.Logic.LogicRing ())
 		elif Command == 'addbox':
-			self.Host.Lobby.BattleAddBox (Data[0] - 1, Data[1], Data[2], Data[3], Data[4])
-			return ('Box added')
+			return (self.Logic.LogicAddBox (Data[0], Data[1], Data[2], Data[3], Data[4]))
 		elif Command == 'udp':
 			self.Host.Spring.SpringTalk (Data[0])
 		elif Command == 'forcestart':
@@ -95,3 +95,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicSetHandicap (Data[0], Data[1]))
 		elif Command == 'mod':
 			return (self.Logic.LogicReHostWithMod (Data[0]))
+		elif Command == 'saveboxes':
+			return (self.Logic.LogicSaveBoxes ())

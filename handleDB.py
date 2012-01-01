@@ -5,6 +5,7 @@ class HandleDB:
 	def __init__ (self, ClassServer):
 		self.Server = ClassServer
 		self.Debug = self.Server.Debug
+		self.Cache = {}
 		
 		self.Type = 'MySQL'
 		self.Config = {}
@@ -77,12 +78,25 @@ class HandleDB:
 	
 	
 	def GetValueID (self, Type, Value):
+		if self.Cache.has_key (Type):
+			if self.Cache[Type].has_key (Value):
+				return (self.Cache[Type][Value])
+		else:
+			self.Cache[Type] = {}
+			ResultCache = self.Query ("SELECT ID, Value FROM TableValues WHERE Type='" + str (Type) + "'", '2D')
+			for Row in ResultCache:
+				self.Cache[Type][str (Row['Value'])] = str (Row['ID'])
+			if self.Cache[Type].has_key (Value):
+				return (self.Cache[Type][Value])
+		
+		
 		if not Value:
 			return (0)
 		Result = self.Query ("SELECT ID FROM TableValues WHERE Type='" + str (Type) + "' AND Value='" + str (Value) + "'", 'Value')
 		if not Result:
 			Result = self.Query ("INSERT INTO TableValues SET Type='" + str (Type) + "', Value='" + str (Value) + "'")
 			return (self.GetValueID (Type, Value))
+		self.Cache[Type][Value] = Result
 		return (Result)
 	
 	

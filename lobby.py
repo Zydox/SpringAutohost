@@ -70,6 +70,7 @@ class Lobby (threading.Thread):
 			'SERVERMSG':['S'],
 			'ADDSTARTRECT':['I', 'I', 'I', 'I', 'I'],
 			'REMOVESTARTRECT':['I'],
+			'AGREEMENTEND':[],
 		}
 	
 	
@@ -340,6 +341,9 @@ class Lobby (threading.Thread):
 			self.Battles[self.BattleID]['Boxes'][Arg[0]] = [Arg[1], Arg[2], Arg[3], Arg[4]]
 		elif Command == 'REMOVESTARTRECT':
 			del (self.Battles[self.BattleID]['Boxes'][Arg[0]])
+		elif Command == 'AGREEMENTEND':
+			self.Send ('CONFIRMAGREEMENT', 1)
+			self.Login ()
 		
 		if self.Commands.has_key (Command):
 			self.CallbackEvent (Command, Arg)

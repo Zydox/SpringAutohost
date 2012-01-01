@@ -53,22 +53,29 @@ class HostCmdsBattleLogic:
 		self.Refresh ()
 		Version = 0
 		AI_ID = 0
-		UnitsyncMod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
-		for AI in UnitsyncMod['AI']:
-			if UnitsyncMod['AI'][AI]['shortName'] == Bot:
-				if not UnitsyncMod['AI'][AI].has_key ('version') or Version < UnitsyncMod['AI'][AI]['version']:
-					if UnitsyncMod['AI'][AI].has_key ('version'):
-						print UnitsyncMod['AI'][AI]
+		Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
+		
+		SideOK = 0
+		for iSide in Mod['Sides'].keys ():
+			if Mod['Sides'][iSide] == Side:
+				SideOK = 1
+		if not SideOK:
+			return ('Side "' + str (Side) + '" doesn\'t exist')
+		
+		for AI in Mod['AI']:
+			if Mod['AI'][AI]['shortName'] == Bot:
+				if not Mod['AI'][AI].has_key ('version') or Version < Mod['AI'][AI]['version']:
+					if Mod['AI'][AI].has_key ('version'):
 						try:
-							Version = float (UnitsyncMod['AI'][AI]['version'])
+							Version = float (Mod['AI'][AI]['version'])
 						except:
 							Version = None
-						Name = UnitsyncMod['AI'][AI]['name']
+						Name = Mod['AI'][AI]['name']
 						if Version:
 							Name = Name + ' (v. ' + str (Version) + ')'
 						AI_ID = AI
 		if AI_ID:
-			AI_Data = UnitsyncMod['AI'][AI_ID]
+			AI_Data = Mod['AI'][AI_ID]
 			self.Lobby.BattleAddAI ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
 			return (Name)
 		return ('No AI found with that name')

@@ -12,6 +12,9 @@ class HandleCFG:
 	def LoadCFG (self, CheckCFG):
 		self.Debug ()
 		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
+		self.Server.AccessCommands = {}
+		self.Server.AccessRoles = {}
+		
 		if len (sys.argv) < 2:
 			print 'Missing config file (python server.py <conf file1> <font file2> ...)'
 			sys.exit ()
@@ -22,41 +25,6 @@ class HandleCFG:
 			self.CheckBaseConfig ()
 #		print self.Server.Config
 #		sys.exit ()
-		
-		self.Server.AccessCommands = {
-			'code':['owner', 'admin'],
-			'udp':['owner'],
-			'start':['owner', 'admin', '%BattlePlayer%'],
-			'stop':['owner', 'admin'],
-			'kick':['owner', 'admin', 'operator'],
-			'ring':['admin', 'operator', '%BattlePlayer%', '%GamePlayer%'],
-			'forcestart':['owner', 'admin'],
-			'terminate':['owner'],
-			'compile':['owner', 'devel'],
-			'spring':['owner', 'devel'],
-			'downloadmod':['owner'],
-			'downloadmap':['owner'],
-		}
-		self.Server.AccessRoles = {
-			'owner':{
-				'[CN]Zydox':1,
-				'[CN]Doxie':1,
-				'[teh]Slartibartfast':1,
-			},
-			'devel':{
-				'[ARP]hoijui_g5':1,
-				'abma_irc':1,
-				'[AG]abma':1,
-			},
-			'admin':{
-				'[CN]Zydox':1,
-				'[Fx]Droid':1,
-				'BrainDamage':1,
-				'_koshi_':1,
-			},
-			'operator':{
-			},
-		}
 	
 	
 	def LoadFile (self, File):
@@ -98,6 +66,10 @@ class HandleCFG:
 						self.Server.Config['Groups'][GroupID]['Alias'] = {}
 					if not self.Server.Config['Groups'][GroupID]['Alias'].has_key (Alias):
 						self.Server.Config['Groups'][GroupID]['Alias'][Alias] = []
+				elif Line[0:17] == '[ACCESS_COMMANDS]':
+					Type = 'AccessCommand'
+				elif Line[0:15] == '[ACCESS_GROUPS]':
+					Type = 'AccessGroup'
 				elif '=' in Line:
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ().replace ('~', os.environ['HOME'])
@@ -108,6 +80,13 @@ class HandleCFG:
 						self.Server.Config['Groups'][GroupID][Var] = Value
 					elif Type == 'User':
 						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value
+					elif Type == 'AccessCommand':
+						Value = Value.split ('|')
+						self.Server.AccessCommands[Var] = Value[0].split (',')
+					elif Type == 'AccessGroup':
+						self.Server.AccessRoles[Var] = {}
+						for GValue in Value.split (','):
+							self.Server.AccessRoles[Var][GValue] = 1
 				elif Line and Type == 'Alias':
 					self.Server.Config['Groups'][GroupID]['Alias'][Alias].append (Line)
 					

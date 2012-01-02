@@ -130,15 +130,11 @@ class HandleDB:
 	
 	def Query (self, Query, ReturnType = '2D'):
 		self.Debug ('DEBUG', Query)
-		Result = self.Engine.execute (Query)
-#		print ''
-#		print ReturnType
-#		print Result
-#		print Result.keys ()
-#		if Result.has_key ('ID'):
-#			print '===' + str (Result['ID'])
+		try:
+			Result = self.Engine.execute (Query)
+		except:
+			self.Debug ('ERROR', 'Query failed::' + Query)
 		
-#		print '==============='
 		Return = None
 		try:
 			if ReturnType == 'Value':

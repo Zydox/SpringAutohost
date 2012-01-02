@@ -60,8 +60,12 @@ class Host (threading.Thread):
 	
 	
 	def HandleLocalEvent (self, Event, Data):
+		self.Debug ('DEBUG', Event + str (Data))
 		if Event == 'SMURF_DETECTION':
 			self.Server.HandleDB.StoreSmurf (Data[0], Data[1], Data[2], Data[3], Data[4])
+		elif Event == 'USER_JOINED_BATTLE':
+			if self.Spring.SpringUDP and self.Spring.SpringUDP.Active:
+				self.Spring.SpringUDP.AddUser (Data[0], Data[1])
 		else:
 			print ''
 			print Event

@@ -243,6 +243,7 @@ class Lobby (threading.Thread):
 						'AIOwner':None,
 						'AIDLL':None,
 					}
+					self.CallbackInternalEvent ('USER_JOINED_BATTLE', [Arg[1], Arg[2]])
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 			if self.Users.has_key (Arg[1]):

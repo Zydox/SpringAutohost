@@ -221,7 +221,7 @@ class SpringUDP (threading.Thread):
 		self.Socket = socket.socket (socket.AF_INET, socket.SOCK_DGRAM)
 		self.Socket.setsockopt (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.ServerAddr = None
-		self.SpringUsers = {}	# [ID] = {'Alias', 'Ready', 'Alive'}
+		self.SpringUsers = {}	# [ID] = {'Alias', 'Ready', 'Alive', 'InGame'}
 		
 	
 	def run (self):
@@ -247,10 +247,10 @@ class SpringUDP (threading.Thread):
 					self.Spring.SpringEvent ('INFORMATION', Data[1:])
 				elif ord (Data[0]) == 10:	# User joined
 					self.Spring.SpringEvent ('USER_JOINED', Data[2:])
-					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0}
+					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0, 'InGame':1}
 				elif ord (Data[0]) == 11:	# User left
 					self.Spring.SpringEvent ('USER_LEFT', self.SpringUsers[Data[1]]['Alias'])
-					del (self.SpringUsers[Data[1]])
+					self.SpringUsers[Data[1]]['InGame'] = 0
 				elif ord (Data[0]) == 12:	# User ready
 					self.Spring.SpringEvent ('USER_READY', self.SpringUsers[Data[1]]['Alias'])
 					self.SpringUsers[Data[1]]['Ready'] = 1
@@ -293,6 +293,11 @@ class SpringUDP (threading.Thread):
 				if self.SpringUsers[User]['Alias'] == SearchUser:
 					return (self.SpringUsers[User]['Alive'])
 	
+	
+	def AddUser (self, User, Password):
+		self.Debug ('INFO', 'User:' + str (User) + ', Passwd:' + str (Password))
+		self.Talk ('/ADDUSER ' + str (User) + ' ' + str (Password))
+		
 	
 	def Talk (self, Message):
 		self.Debug ('INFO', str (Message))

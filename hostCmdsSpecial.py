@@ -8,7 +8,7 @@ class HostCmdsSpecial:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
-		self.Debug ('HostCmdsSpecial Init')
+		self.Debug ('INFO', 'HostCmdsSpecial Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
@@ -25,7 +25,7 @@ class HostCmdsSpecial:
 	
 
 	def HandleInput (self, Command, Data):
-		self.Debug ('HandleInput::' + str (Command) + '::' + str (Data))
+		self.Debug ('DEBUG', 'HandleInput::' + str (Command) + '::' + str (Data))
 		
 		if Command == 'code':
 			Path = os.path.dirname (inspect.currentframe ().f_code.co_filename)

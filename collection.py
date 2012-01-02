@@ -7,19 +7,19 @@ import lobby
 
 class Collection:
 	def __init__ (self):
-		self.Debug ("Initiate")
+		self.Debug ('INFO', 'Initiate')
 		self.HandleCFG = handleCFG.HandleCFG (self, 0)
 		self.Start ()
 		self.InitLoad = 0
 		self.Battles = {}
 	
 	
-	def Debug (self, Info = '', Info2 = ''):
+	def Debug (self, Level = '', Info = '', Info2 = ''):
 		pass
 	
 	
 	def Start (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Lobby = lobby.Lobby (self.Debug, self.Chat, self.Event, self.Debug, self.Config['General'])
 		self.Lobby.start ()
 	

@@ -25,7 +25,7 @@ class Server:
 	def __init__ (self):
 		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
-		self.Debug ("Initiate")
+		self.Debug ('INFO', 'Initiate')
 		self.HandleCFG = handleCFG.HandleCFG (self)
 		self.ClassDebug.SetFile (self.Config['General']['FileDebugLog'])
 		self.SpringUnitsync = springUnitsync.SpringUnitsync (self)
@@ -37,13 +37,13 @@ class Server:
 		
 	
 	def Start (self):
-		self.Debug ("Start server")
+		self.Debug ('INFO', 'Start server')
 		for Group in self.Config['Groups'].keys ():
 			self.SpawnHost (Group)
 	
 	
 	def SpawnHost (self, Group = None, Account = None):
-		self.Debug ("Spawn Host (" + str (Group) + "/" + str (Account) + ")")
+		self.Debug ('INFO', "Spawn Host (" + str (Group) + "/" + str (Account) + ")")
 		
 		if Group:
 			GroupRange = [Group]
@@ -73,12 +73,12 @@ class Server:
 	
 	
 	def RemoveHost (self, Account):
-		self.Debug ()
+		self.Debug ('INFO')
 		del (self.Hosts[Account])
 	
 	
 	def Terminate (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		for Host in self.Hosts.keys ():
 			self.Hosts[Host].Terminate ()
 

@@ -9,7 +9,7 @@ import socket
 class SpringCompile:
 	def __init__ (self, ClassServer):
 		self.Debug = ClassServer.Debug
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Server = ClassServer
 		self.BasePath = self.Server.Config['General']['PathSpringBuilds']
 		self.BuildJobs = self.Server.Config['General']['SpringBuildJobs']
@@ -18,42 +18,42 @@ class SpringCompile:
 	
 	def GetSpringVersion (self, Version, ReCompile = 0):
 		VersionPath = self.Prefix + Version + ''
-		self.Debug (str (Version) + '/' + str (VersionPath) + '/' + str (ReCompile))
+		self.Debug ('INFO', str (Version) + '/' + str (VersionPath) + '/' + str (ReCompile))
 		Return = {}
 		Path = self.BasePath + str (VersionPath)
 		
 		if ReCompile or not self.ExistsSpringVersion (Version):
-			self.Debug ('Compile start')
+			self.Debug ('INFO', 'Compile start')
 			os.chdir (self.BasePath)
 			if os.path.exists (self.BasePath + 'spring'):
-				self.Debug ('Remove spring dir')
+				self.Debug ('INFO', 'Remove spring dir')
 				shutil.rmtree (self.BasePath + 'spring')
-			self.Debug ('GIT: Clone spring start')
+			self.Debug ('INFO', 'GIT: Clone spring start')
 			self.Exec ('/usr/bin/git clone git://github.com/spring/spring.git')
-			self.Debug ('GIT: Clone spring finnished')
+			self.Debug ('INFO', 'GIT: Clone spring finnished')
 			os.chdir (self.BasePath + 'spring')
-			self.Exec ('/usr/bin/git fetch origin')
+			self.Exec ('INFO', '/usr/bin/git fetch origin')
 			Result = self.Exec ('/usr/bin/git checkout -f ' + str (Version))
 			if Result.find ('error: pathspec') != -1:
-				self.Debug ('Checkout for "' + str (Version) + '" failed')
-				self.Debug ('Compile terminated')
+				self.Debug ('WARNING', 'Checkout for "' + str (Version) + '" failed')
+				self.Debug ('WARNING', 'Compile terminated')
 				return ('ERROR')
 			if not os.path.exists (Path):
 				os.mkdir (Path)
-			self.Debug ('GIT: submodule sync')
+			self.Debug ('INFO', 'GIT: submodule sync')
 			self.Exec ('git submodule sync')
 			self.Exec ('git submodule update --init')
 			self.Exec ('cmake -DSPRING_DATADIR="' + str (Path) + '" -DCMAKE_INSTALL_PREFIX="" -DBINDIR=. -DLIBDIR=. -DMANDIR=. -DDOCDIR=doc -DDATADIR=. -DUSERDOCS_PLAIN=FALSE -DUSERDOCS_HTML=FALSE -DNO_SOUND=TRUE -DHEADLESS_SYSTEM=TRUE')
-			self.Debug ('Make spring-dedicated')
+			self.Debug ('INFO', 'Make spring-dedicated')
 			self.Exec ('make -j' + str (self.BuildJobs) + ' spring-dedicated')
 			self.Exec ('make install-spring-dedicated DESTDIR="' + str (Path) + '"')
-			self.Debug ('Make spring-headless')
+			self.Debug ('INFO', 'Make spring-headless')
 			self.Exec ('make -j' + str (self.BuildJobs) + ' spring-headless')
 			self.Exec ('make install-spring-headless DESTDIR="' + str (Path) + '"')
-			self.Debug ('Compile end')
+			self.Debug ('INFO', 'Compile end')
 			Return['Path'] = Path
 		else:
-			self.Debug ('Version compiled')
+			self.Debug ('INFO', 'Version compiled')
 			Return['Path'] = Path
 		return (Return)
 	

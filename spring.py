@@ -20,7 +20,7 @@ class Spring:
 	
 	
 	def SpringEvent (self, Event, Data = ''):
-		self.Debug (str (Event) + '::' + str (Data))
+		self.Debug ('INFO', str (Event) + '::' + str (Data))
 		
 		if Event == 'USER_CHAT_ALLY':
 			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringAllyToBattleLobby']:
@@ -34,7 +34,7 @@ class Spring:
 	
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
-		self.Debug ('Spring::Start (' + Reason + ')')
+		self.Debug ('INFO', 'Spring::Start (' + Reason + ')')
 		
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
@@ -47,26 +47,26 @@ class Spring:
 	
 	
 	def SpringStop (self, Reason = 'UNKNOWN', Message = ''):
-		self.Debug ('Spring::Stop (' + Reason + '::' + Message + ')')
+		self.Debug ('INFO', 'Spring::Stop (' + Reason + '::' + Message + ')')
 		try:
-			self.Debug (1)
+			self.Debug ('DEBUG', 1)
 			self.SpringUDP.Terminate (Message)
-			self.Debug (2)
+			self.Debug ('DEBUG', 2)
 			self.SpringPID.terminate ()
-			self.Debug (3)
+			self.Debug ('DEBUG', 3)
 			self.SpringPID.wait ()
-			self.Debug (5)
+			self.Debug ('DEBUG', 5)
 #			self.SpringPID.kill ()
 			self.Lobby.BattleStop ()
-			self.Debug (6)
+			self.Debug ('DEBUG', 6)
 			return (True)
 		except:
-			self.Debug (7)
+			self.Debug ('DEBUG', 7)
 			return (False)
 	
 	
 	def SpringTalk (self, UDP_Command):
-		self.Debug ('Spring::SpringTalk=' + str (UDP_Command))
+		self.Debug ('INFO', 'Spring::SpringTalk=' + str (UDP_Command))
 		try:
 			self.SpringUDP.Talk (UDP_Command)
 		except:
@@ -74,7 +74,7 @@ class Spring:
 
 	
 	def GenerateBattleScript (self, FilePath):
-		self.Debug ('Spring::GenerateBattleScript::' + str (FilePath))
+		self.Debug ('INFO', 'Spring::GenerateBattleScript::' + str (FilePath))
 		Battle = self.Lobby.Battles[self.Lobby.BattleID]
 		UnitsyncMod = self.Host.GetUnitsyncMod (Battle['Mod'])
 		self.Headless = 0
@@ -208,7 +208,7 @@ class Spring:
 	
 	
 	def Terminate (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.SpringStop ('Terminate')
 
 
@@ -225,7 +225,7 @@ class SpringUDP (threading.Thread):
 		
 	
 	def run (self):
-		self.Debug ('SpringUDP start')
+		self.Debug ('INFO', 'SpringUDP start')
 		self.Socket.bind ((str ('127.0.0.1'), int (self.Spring.SpringAutoHostPort)))
 		while self.Active:
 			Data, self.ServerAddr = self.Socket.recvfrom (8192)
@@ -268,18 +268,18 @@ class SpringUDP (threading.Thread):
 				else:
 					if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
 						try:
-							self.Debug ('UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
+							self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
 						except:
 							try:
-								self.Debug ('UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
+								self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
 							except:
-								self.Debug ('UNKNOWN_UDP::' + str (ord (Data[0])))
+								self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
 				
 		self.Terminate ()
 	
 	
 	def IsReady (self, SearchUser):
-		self.Debug ('InReady::' + str (SearchUser))
+		self.Debug ('INFO', 'InReady::' + str (SearchUser))
 		if len (self.SpringUsers):
 			for User in self.SpringUsers:
 				if self.SpringUsers[User]['Alias'] == SearchUser:
@@ -287,7 +287,7 @@ class SpringUDP (threading.Thread):
 	
 	
 	def IsAlive (self, SearchUser):
-		self.Debug ('InAlive::' + str (SearchUser))
+		self.Debug ('INFO', 'InAlive::' + str (SearchUser))
 		if len (self.SpringUsers):
 			for User in self.SpringUsers:
 				if self.SpringUsers[User]['Alias'] == SearchUser:
@@ -295,30 +295,24 @@ class SpringUDP (threading.Thread):
 	
 	
 	def Talk (self, Message):
-		self.Debug (str (Message))
+		self.Debug ('INFO', str (Message))
 		try:
 			self.Socket.sendto (str (Message), self.ServerAddr)
 		except:
-			self.Debug ('Socked send failed')
+			self.Debug ('ERROR', 'Socked send failed')
 	
 	
 	def Terminate (self, Message = ''):
-		self.Debug (str (Message))
+		self.Debug ('INFO', str (Message))
 		self.Active = 0
 		self.Talk ('/quit')
 		try:
-			self.Debug ('Terminate UDP socked')
+			self.Debug ('INFO', 'Terminate UDP socked')
 			self.Socket.terminate (2)
 		except:
-			self.Debug ('FAILED: Terminate UDP socked')
+			self.Debug ('ERROR', 'FAILED: Terminate UDP socked')
 		try:
-			self.Debug ('Close UDP socked')
+			self.Debug ('INFO', 'Close UDP socked')
 			self.Socket.close ()
 		except:
-			self.Debug ('FAILED: Close UDP socked')
-		
-#		self.Debug ('SystemExit')
-#		raise SystemExit ()
-#		self.Debug ('SystemExit OK')
-#		sys.exit ()
-#		self.Debug ('sys.exit ()')
+			self.Debug ('ERROR', 'FAILED: Close UDP socked')

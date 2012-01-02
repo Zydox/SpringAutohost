@@ -14,7 +14,7 @@ class SpringUnitsync:
 	
 	
 	def Load (self, Version = '', ReCompile = 0):
-		self.Debug (str (Version))
+		self.Debug ('INFO', str (Version))
 		if not Version and self.Server.Config['General'].has_key ('SpringBuildDefault'):
 			Version = self.Server.Config['General']['SpringBuildDefault']
 		
@@ -25,7 +25,7 @@ class SpringUnitsync:
 			if Result and type (Result) is dict and Result.has_key ('Path'):
 				self.Unitsync = unitsync.Unitsync (Result['Path'] + '/libunitsync.so')
 			else:
-				print 'BUILD FAILED'
+				self.Debug ('ERROR', 'BUILD FAILED')
 				return (None)
 		else:
 			Version = 'Default'
@@ -39,11 +39,11 @@ class SpringUnitsync:
 
 
 	def LoadMaps (self, Version):
-		self.Debug (Version)
+		self.Debug ('INFO', Version)
 		self.Maps[Version] = {}
 		for iMap in range (0, self.Unitsync.GetMapCount ()):
 			Map = self.Unitsync.GetMapName (iMap)
-			self.Debug ('Load map::' + str (Map))
+			self.Debug ('INFO', 'Load map::' + str (Map))
 			self.Maps[Version][Map] = {'Hash':self.SignInt (self.Unitsync.GetMapChecksum (iMap))}
 			if self.Unitsync.GetMapOptionCount (Map):
 				self.Maps[Version][Map]['Options'] = {}
@@ -54,13 +54,13 @@ class SpringUnitsync:
 	
 	
 	def LoadMods (self, Version):
-		self.Debug (Version)
+		self.Debug ('INFO', Version)
 		self.Mods[Version] = {}
 		for iMod in range (0, self.Unitsync.GetPrimaryModCount ()):
 			self.Unitsync.RemoveAllArchives ()
 			self.Unitsync.AddAllArchives (self.Unitsync.GetPrimaryModArchive (iMod))
 			Mod = self.Unitsync.GetPrimaryModName (iMod)
-			self.Debug ('Load mod::' + str (Mod))
+			self.Debug ('INFO', 'Load mod::' + str (Mod))
 			self.Mods[Version][Mod] = {
 				'Hash':self.SignInt (self.Unitsync.GetPrimaryModChecksum (iMod)),
 				'Title':self.Unitsync.GetPrimaryModName (iMod),
@@ -116,7 +116,7 @@ class SpringUnitsync:
 		elif self.Unitsync.GetOptionType (iOpt) == 5:
 			Ignore = 1
 		else:
-			self.Debug ('ERROR::Unkown options type (' + str (self.Unitsync.GetOptionType (iOpt)) + ')')
+			self.Debug ('ERROR', 'Unkown options type (' + str (self.Unitsync.GetOptionType (iOpt)) + ')')
 		return (Data)
 	
 	

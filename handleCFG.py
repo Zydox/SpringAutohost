@@ -10,7 +10,7 @@ class HandleCFG:
 	
 	
 	def LoadCFG (self, CheckCFG):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
 		self.Server.AccessCommands = {}
 		self.Server.AccessRoles = {}
@@ -28,7 +28,7 @@ class HandleCFG:
 	
 	
 	def LoadFile (self, File):
-		self.Debug ("Load file: " + File)
+		self.Debug ('INFO', 'Load file: ' + File)
 		Type = ''
 		UserID = ''
 		GroupID = ''
@@ -95,7 +95,7 @@ class HandleCFG:
 	
 	def CheckBaseConfig (self):
 		# Check for cmake, make, gcc, gcc-c++
-		self.Debug ()
+		self.Debug ('INFO')
 		Errors = []
 		Paths = [
 			'PathSpringBuilds',
@@ -119,9 +119,9 @@ class HandleCFG:
 					Errors.append ('The path for "' + Path + '" (' + self.Server.Config['General'][Path] + ') is not writable')
 		
 		if Errors:
-			self.Debug ('ERRORS')
+			self.Debug ('ERROR', 'Config errors found, please correct before trying to start again')
 			print 'Config errors found, please correct before trying to start again'
 			for Error in Errors:
 				print '* ' + Error
-				self.Debug (Error)
+				self.Debug ('ERROR', Error)
 			sys.exit ()

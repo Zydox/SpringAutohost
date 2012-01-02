@@ -13,7 +13,7 @@ class Host (threading.Thread):
 		self.ID = ID
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
-		self.Debug ('Host Init')
+		self.Debug ('INFO', 'Host Init')
 		self.Group = Group
 		self.GroupConfig = GroupConfig
 		self.SpringVersion = self.GetSpringVersion ()
@@ -33,17 +33,17 @@ class Host (threading.Thread):
 		
 	
 	def run (self):
-		self.Debug ('Start host')
+		self.Debug ('INFO', 'Start host')
 		self.Lobby.start ()
 		if len (self.GroupConfig['LobbyChannels']) > 0:
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
 		self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleLoadDefaults ()
-		self.Debug ('Run finnished')
+		self.Debug ('INFO', 'Run finnished')
 	
 	
 	def HandleEvent (self, Event, Data):
-#		self.Debug ('HandleEvent::' + str (Event) + '::' + str (Data))
+		self.Debug ('DEBUG', 'HandleEvent::' + str (Event) + '::' + str (Data))
 		if Event == 'ADDUSER' or Event == 'REMOVEUSER' or Event == 'CLIENTBATTLESTATUS':
 			self.SetAccessRoles (Data[0])
 		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
@@ -69,7 +69,7 @@ class Host (threading.Thread):
 	
 	
 	def HandleInput (self, Source, Data):
-		self.Debug ('HandleInput::' + str (Source) + '::' + str (Data))
+		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Data))
 		
 		Input = {'Raw':Source + ' ' + ' '.join (Data), 'Reference':None}
 		if Source == 'SAIDPRIVATE':
@@ -180,7 +180,7 @@ class Host (threading.Thread):
 					if self.UserRoles[Input['User']].has_key (Role):
 						OK = 1
 		else:
-			self.Debug ('HandleAccess::NO_AUTH_CHECK::' + str (Input['Command']))
+			self.Debug ('INFO', 'HandleAccess::NO_AUTH_CHECK::' + str (Input['Command']))
 			OK = 1
 		
 		if OK:
@@ -212,7 +212,7 @@ class Host (threading.Thread):
 	
 	# Function which is called when a users access roles should be re-calculated
 	def SetAccessRoles (self, User):
-#		self.Debug ('SetAccessRoles::' + str (User))
+		self.Debug ('INFO', 'SetAccessRoles::' + str (User))
 		if self.UserRoles.has_key (User):
 			self.UserRoles[User] = {}
 		
@@ -244,7 +244,7 @@ class Host (threading.Thread):
 			Version = self.Server.Config['General']['SpringBuildDefault']
 		else:
 			Version = 'Default'
-		self.Debug (Version)
+		self.Debug ('INFO', Version)
 		return (Version)
 	
 	
@@ -269,7 +269,7 @@ class Host (threading.Thread):
 	
 	
 	def GetSpringBinary (self, Headless = 0):
-		self.Debug ()
+		self.Debug ('INFO')
 		if self.Server.Config['General'].has_key ('PathSpringBuilds'):
 			Spring = self.Server.Config['General']['PathSpringBuilds'] + 'Version_' + str (self.SpringVersion)
 		
@@ -277,12 +277,12 @@ class Host (threading.Thread):
 				Spring = Spring + '/spring-headless'
 			else:
 				Spring = Spring + '/spring-dedicated'
-		self.Debug (Spring)
+		self.Debug ('INFO', Spring)
 		return (Spring)
 	
 	
 	def Terminate (self, Reason = '', Info = ''):
-		self.Debug (str (Reason) + '::' + str (Info))
+		self.Debug ('INFO', str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
 		self.Server.RemoveHost (self.ID)

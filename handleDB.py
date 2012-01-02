@@ -117,7 +117,7 @@ class HandleDB:
 	
 	
 	def SetConfig (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		if self.Type == 'MySQL':
 			self.Config = {
 				'Host':self.Server.Config['General']['SQL_Host'],
@@ -129,7 +129,7 @@ class HandleDB:
 	
 	
 	def Query (self, Query, ReturnType = '2D'):
-		self.Debug (Query)
+		self.Debug ('DEBUG', Query)
 		Result = self.Engine.execute (Query)
 #		print ''
 #		print ReturnType
@@ -165,16 +165,16 @@ class HandleDB:
 
 	
 	def Connect (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Disconnect ()
 		if self.Type == 'MySQL':
 			self.Engine = create_engine ('mysql://' + str (self.Config['User']) + ':' + str (self.Config['Password']) + '@' + str (self.Config['Host']) + ':' + str (self.Config['Port']) + '/' + str (self.Config['Database']), encoding="utf-8", echo=False, pool_recycle=True)
 
 
 	def Disconnect (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		try:
 			self.Engine.close ()
-			self.Debug ('(' + str (self.thread) + ') Closed SQL connection.')
+			self.Debug ('INFO', '(' + str (self.thread) + ') Closed SQL connection.')
 		except:
 			pass

@@ -177,11 +177,11 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicSetModOption (self, Option, Value):
-		self.Debug (str (Option) + '=>' + str (Value))
+		self.Debug ('INFO', str (Option) + '=>' + str (Value))
 		UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		if self.Host.Battle['ModOptions'].has_key (Option):
 			Result = self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value)
-			self.Debug (str (Value) + ' => ' + str (Result))
+			self.Debug ('INFO', str (Value) + ' => ' + str (Result))
 			if not Result == False:
 				self.Host.Battle['ModOptions'][Option] = Result
 				self.LogicFunctionBattleUpdateScript ()
@@ -196,7 +196,7 @@ class HostCmdsBattleLogic:
 		
 	
 	def LogicSetStartPos (self, StartPos):
-		self.Debug (StartPos)
+		self.Debug ('INFO', StartPos)
 		if StartPos < 4:
 			self.Host.Battle['StartPosType'] = StartPos
 			self.LogicFunctionBattleUpdateScript ()
@@ -206,7 +206,7 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicStartBattle (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		
 		Locked = self.Lobby.Battles[self.Lobby.BattleID]['Locked']
 		self.Lobby.BattleLock (1)
@@ -223,7 +223,7 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicSetHandicap (self, User, Hcp):
-		self.Debug ('User:' + str (User) + ', Hcp:' + str (Hcp))
+		self.Debug ('INFO', 'User:' + str (User) + ', Hcp:' + str (Hcp))
 		if self.Host.Lobby.BattleUsers.has_key (User):
 			if Hcp >= 0 and Hcp <= 100:
 				if self.BattleUsers[User]['AI']:
@@ -320,10 +320,10 @@ class HostCmdsBattleLogic:
 		elif ModOption['Type'] == 'Numeric':
 			try:
 				Value = float (Value)
-				self.Debug (Value)
-				self.Debug (Value >= ModOption['Min'])
-				self.Debug (Value <= ModOption['Max'])
-				self.Debug (not Value % ModOption['Step'])
+				self.Debug ('DEBUG', Value)
+				self.Debug ('DEBUG', Value >= ModOption['Min'])
+				self.Debug ('DEBUG', Value <= ModOption['Max'])
+				self.Debug ('DEBUG', not Value % ModOption['Step'])
 				if Value >= ModOption['Min'] and Value <= ModOption['Max'] and not Value % ModOption['Step']:
 					if int (Value) == Value:
 						Value = int (Value)
@@ -386,7 +386,7 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicFunctionBattleUpdateScript (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		Tags = [['GAME/StartPosType', self.Host.Battle['StartPosType']]]
 		if self.Host.Lobby.BattleID and self.Host.Battle.has_key ('ModOptions'):
 			for Key in self.Host.Battle['ModOptions'].keys ():
@@ -401,7 +401,7 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicFunctionBattleLoadDefaults (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		if self.Host.Lobby.BattleID:
 			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		else:

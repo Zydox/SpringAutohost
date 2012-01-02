@@ -11,12 +11,12 @@ class Debug:
 		self.LogHistory = []
 	
 	
-	def Debug (self, Info = ''):
+	def Debug (self, Level, Info = ''):
 		frame = inspect.currentframe ()
 		filename = os.path.basename (frame.f_back.f_code.co_filename)
 		fileline = frame.f_back.f_lineno
 		function = frame.f_back.f_code.co_name
-		LogLine = time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + filename + '\t' + function + '\t' + str (Info) 
+		LogLine = time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + Level + '\t' + filename + '\t' + function + '\t' + str (Info) 
 		if self.LogStore:
 			self.LogHistory.append (LogLine)
 		elif self.LogFile:
@@ -35,7 +35,7 @@ class Debug:
 		self.LogFile = LogFile
 		file = open (self.LogFile, 'w')
 		file.close ()
-		self.Debug ('Log file set')
+		self.Debug ('INFO', 'Log file set')
 		self.LogStore = 0
 		for Line in self.LogHistory:
 			self.WriteLogToFile (Line)

@@ -8,7 +8,7 @@ class HostCmds:
 	def __init__ (self, ClassServer, ClassHost):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
-		self.Debug ('HostCmds Init')
+		self.Debug ('INFO', 'HostCmds Init')
 		self.Host = ClassHost
 		self.Commands = {}
 		self.HostCmdsBattle = hostCmdsBattle.HostCmdsBattle (self, ClassServer, ClassHost)
@@ -19,7 +19,7 @@ class HostCmds:
 		
 	
 	def HandleInput (self, Source, Command, Data):
-		self.Debug ('HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
+		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
 		if self.HostCmdsBattle.Commands.has_key (Command):
 			return (self.HostCmdsBattle.HandleInput (Command, Data))
 		elif self.HostCmdsSpecial.Commands.has_key (Command):
@@ -41,7 +41,7 @@ class HostCmds:
 	
 	
 	def LoadAlias (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		if self.Host.GroupConfig.has_key ('Alias'):
 			for Key in self.Host.GroupConfig['Alias'].keys ():
 				iArgs = 0
@@ -61,7 +61,7 @@ class HostCmds:
 	
 	
 	def Notifications (self, Event):
-		self.Debug ('Notifications::' + str (Event))
+		self.Debug ('INFO', 'Notifications::' + str (Event))
 		if Event == 'BATTLE_ENDED':
 			print '* Battle ended'
 		elif Event == 'BATTLE_STARTED':

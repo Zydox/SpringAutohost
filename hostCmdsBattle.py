@@ -5,7 +5,7 @@ class HostCmdsBattle:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
-		self.Debug ('HostCmdsBattle Init')
+		self.Debug ('INFO', 'HostCmdsBattle Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
 		self.Logic = hostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
@@ -38,7 +38,7 @@ class HostCmdsBattle:
 		
 
 	def HandleInput (self, Command, Data):
-		self.Debug ('HandleInput::' + str (Command) + '::' + str (Data))
+		self.Debug ('DEBUG', 'HandleInput::' + str (Command) + '::' + str (Data))
 		
 		if Command == 'map':
 			return (self.Logic.LogicChangeMap (Data[0]))

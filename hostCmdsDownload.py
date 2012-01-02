@@ -11,7 +11,7 @@ class HostCmdsDownload:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
 		self.Server = ClassServer
 		self.Debug = ClassServer.Debug
-#		self.Debug ('Ladderbot Init')
+		self.Debug ('INFO', 'HostCmdsDownload Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
@@ -26,7 +26,7 @@ class HostCmdsDownload:
 	
 
 	def HandleInput (self, Command, Data):
-		self.Debug ('HandleInput::' + str (Command) + '::' + str (Data))
+		self.Debug ('DEBUG', 'HandleInput::' + str (Command) + '::' + str (Data))
 		
 		if Command == 'downloadsearch':
 			Results = self.XMLRPC_Proxy.springfiles.search ({"logical" : "or", "tag" : Data[0], "filename" : Data[0], "springname" : Data[0], "torrent" : True, "nosensitive":True})
@@ -72,12 +72,12 @@ class HostCmdsDownload:
 	
 	
 	def XMLRPC_Init (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.XMLRPC_Proxy = ServerProxy ('http://api.springfiles.com/xmlrpc.php')
 	
 	
 	def DownloadFile (self, Result, Type):
-		self.Debug ()
+		self.Debug ('INFO')
 		OK = 0
 		FilePath = self.Server.Config['General']['Path' + str (Type) + 's'] + Result['filename']
 		if self.DownloadFileVerify (FilePath, 'Local', Result):
@@ -85,13 +85,13 @@ class HostCmdsDownload:
 		
 		if (Type == 'Map' and Result['category'] == 'map') or (Type == 'Mod' and Result['category'] == 'game'):
 			for Mirror in Result['mirrors']:
-				self.Debug ('Download:' + str (Mirror))
+				self.Debug ('INFO', 'Download:' + str (Mirror))
 				urllib.urlretrieve (Mirror, FilePath)
 				if self.DownloadFileVerify (FilePath, Mirror, Result):
 					if self.Server.SpringUnitsync.Load (self.Host.SpringVersion):
 						return (True)
 					else:
-						self.Debug ('Unitsync re-load failed')
+						self.Debug ('ERROR', 'Unitsync re-load failed')
 	
 	
 	def DownloadFileVerify (self, FilePath, Mirror, Result):
@@ -99,6 +99,6 @@ class HostCmdsDownload:
 			if hashlib.md5 (file (FilePath, 'r').read ()).hexdigest () == Result['md5']:
 				return (True)
 			else:
-				self.Debug ('Download failed (MD5):' + str (Mirror))
+				self.Debug ('WARNING', 'Download failed (MD5):' + str (Mirror))
 		else:
-			self.Debug ('Download failed (size):' + str (Mirror))
+			self.Debug ('WARNING', 'Download failed (size):' + str (Mirror))

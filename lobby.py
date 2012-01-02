@@ -75,7 +75,7 @@ class Lobby (threading.Thread):
 	
 	
 	def run (self):
-		self.Debug ('Lobby start')
+		self.Debug ('INFO', 'Lobby start')
 		self.Connect ()
 		RawData = ''
 		while self.Active:
@@ -97,11 +97,11 @@ class Lobby (threading.Thread):
 					else:
 						Info = {"Time":int (time.time ()), "Loops":0}
 					print "*** No data :/"
-		self.Debug ('Lobby run finnished')
+		self.Debug ('INFO', 'Lobby run finnished')
 	
 	
 	def SetLoginInfo (self, LoginInfo):
-		self.Debug ()
+		self.Debug ('INFO')
 		if LoginInfo.has_key ('Login'):
 			self.User = LoginInfo['Login']
 		if LoginInfo.has_key ('Password'):
@@ -115,7 +115,7 @@ class Lobby (threading.Thread):
 	
 	
 	def HandleCommand (self, RawData, Echo = 0):
-#		self.Debug ('Command::' + str (Command))
+		self.Debug ('DEBUG', 'Command::' + str (RawData))
 		Command = self.ReturnValue (RawData, ' ')
 		Data = RawData[len (Command) + 1:]
 		if self.Commands.has_key (Command):
@@ -144,13 +144,13 @@ class Lobby (threading.Thread):
 					except:
 						print '\n\nCOMMAND FAILED\n\n'
 			except:
-				self.Debug ('WrongFormatedCommand::' + str (RawData))
+				self.Debug ('ERROR', 'WrongFormatedCommand::' + str (RawData))
 				print '\n\nCOMMAND FAILED'
 				print RawData
 				print '\n'
 				return (None)
 		else:
-			self.Debug ('UnknownCommand::' + str (RawData))
+			self.Debug ('ERROR', 'UnknownCommand::' + str (RawData))
 
 		if Command == "TASServer":
 			self.Login ()
@@ -174,13 +174,13 @@ class Lobby (threading.Thread):
 				}
 				self.SmurfDetection (Arg[0])
 			else:
-				self.Debug ('ERROR::User exsits' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::User exsits' + str (RawData))
 		elif Command == "REMOVEUSER":
 			if self.Users.has_key (Arg[0]):
 				self.SmurfDetection (Arg[0])
 				del (self.Users[Arg[0]])
 			else:
-				self.Debug ('ERROR::User doesn\'t exist::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::User doesn\'t exist::' + str (RawData))
 		elif Command == "CLIENTSTATUS":
 			if self.Users.has_key (Arg[0]):
 				self.Users[Arg[0]]["InGame"] = Arg[1][0]
@@ -189,7 +189,7 @@ class Lobby (threading.Thread):
 				self.Users[Arg[0]]['Moderator'] = Arg[1][5]
 				self.Users[Arg[0]]['Bot'] = Arg[1][6]
 			else:
-				self.Debug ('ERROR::User doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::User doesn\'t exsits::' + str (RawData))
 		elif Command == 'BATTLEOPENED':
 			if not self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]] = {
@@ -215,7 +215,7 @@ class Lobby (threading.Thread):
 				self.Users[Arg[3]]['InBattle'] = Arg[0]
 				self.SmurfDetection (Arg[3], Arg[4])
 			else:
-				self.Debug ('ERROR::Battle exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::Battle exsits::' + str (RawData))
 		elif Command == 'OPENBATTLE':
 			self.BattleID = Arg[0]
 			self.Users[self.User]['InBattle'] = Arg[0]
@@ -244,11 +244,11 @@ class Lobby (threading.Thread):
 						'AIDLL':None,
 					}
 			else:
-				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 			if self.Users.has_key (Arg[1]):
 				self.Users[Arg[1]]['InBattle'] = Arg[0]
 			else:
-				self.Debug ('ERROR::User doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::User doesn\'t exsits::' + str (RawData))
 		elif Command == "LEFTBATTLE":
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
@@ -256,16 +256,16 @@ class Lobby (threading.Thread):
 				if self.BattleID == Arg[0]:
 					del (self.BattleUsers[Arg[1]])
 			else:
-				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 			if self.Users.has_key (Arg[1]):
 				self.Users[Arg[1]]['InBattle'] = 0
 			else:
-				self.Debug ('ERROR::User doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::User doesn\'t exsits::' + str (RawData))
 		elif Command == "BATTLECLOSED":
 			if self.Battles.has_key (Arg[0]):
 				del (self.Battles[Arg[0]])
 			else:
-				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'UPDATEBATTLEINFO':
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Spectators'] = Arg[1]
@@ -274,7 +274,7 @@ class Lobby (threading.Thread):
 				self.Battles[Arg[0]]['MapHash'] = Arg[3]
 				self.Battles[Arg[0]]['Map'] = Arg[4]
 			else:
-				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'SAIDPRIVATE' or Command == 'SAID' or Command == 'SAIDEX' or Command == 'SAIDBATTLE' or Command == 'SAIDBATTLEEX' or Command == 'SAIDPRIVATEEX':
 			if Arg[0] != self.User:
 				self.CallbackChat (Command, Arg)
@@ -321,9 +321,9 @@ class Lobby (threading.Thread):
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
 			else:
-				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
+				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'DENIED':
-			self.Debug ('DENIED::' + str (Arg[0]))
+			self.Debug ('DEBUG', 'DENIED::' + str (Arg[0]))
 		elif Command == 'UPDATEBOT':
 			if Arg[0] == self.BattleID:
 				self.BattleUsers[Arg[1]]['Ready'] = int (Arg[2][1])
@@ -352,7 +352,7 @@ class Lobby (threading.Thread):
 	
 	
 	def Login (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Send ("LOGIN " + str (self.User) + " " + str (base64.b64encode (binascii.a2b_hex (hashlib.md5 (self.Passwd).hexdigest ()))) + " 0 " + str (self.IP) + " DoxBot\t\ta b sp", 1)
 		
 	
@@ -460,15 +460,15 @@ class Lobby (threading.Thread):
 	
 	def Send (self, Command, Force = 0):
 		if self.LoggedIn or Force == 1:
-			self.Debug ("SEND::" + str (Command))
+			self.Debug ('DEBUG', "SEND::" + str (Command))
 			self.Socket.send (Command + "\n")
 		else:
-			self.Debug ("SEND_QUEUE::" + str (Command))
+			self.Debug ('DEBUG', "SEND_QUEUE::" + str (Command))
 			self.LoggedInQueue.append (Command)
 	
 	
 	def Connect (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Socket.connect ((str (self.HostIP), int (self.HostPort)))
 		self.Active = 1
 		self.SetIP ()
@@ -481,14 +481,14 @@ class Lobby (threading.Thread):
 	
 	
 	def Disconnect (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Active = 0
 		self.Socket.shutdown (2)
 		self.Socket.close ()
 	
 	
 	def SetLoggedIn (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.LoggedIn = 1
 		if len (self.LoggedInQueue):
 			for Command in self.LoggedInQueue:
@@ -524,7 +524,7 @@ class Lobby (threading.Thread):
 	
 	
 	def SetIP (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		try:
 			self.IP = self.Socket.getsockname ()[0]
 		except:
@@ -532,18 +532,18 @@ class Lobby (threading.Thread):
 				self.IP = [IP for IP in socket.gethostbyname_ex (socket.gethostname ())[2] if not IP.startswith ("127.")][0]
 			except:
 				self.IP = '127.0.0.1'	#fallback
-		self.Debug ('IP:' + str (self.IP))
+		self.Debug ('INFO', 'IP:' + str (self.IP))
 	
 	
 	def Terminate (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.AllowReConnect = 0
 		self.ClassPing.Terminate ()
 		self.Disconnect ()
 	
 	
 	def ReConnect (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.LoggedIn = 0
 		self.Active = 0
 		SleepTime = 1
@@ -566,7 +566,7 @@ class LobbyPing (threading.Thread):
 	
 	
 	def run (self):
-		self.Debug ('Lobby Ping start')
+		self.Debug ('INFO', 'Lobby Ping start')
 		self.Active = 1
 		self.SleepCounter = 0
 		while self.Lobby.Active and self.Active:
@@ -575,9 +575,9 @@ class LobbyPing (threading.Thread):
 				self.Ping ()
 			self.SleepCounter = self.SleepCounter + 1
 			time.sleep (1)
-		self.Debug ('LobbyPing run finnished')
+		self.Debug ('INFO', 'LobbyPing run finnished')
 	
 	
 	def Terminate (self):
-		self.Debug ()
+		self.Debug ('INFO')
 		self.Active = 0

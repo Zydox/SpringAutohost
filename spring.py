@@ -191,6 +191,12 @@ class Spring:
 			FP.write ('\t[ALLYTEAM' + str (Allys[Ally]) + ']\n')
 			FP.write ('\t{\n')
 			FP.write ('\t\tNumAllies=0;\n')
+			if str (self.Host.Battle['StartPosType']) == '2' and Battle['Boxes'].has_key (Ally):
+				FP.write ('\t\tStartRectLeft=' + str (round (float (Battle['Boxes'][Ally][0]) / 200, 2)) + ';\n')
+				FP.write ('\t\tStartRectTop=' + str (round (float (Battle['Boxes'][Ally][1]) / 200, 2)) + ';\n')
+				FP.write ('\t\tStartRectRight=' + str (round (float (Battle['Boxes'][Ally][2]) / 200, 2)) + ';\n')
+				FP.write ('\t\tStartRectBottom=' + str (round (float (Battle['Boxes'][Ally][3]) / 200, 2)) + ';\n')
+
 			FP.write ('\t}\n')
 		
 		FP.write ('\tNumRestrictions=0;\n')

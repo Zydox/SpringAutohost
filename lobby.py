@@ -253,7 +253,8 @@ class Lobby (threading.Thread):
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
 				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - self.Battles[Arg[0]]['Spectators']
-				del (self.BattleUsers[Arg[1]])
+				if self.BattleID == Arg[0]:
+					del (self.BattleUsers[Arg[1]])
 			else:
 				self.Debug ('ERROR::Battle doesn\'t exsits::' + str (RawData))
 			if self.Users.has_key (Arg[1]):

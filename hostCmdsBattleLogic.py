@@ -416,7 +416,7 @@ class HostCmdsBattleLogic:
 			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		else:
 			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Battle['Mod'])
-		if len (UnitsyncMod['Options']):
+		if UnitsyncMod and len (UnitsyncMod['Options']):
 			for Key in UnitsyncMod['Options'].keys ():
 				if not self.Host.Battle['ModOptions'].has_key (Key):
 					self.Host.Battle['ModOptions'][Key] = UnitsyncMod['Options'][Key]['Default']

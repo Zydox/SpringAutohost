@@ -72,7 +72,9 @@ class HandleCFG:
 					Type = 'AccessGroup'
 				elif '=' in Line:
 					Var = Line[0:Line.index ('='):].strip ()
-					Value = Line[Line.index ('=') + 1:].strip ().replace ('~', os.environ['HOME'])
+					Value = Line[Line.index ('=') + 1:].strip ()
+					if 'Path' in Var:
+						Value = Value.replace ('~', os.environ['HOME'])
 #					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
 					if Type == 'General':
 						self.Server.Config['General'][Var] = Value

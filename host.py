@@ -2,6 +2,7 @@
 import threading
 import time
 import sys
+import re
 import lobby
 import hostCmds
 import spring
@@ -38,6 +39,7 @@ class Host (threading.Thread):
 		if len (self.GroupConfig['LobbyChannels']) > 0:
 			for Channel in self.GroupConfig['LobbyChannels'].split (','):
 				self.Lobby.ChannelJoin (Channel)
+		self.SetDefaultMod ()
 		self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleLoadDefaults ()
 		self.Debug ('INFO', 'Run finnished')
 	
@@ -283,6 +285,18 @@ class Host (threading.Thread):
 				Spring = Spring + '/spring-dedicated'
 		self.Debug ('INFO', Spring)
 		return (Spring)
+	
+	
+	def SetDefaultMod (self):
+		self.Debug ('INFO', 'Mod::' + str (self.Battle['Mod']))
+		pattern = re.compile(self.Battle['Mod'])
+		List = []
+		for Mod in self.Server.SpringUnitsync.Mods[self.SpringVersion].keys ():
+			if pattern.match (Mod):
+				List.append (Mod)
+		List.sort (reverse=True)
+		self.Battle['Mod'] = List[0]
+		self.Debug ('INFO', 'Mod::' + str (self.Battle['Mod']))
 	
 	
 	def Terminate (self, Reason = '', Info = ''):

@@ -143,13 +143,7 @@ class HostCmdsBattleLogic:
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if UnitsyncMap:
 			self.Host.Lobby.BattleMap (Map, UnitsyncMap['Hash'])
-			
-			Boxes = self.Server.HandleDB.LoadBoxes (self.Host.Group, self.Battle['Map'], self.Host.Battle['Teams'], self.Host.Battle['StartPosType'])
-			if Boxes:
-				self.LogicRemoveBoxes ()
-				for Box in Boxes.split ('\n'):
-					Box = Box.split (' ')
-					self.LogicAddBox (int (Box[0]) + 1, int (Box[1]) / 2, int (Box[2]) / 2, int (Box[3]) / 2, int (Box[4]) / 2)
+			self.LogicFunctionLoadBoxes ()
 			
 			return ('Map changed to ' + str (Map))
 		else:
@@ -200,9 +194,10 @@ class HostCmdsBattleLogic:
 		if StartPos < 4:
 			self.Host.Battle['StartPosType'] = StartPos
 			self.LogicFunctionBattleUpdateScript ()
-			return ('StartPos set') 
+			self.LogicFunctionLoadBoxes ()
+			return ('StartPos set')
 		else:
-			return ('StartPos must be between 0 and 2')
+			return ('StartPos must be between 0 and 3')
 	
 	
 	def LogicStartBattle (self):
@@ -247,6 +242,7 @@ class HostCmdsBattleLogic:
 				self.Host.Battle['Mod'] = Mod
 				self.LogicCloseBattle ()
 				self.LogicOpenBattle ()
+				self.LogicFunctionLoadBoxes ()
 				return ('OK')
 		
 	
@@ -306,6 +302,20 @@ class HostCmdsBattleLogic:
 		print ''
 		
 		return ('Testing')
+	
+	
+	def LogicFunctionLoadBoxes (self):
+		self.Debug ('INFO')
+		if self.Host.Battle['StartPosType'] == 2:
+			self.Refresh ()
+			Boxes = self.Server.HandleDB.LoadBoxes (self.Host.Group, self.Battle['Map'], self.Host.Battle['Teams'], self.Host.Battle['StartPosType'])
+			if Boxes:
+				self.LogicRemoveBoxes ()
+				for Box in Boxes.split ('\n'):
+					Box = Box.split (' ')
+					self.LogicAddBox (int (Box[0]) + 1, int (Box[1]) / 2, int (Box[2]) / 2, int (Box[3]) / 2, int (Box[4]) / 2)
+		else:
+			self.LogicRemoveBoxes ()
 	
 	
 	def LogicFunctionModOptionValueValid (self, ModOption, Value, Help = 0):

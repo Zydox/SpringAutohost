@@ -36,6 +36,7 @@ class HandleDB:
 		CountryID = self.GetValueID ('Country', Country)
 		CPUID = self.GetValueID ('CPU', CPU)
 		
+		self.Query ('LOCK TABLES Smurfs WRITE, SmurfIPs WRITE, TableValues WRITE')
 		Insert = 0
 		Result = self.Query ("SELECT ID, FirstSeen FROM Smurfs WHERE SpringID='" + str (SpringID) + "' AND UserID='" + str (UserID) + "' AND CountryID='" + str (CountryID) + "' AND CPUID='" + str (CPUID) + "' ORDER BY FirstSeen DESC LIMIT 0,1", '1D')
 		if Result:
@@ -75,6 +76,7 @@ class HandleDB:
 			if Insert:
 #				print 'INSERT IP'
 				self.Query ("INSERT INTO SmurfIPs SET SmurfID='" + str (SmurfID) + "', IPID='" + str (IPID) + "', FirstSeen=UNIX_TIMESTAMP(), LastSeen=UNIX_TIMESTAMP()")
+		self.Query ('UNLOCK TABLES')
 	
 	
 	def GetValueID (self, Type, Value):

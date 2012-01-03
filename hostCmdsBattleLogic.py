@@ -119,6 +119,19 @@ class HostCmdsBattleLogic:
 			return ('Can\'t find the user "' + str (User) + '"')
 	
 	
+	def LogicKickBots (self):
+		self.Refresh ()
+		Return = []
+		for User in self.Battle['Users']:
+			if self.Host.Lobby.BattleUsers.has_key (User):
+				if self.Host.Lobby.BattleUsers[User]['AI']:
+					self.Host.Lobby.BattleKickAI (User)
+					self.Host.Spring.SpringTalk ('/kick ' + User)
+					Return.append ('AI "' + User + '" kicked')
+		if Return:
+			return (Return)
+	
+	
 	def LogicFixID (self):
 		self.Refresh ()
 		ID = 0

@@ -32,6 +32,7 @@ class HostCmdsBattle:
 			'hcp':[['V', 'I'], 'Source', '!hcp <user> <hcp>', 'Sets the handicap for the specified user'],
 			'mod':[['*'], 'Source', '!mod <mod>', 'Rehosts with the specified mod'],
 			'saveboxes':[[], 'Source', '!saveboxes', 'Saves the current box setup'],
+			'kickbots':[[], 'Source', '!kickbots', 'Kicks all bots from the battle'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -97,3 +98,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicReHostWithMod (Data[0]))
 		elif Command == 'saveboxes':
 			return (self.Logic.LogicSaveBoxes ())
+		elif Command == 'kickbots':
+			return (self.Logic.LogicKickBots ())

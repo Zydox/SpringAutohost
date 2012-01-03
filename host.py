@@ -294,9 +294,12 @@ class Host (threading.Thread):
 		for Mod in self.Server.SpringUnitsync.Mods[self.SpringVersion].keys ():
 			if pattern.match (Mod):
 				List.append (Mod)
-		List.sort (reverse=True)
-		self.Battle['Mod'] = List[0]
-		self.Debug ('INFO', 'Mod::' + str (self.Battle['Mod']))
+		if len (List) > 0:
+			List.sort (reverse=True)
+			self.Battle['Mod'] = List[0]
+			self.Debug ('INFO', 'Mod::' + str (self.Battle['Mod']))
+		else:
+			self.Debug ('WARNING', 'No default mod found')
 	
 	
 	def Terminate (self, Reason = '', Info = ''):

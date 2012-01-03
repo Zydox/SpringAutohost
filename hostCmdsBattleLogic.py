@@ -397,17 +397,23 @@ class HostCmdsBattleLogic:
 	
 	def LogicFunctionBattleUpdateScript (self):
 		self.Debug ('INFO')
-		Tags = [['GAME/StartPosType', self.Host.Battle['StartPosType']]]
+		self.Refresh ()
+		Tags = []
+		if not self.Battle['ScriptTags'].has_key ('game/startpostype') or self.Battle['ScriptTags']['game/startpostype'] != str (self.Host.Battle['StartPosType']):
+			Tags.append (['game/startpostype', self.Host.Battle['StartPosType']])
 		if self.Host.Lobby.BattleID and self.Host.Battle.has_key ('ModOptions'):
 			for Key in self.Host.Battle['ModOptions'].keys ():
 				Value = self.Host.Battle['ModOptions'][Key]
 				try:
 					if int (Value) == Value:
 						Value = int (Value)
-					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
+					Tag = ['game/modoptions/' + str (Key).lower (), str (Value)]
 				except:
-					Tags.append (['GAME/MODOPTIONS/' + str (Key), str (Value)])
-		self.Lobby.BattleUpdateScript (Tags)
+					Tag = ['game/modoptions/' + str (Key).lower (), str (Value)]
+				if not self.Battle['ScriptTags'].has_key (Tag[0]) or self.Battle['ScriptTags'][Tag[0]] != Tag[1]:
+					Tags.append (Tag)
+		if len (Tags) > 0:
+			self.Lobby.BattleUpdateScript (Tags)
 	
 	
 	def LogicFunctionBattleLoadDefaults (self):

@@ -33,7 +33,7 @@ class Lobby (threading.Thread):
 		self.BattleID = 0
 		self.Channels = {}
 		
-		# I = Int, F = Float, V = String, S = Sentence, BXX = BitMask XX chars
+		# I = Int, F = Float, V = String, S = Sentence, BXX = BitMask XX chars, * = Everything else
 		self.Commands = {
 			'TASServer':['V', 'V', 'I', 'I'],
 			'ACCEPTED':['V'],
@@ -71,6 +71,7 @@ class Lobby (threading.Thread):
 			'ADDSTARTRECT':['I', 'I', 'I', 'I', 'I'],
 			'REMOVESTARTRECT':['I'],
 			'AGREEMENTEND':[],
+			'SETSCRIPTTAGS':['*'],
 		}
 	
 	
@@ -115,7 +116,10 @@ class Lobby (threading.Thread):
 	
 	
 	def HandleCommand (self, RawData, Echo = 0):
-		self.Debug ('DEBUG', 'Command::' + str (RawData))
+		if Echo:
+			self.Debug ('DEBUG', 'ECHO Command::' + str (RawData))
+		else:
+			self.Debug ('DEBUG', 'Command::' + str (RawData))
 		Command = self.ReturnValue (RawData, ' ')
 		Data = RawData[len (Command) + 1:]
 		if self.Commands.has_key (Command):
@@ -211,6 +215,7 @@ class Lobby (threading.Thread):
 					'Players':0,
 					'Locked':0,
 					'Boxes':{},
+					'ScriptTags':{},
 				}
 				self.Users[Arg[3]]['InBattle'] = Arg[0]
 				self.SmurfDetection (Arg[3], Arg[4])
@@ -347,6 +352,11 @@ class Lobby (threading.Thread):
 		elif Command == 'AGREEMENTEND':
 			self.Send ('CONFIRMAGREEMENT', 1)
 			self.Login ()
+		elif Command == 'SETSCRIPTTAGS':
+			for Tag in Arg[0].split ('\t'):
+				Tag = Tag.split ('=')
+				self.Battles[self.BattleID]['ScriptTags'][Tag[0].lower ()] = Tag[1]
+		
 		
 		if self.Commands.has_key (Command):
 			self.CallbackEvent (Command, Arg)
@@ -450,9 +460,16 @@ class Lobby (threading.Thread):
 	
 	def BattleUpdateScript (self, Tags):
 		Script = ''
+		iTags = 0
 		for Tag in Tags:
-			Script = Script + Tag[0] + '=' + str (Tag[1]) + '\t'
-		self.Send ('SETSCRIPTTAGS ' + Script[0:-1])
+			iTags = iTags + 1
+			Script = Script + Tag[0].lower () + '=' + str (Tag[1]) + '\t'
+			if iTags == 10:
+				self.Send ('SETSCRIPTTAGS ' + Script[0:-1])
+				Script = ''
+				iTags = 0
+		if Script:
+			self.Send ('SETSCRIPTTAGS ' + Script[0:-1])
 	
 	
 	def Ping (self):

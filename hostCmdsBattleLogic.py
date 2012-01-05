@@ -190,12 +190,21 @@ class HostCmdsBattleLogic:
 			return ('Spring "' + str (SpringVersion) + '" not found (use !compile to add it)')
 	
 	
-	def LogicSetModOption (self, Option, Value):
+	def LogicSetModOption (self, Option, Value = None):
 		self.Debug ('INFO', str (Option) + '=>' + str (Value))
 		if not self.Host.Lobby.BattleID:
 			return ('No battle is open')
 		Mod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
-		if self.Host.Battle['ModOptions'].has_key (Option):
+		if not Mod.has_key ('Options'):
+			return ('This mod has no options')
+		elif not Mod['Options'].has_key (Option):
+			Return = ['Valid ModOptions are:']
+			for Key in Mod['Options']:
+				Return.append (Key)
+			return (Return)
+		elif Value == None:
+			return (self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1))
+		else:
 			Result = self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value)
 			if Result['OK']:
 				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
@@ -204,11 +213,6 @@ class HostCmdsBattleLogic:
 				return ('OK')
 			else:
 				return (self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1))
-		else:
-			Return = ['Valid ModOptions are:']
-			for Key in Mod['Options']:
-				Return.append (Key)
-			return (Return)
 	
 	
 	def LogicSetMapOption (self, Option, Value = None):

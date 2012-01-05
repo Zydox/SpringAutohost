@@ -27,7 +27,7 @@ class HostCmdsBattle:
 			'balance':[[], 'Battle', '!balance', 'Balances the battle users based on rank'],
 			'openbattle':[[], 'Source', '!openbattle', 'Opens a battle'],
 			'spring':[['V'], 'Source', '!spring <spring version>', 'Sets the spring version to the specified tag'],
-			'modoption':[['V', '*'], 'Source', '!modoption <option> <value>', 'Sets a mod option'],
+			'modoption':[['V', 'O*'], 'Source', '!modoption <option> <value>', 'Sets a mod option'],
 			'startpos':[['I'], 'Source', '!startpos <0-3>', 'Sets the start pos (0 Fixed, 1 Randon, 2 Choose in-game, 3 Choose now)'],
 			'hcp':[['V', 'I'], 'Source', '!hcp <user> <hcp>', 'Sets the handicap for the specified user'],
 			'mod':[['*'], 'Source', '!mod <mod>', 'Rehosts with the specified mod'],
@@ -96,7 +96,10 @@ class HostCmdsBattle:
 		elif Command == 'spring':
 			return (self.Logic.LogicSetSpringVersion (Data[0]))
 		elif Command == 'modoption':
-			return (self.Logic.LogicSetModOption (Data[0], Data[1]))
+			if len (Data) == 2:
+				return (self.Logic.LogicSetModOption (Data[0], Data[1]))
+			else:
+				return (self.Logic.LogicSetModOption (Data[0]))
 		elif Command == 'startpos':
 			return (self.Logic.LogicSetStartPos (Data[0]))
 		elif Command == 'hcp':

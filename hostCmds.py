@@ -34,7 +34,7 @@ class HostCmds:
 				for iArg in range (0, len (Data)):
 					Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
 				Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command)
-				if len (Result):
+				if isinstance (Result, list) :
 					for Row in Result:
 						Return.append (Row)
 				else:

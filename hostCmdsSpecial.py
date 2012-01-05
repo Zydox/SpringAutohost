@@ -16,8 +16,8 @@ class HostCmdsSpecial:
 			'help':[[], 'PM', '!help', 'Displays help'],
 			'terminate':[[], 'PM', '!terminate', 'Shuts down the bot'],
 			'terminateall':[[], 'PM', '!terminateall', 'Shuts down all bots'],
-			'compile':[['V'], 'Source', '!compile <spring tag>', 'Compiles the provided spring version'],
-			'recompile':[['V'], 'Source', '!recompile <spring tag>', 'Re-compiles the provided spring version'],
+			'compile':[['V'], 'PM', '!compile <spring tag>', 'Compiles the provided spring version'],
+			'recompile':[['V'], 'PM', '!recompile <spring tag>', 'Re-compiles the provided spring version'],
 			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog'],
 		}
 		for Command in self.Commands:

@@ -33,6 +33,9 @@ class HostCmdsBattle:
 			'mod':[['*'], 'Source', '!mod <mod>', 'Rehosts with the specified mod'],
 			'saveboxes':[[], 'Source', '!saveboxes', 'Saves the current box setup'],
 			'kickbots':[[], 'Source', '!kickbots', 'Kicks all bots from the battle'],
+			'preset':[['V'], 'Source', '!preset <preset name>', 'Loads the specified preset settings'],
+			'savepreset':[['V'], 'Source', '!savepreset <preset name>', 'Saves the current battle settings with the <preset name>'],
+			'teams':[['OI'], 'Source', '!teams <>|<1-16>', 'Sets or displays the number of teams in the battle'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -100,3 +103,12 @@ class HostCmdsBattle:
 			return (self.Logic.LogicSaveBoxes ())
 		elif Command == 'kickbots':
 			return (self.Logic.LogicKickBots ())
+		elif Command == 'preset':
+			return (self.Logic.LogicLoadPreset (Data[0]))
+		elif Command == 'savepreset':
+			return (self.Logic.LogicSavePreset (Data[0]))
+		elif Command == 'teams':
+			if len (Data) == 1:
+				return (self.Logic.LogicSetTeams (Data[0]))
+			else:
+				return ('No. of teams: ' + str (self.Host.Battle['Teams']))

@@ -1,5 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 import time
+from decimal import *
+
 
 class HostCmdsBattleLogic:
 	def __init__ (self, ClassHostCmdsBattle, ClassServer, ClassHost):
@@ -14,6 +16,10 @@ class HostCmdsBattleLogic:
 		if self.Host.Lobby.BattleID:
 			self.Battle = self.Host.Lobby.Battles[self.Host.Lobby.BattleID]
 			self.BattleUsers = self.Host.Lobby.BattleUsers
+		else:
+			self.Battle = {}
+			self.BattleUsers = {}
+			self.Debug ('WARNING', 'self.Host.Lobby.BattleID doesn\'t exist')
 	
 	
 	def LogicOpenBattle (self):
@@ -185,12 +191,14 @@ class HostCmdsBattleLogic:
 	
 	def LogicSetModOption (self, Option, Value):
 		self.Debug ('INFO', str (Option) + '=>' + str (Value))
+		if not self.Host.Lobby.BattleID:
+			return ('No battle is open')
 		UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		if self.Host.Battle['ModOptions'].has_key (Option):
 			Result = self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value)
-			self.Debug ('INFO', str (Value) + ' => ' + str (Result))
-			if not Result == False:
-				self.Host.Battle['ModOptions'][Option] = Result
+			if Result['OK']:
+				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
+				self.Host.Battle['ModOptions'][Option] = Result['Value']
 				self.LogicFunctionBattleUpdateScript ()
 				return ('OK')
 			else:
@@ -283,8 +291,9 @@ class HostCmdsBattleLogic:
 	
 	def LogicRemoveBoxes (self):
 		self.Refresh ()
-		for Team in self.Battle['Boxes'].keys ():
-			self.Lobby.BattleRemoveBox (Team)
+		if self.Battle.has_key ('Boxes'):
+			for Team in self.Battle['Boxes'].keys ():
+				self.Lobby.BattleRemoveBox (Team)
 	
 	
 	def LogicSaveBoxes (self):
@@ -303,7 +312,29 @@ class HostCmdsBattleLogic:
 			return ('No boxes to save')
 	
 	
-	def LogicBalance (self, BalanceType = 'RANK'):
+	def LogicLoadPreset (self, Preset = 'Default'):
+		Config = self.Server.HandleDB.LoadPreset (self.Host.Group, Preset)
+		if Config:
+			for Command in Config.split ('\n'):
+				self.Host.HandleInput ('INTERNAL', '!' + Command.strip ())
+			return ('Preset loaded')
+		else:
+			return ('No preset found for "' + str (Preset) + '"')
+	
+	
+	def LogicSavePreset (self, Preset):
+		self.Refresh ()
+		Config = ['map ' + self.Battle['Map'], 'teams ' + str (self.Host.Battle['Teams'])]
+		Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
+		for ModKey in Mod['Options'].keys ():
+			if self.Host.Battle['ModOptions'].has_key (ModKey):
+				if str (Mod['Options'][ModKey]['Default']) != str (self.Host.Battle['ModOptions'][ModKey]):
+					Config.append ('modoption ' + str (ModKey) + ' ' + str (self.Host.Battle['ModOptions'][ModKey]))
+		self.Server.HandleDB.StorePreset (self.Host.Group, Preset, '\n'.join (Config))
+		return ('Saved')
+		
+	
+	def LogicBalance (self):
 		self.Refresh ()
 		TeamRank = {}
 		PlayerRank = {}
@@ -324,6 +355,14 @@ class HostCmdsBattleLogic:
 		return ('Testing')
 	
 	
+	def LogicSetTeams (self, Teams):
+		if Teams > 16 or Teams < 2:
+			return ('Teams has to be between 2 and 16')
+		self.Host.Battle['Teams'] = Teams
+		self.LogicBalance ()
+		return ('OK')
+	
+	
 	def LogicFunctionLoadBoxes (self):
 		self.Debug ('INFO')
 		if self.Host.Battle['StartPosType'] == 2:
@@ -339,29 +378,41 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicFunctionModOptionValueValid (self, ModOption, Value, Help = 0):
-		Return = False
+		Return = {'OK':0}
 		if ModOption['Type'] == 'Select':
 			if ModOption['Options'].has_key (Value):
-				Return = Value
-			elif Help == 1:
-				Return = ['Valid keys for "' + str (ModOption['Key']) + '" are :']
+				Return = {'OK':1, 'Value':Value}
+			if Help == 1:
+				Return = ['Valid keys for "' + str (ModOption['Title']) + '" are :']
 				for Key in ModOption['Options']:
 					Return.append (str (Key) + ' - ' + str (ModOption['Options'][Key]))
 		elif ModOption['Type'] == 'Numeric':
 			try:
+				getcontext().prec = 6
 				Value = float (Value)
 				self.Debug ('DEBUG', Value)
 				self.Debug ('DEBUG', Value >= ModOption['Min'])
 				self.Debug ('DEBUG', Value <= ModOption['Max'])
 				self.Debug ('DEBUG', not Value % ModOption['Step'])
-				if Value >= ModOption['Min'] and Value <= ModOption['Max'] and not Value % ModOption['Step']:
+				self.Debug ('DEBUG', Decimal ((Value / ModOption['Step']) % 1))
+				if Value >= ModOption['Min'] and Value <= ModOption['Max'] and Decimal ((Value / ModOption['Step']) % 1) == 0:
 					if int (Value) == Value:
 						Value = int (Value)
-					Return = Value
+					Return = {'OK':1, 'Value':Value}
 			except:
-				Return = False
-			if Return == False and Help == 1:
-				Return = 'Value values are between ' + str (ModOption['Min']) + ' to ' + str (ModOption['Max']) + ' with a stepping of ' + str (ModOption['Step'])
+				print 'CRASH'
+				pass
+			if Help == 1:
+				Return = 'Valid values are between ' + str (ModOption['Min']) + ' to ' + str (ModOption['Max']) + ' with a stepping of ' + str (ModOption['Step'])
+		elif ModOption['Type'] == 'Boolean':
+			try:
+				Value = int (Value)
+				if Value == 1 or Value == 0:
+					Return = {'OK':1, 'Value':Value}
+			except:
+				pass
+			if Help == 1:
+				Return = 'Valid values for "' + str (ModOption['Title']) + '" are 0 or 1'
 		return (Return)
 	
 	

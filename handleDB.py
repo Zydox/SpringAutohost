@@ -11,7 +11,7 @@ class HandleDB:
 		self.Config = {}
 		self.SetConfig ()
 		self.Start ()
-
+	
 		
 	
 	def Start (self):
@@ -26,6 +26,17 @@ class HandleDB:
 	
 	def LoadBoxes (self, Group, Map, Teams, StartPosType):
 		Result = self.Query ("SELECT MapSettings.Boxes FROM MapSettings LEFT JOIN Maps ON MapSettings.MapID=Maps.ID LEFT JOIN Groups ON MapSettings.GroupID=Groups.ID WHERE Maps.MapName='" + str (Map) + "' AND Groups.GroupName='" + str (Group) + "' AND MapSettings.Teams='" + str (Teams) + "' AND MapSettings.StartPosType='" + str (StartPosType) + "'", 'Value')
+		return (Result)
+	
+	
+	def StorePreset (self, Group, Preset, Config):
+		GroupID = self.GetGroupID (Group)
+		self.Query ("REPLACE INTO Presets SET GroupID='" + str (GroupID) + "', Preset='" + str (Preset.upper ()) + "', Config='" + str (Config) + "'")
+	
+	
+	def LoadPreset (self, Group, Preset):
+		GroupID = self.GetGroupID (Group)
+		Result = self.Query ("SELECT Config FROM Presets WHERE GroupID='" + str (GroupID) + "' AND Preset='" + str (Preset.upper ()) + "'", 'Value')
 		return (Result)
 	
 	
@@ -160,15 +171,15 @@ class HandleDB:
 		except:
 			pass
 		return (Return)
-
+	
 	
 	def Connect (self):
 		self.Debug ('INFO')
 		self.Disconnect ()
 		if self.Type == 'MySQL':
 			self.Engine = create_engine ('mysql://' + str (self.Config['User']) + ':' + str (self.Config['Password']) + '@' + str (self.Config['Host']) + ':' + str (self.Config['Port']) + '/' + str (self.Config['Database']), encoding="utf-8", echo=False, pool_recycle=True)
-
-
+	
+	
 	def Disconnect (self):
 		self.Debug ('INFO')
 		try:

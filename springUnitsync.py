@@ -108,10 +108,10 @@ class SpringUnitsync:
 				'Key':self.Unitsync.GetOptionKey (iOpt),
 				'Title':self.Unitsync.GetOptionName (iOpt),
 				'Type':'Numeric',
-				'Default':self.Unitsync.GetOptionNumberDef (iOpt),
-				'Min':self.Unitsync.GetOptionNumberMin (iOpt),
-				'Max':self.Unitsync.GetOptionNumberMax (iOpt),
-				'Step':self.Unitsync.GetOptionNumberStep (iOpt),
+				'Default':self.ConvertFloat (self.Unitsync.GetOptionNumberDef (iOpt)),
+				'Min':self.ConvertFloat (self.Unitsync.GetOptionNumberMin (iOpt)),
+				'Max':self.ConvertFloat (self.Unitsync.GetOptionNumberMax (iOpt)),
+				'Step':self.ConvertFloat (self.Unitsync.GetOptionNumberStep (iOpt)),
 			}
 		elif self.Unitsync.GetOptionType (iOpt) == 5:
 			Ignore = 1
@@ -124,3 +124,10 @@ class SpringUnitsync:
 		if Int > 2147483648:
 			Int = Int - 2147483648 * 2
 		return (Int)
+	
+	
+	def ConvertFloat (self, Value):
+		if type (Value) is float:
+			return (round (Value, 5))
+		else:
+			return (Value)

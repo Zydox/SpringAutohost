@@ -233,6 +233,7 @@ class Lobby (threading.Thread):
 				'Color':'000000',
 				'Handicap':None,
 				'Synced':1,
+				'Ready':0,
 				'AI':0,
 				'AIOwner':None,
 				'AIDLL':None,
@@ -376,9 +377,12 @@ class Lobby (threading.Thread):
 	
 	
 	def BattleMap (self, Map, MapHash):
-		self.Battles[self.BattleID]['Map'] = Map
-		self.Battles[self.BattleID]['MapHash'] = MapHash
-		self.BattleUpdate ()
+		if self.BattleID:
+			self.Battles[self.BattleID]['Map'] = Map
+			self.Battles[self.BattleID]['MapHash'] = MapHash
+			self.BattleUpdate ()
+		else:
+			self.Debug ('ERROR', 'self.BattleID doesn\'t exist')
 	
 	
 	def BattleSay (self, Message, Me = 0):

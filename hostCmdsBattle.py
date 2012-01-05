@@ -36,6 +36,7 @@ class HostCmdsBattle:
 			'preset':[['V'], 'Source', '!preset <preset name>', 'Loads the specified preset settings'],
 			'savepreset':[['V'], 'Source', '!savepreset <preset name>', 'Saves the current battle settings with the <preset name>'],
 			'teams':[['OI'], 'Source', '!teams <>|<1-16>', 'Sets or displays the number of teams in the battle'],
+			'mapoption':[['V', 'O*'], 'Source', '!mapoption <option> <value>', 'Sets a map option'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -115,3 +116,8 @@ class HostCmdsBattle:
 				return (self.Logic.LogicSetTeams (Data[0]))
 			else:
 				return ('No. of teams: ' + str (self.Host.Battle['Teams']))
+		elif Command == 'mapoption':
+			if len (Data) == 2:
+				return (self.Logic.LogicSetMapOption (Data[0], Data[1]))
+			else:
+				return (self.Logic.LogicSetMapOption (Data[0]))

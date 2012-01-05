@@ -10,7 +10,7 @@ class HostCmdsBattleLogic:
 		self.Host = ClassHost
 		self.Debug = ClassServer.Debug
 		self.Lobby = ClassHost.Lobby
-		
+	
 	
 	def Refresh (self):
 		if self.Host.Lobby.BattleID:
@@ -162,6 +162,7 @@ class HostCmdsBattleLogic:
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if UnitsyncMap:
 			self.Host.Lobby.BattleMap (Map, UnitsyncMap['Hash'])
+			self.LogicFunctionMapLoadDefaults ()
 			self.LogicFunctionLoadBoxes ()
 			
 			return ('Map changed to ' + str (Map))
@@ -193,22 +194,47 @@ class HostCmdsBattleLogic:
 		self.Debug ('INFO', str (Option) + '=>' + str (Value))
 		if not self.Host.Lobby.BattleID:
 			return ('No battle is open')
-		UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
+		Mod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		if self.Host.Battle['ModOptions'].has_key (Option):
-			Result = self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value)
+			Result = self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value)
 			if Result['OK']:
 				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
 				self.Host.Battle['ModOptions'][Option] = Result['Value']
 				self.LogicFunctionBattleUpdateScript ()
 				return ('OK')
 			else:
-				return (self.LogicFunctionModOptionValueValid (UnitsyncMod['Options'][Option], Value, 1))
+				return (self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1))
 		else:
 			Return = ['Valid ModOptions are:']
-			for Key in UnitsyncMod['Options']:
+			for Key in Mod['Options']:
 				Return.append (Key)
 			return (Return)
-		
+	
+	
+	def LogicSetMapOption (self, Option, Value = None):
+		self.Debug ('INFO', str (Option) + '=>' + str (Value))
+		if not self.Host.Lobby.BattleID:
+			return ('No battle is open')
+		Map = self.Host.GetUnitsyncMap (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Map'])
+		if not Map.has_key ('Options'):
+			return ('This map has no options')
+		elif not Map['Options'].has_key (Option):
+			Return = ['Valid MapOptions are:']
+			for Key in Map['Options']:
+				Return.append (Key)
+			return (Return)
+		elif Value == None:
+			return (self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1))
+		else:
+			Result = self.LogicFunctionOptionValueValid (Map['Options'][Option], Value)
+			if Result['OK']:
+				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
+				self.Host.Battle['MapOptions'][Option] = Result['Value']
+				self.LogicFunctionBattleUpdateScript ()
+				return ('OK')
+			else:
+				return (self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1))
+	
 	
 	def LogicSetStartPos (self, StartPos):
 		self.Debug ('INFO', StartPos)
@@ -271,7 +297,7 @@ class HostCmdsBattleLogic:
 				self.LogicOpenBattle ()
 				self.LogicFunctionLoadBoxes ()
 				return ('OK')
-		
+	
 	
 	def LogicAddBox (self, Left, Top, Right, Bottom, Team = -1):
 		self.Refresh ()
@@ -294,7 +320,7 @@ class HostCmdsBattleLogic:
 			self.LogicRemoveBox (Team + 1)
 		self.Lobby.BattleAddBox (Team, Left * 2, Top * 2, Right * 2, Bottom * 2)
 		return ('Box added')
-
+	
 	
 	def LogicRemoveBox (self, Team):
 		self.Lobby.BattleRemoveBox (Team - 1)
@@ -343,7 +369,7 @@ class HostCmdsBattleLogic:
 					Config.append ('modoption ' + str (ModKey) + ' ' + str (self.Host.Battle['ModOptions'][ModKey]))
 		self.Server.HandleDB.StorePreset (self.Host.Group, Preset, '\n'.join (Config))
 		return ('Saved')
-		
+	
 	
 	def LogicBalance (self):
 		self.Refresh ()
@@ -388,34 +414,33 @@ class HostCmdsBattleLogic:
 			self.LogicRemoveBoxes ()
 	
 	
-	def LogicFunctionModOptionValueValid (self, ModOption, Value, Help = 0):
+	def LogicFunctionOptionValueValid (self, Option, Value, Help = 0):
 		Return = {'OK':0}
-		if ModOption['Type'] == 'Select':
-			if ModOption['Options'].has_key (Value):
+		if Option['Type'] == 'Select':
+			if Option['Options'].has_key (Value):
 				Return = {'OK':1, 'Value':Value}
 			if Help == 1:
-				Return = ['Valid keys for "' + str (ModOption['Title']) + '" are :']
-				for Key in ModOption['Options']:
-					Return.append (str (Key) + ' - ' + str (ModOption['Options'][Key]))
-		elif ModOption['Type'] == 'Numeric':
+				Return = ['Valid keys for "' + str (Option['Title']) + '" are :']
+				for Key in Option['Options']:
+					Return.append (str (Key) + ' - ' + str (Option['Options'][Key]))
+		elif Option['Type'] == 'Numeric':
 			try:
 				getcontext().prec = 6
 				Value = float (Value)
 				self.Debug ('DEBUG', Value)
-				self.Debug ('DEBUG', Value >= ModOption['Min'])
-				self.Debug ('DEBUG', Value <= ModOption['Max'])
-				self.Debug ('DEBUG', not Value % ModOption['Step'])
-				self.Debug ('DEBUG', Decimal ((Value / ModOption['Step']) % 1))
-				if Value >= ModOption['Min'] and Value <= ModOption['Max'] and Decimal ((Value / ModOption['Step']) % 1) == 0:
+				self.Debug ('DEBUG', Value >= Option['Min'])
+				self.Debug ('DEBUG', Value <= Option['Max'])
+				self.Debug ('DEBUG', not Value % Option['Step'])
+				self.Debug ('DEBUG', Decimal ((Value / Option['Step']) % 1))
+				if Value >= Option['Min'] and Value <= Option['Max'] and Decimal ((Value / Option['Step']) % 1) == 0:
 					if int (Value) == Value:
 						Value = int (Value)
 					Return = {'OK':1, 'Value':Value}
 			except:
-				print 'CRASH'
-				pass
+				self.Debug ('ERROR', 'CRASH')
 			if Help == 1:
-				Return = 'Valid values are between ' + str (ModOption['Min']) + ' to ' + str (ModOption['Max']) + ' with a stepping of ' + str (ModOption['Step'])
-		elif ModOption['Type'] == 'Boolean':
+				Return = 'Valid values are between ' + str (Option['Min']) + ' to ' + str (Option['Max']) + ' with a stepping of ' + str (Option['Step'])
+		elif Option['Type'] == 'Boolean':
 			try:
 				Value = int (Value)
 				if Value == 1 or Value == 0:
@@ -423,7 +448,7 @@ class HostCmdsBattleLogic:
 			except:
 				pass
 			if Help == 1:
-				Return = 'Valid values for "' + str (ModOption['Title']) + '" are 0 or 1'
+				Return = 'Valid values for "' + str (Option['Title']) + '" are 0 or 1'
 		return (Return)
 	
 	
@@ -494,6 +519,17 @@ class HostCmdsBattleLogic:
 					Tag = ['game/modoptions/' + str (Key).lower (), str (Value)]
 				if not self.Battle['ScriptTags'].has_key (Tag[0]) or self.Battle['ScriptTags'][Tag[0]] != Tag[1]:
 					Tags.append (Tag)
+		if self.Host.Lobby.BattleID and self.Host.Battle.has_key ('MapOptions'):
+			for Key in self.Host.Battle['MapOptions'].keys ():
+				Value = self.Host.Battle['MapOptions'][Key]
+				try:
+					if int (Value) == Value:
+						Value = int (Value)
+					Tag = ['game/mapoptions/' + str (Key).lower (), str (Value)]
+				except:
+					Tag = ['game/mapoptions/' + str (Key).lower (), str (Value)]
+				if not self.Battle['ScriptTags'].has_key (Tag[0]) or self.Battle['ScriptTags'][Tag[0]] != Tag[1]:
+					Tags.append (Tag)
 		if len (Tags) > 0:
 			self.Lobby.BattleUpdateScript (Tags)
 	
@@ -501,16 +537,29 @@ class HostCmdsBattleLogic:
 	def LogicFunctionBattleLoadDefaults (self):
 		self.Debug ('INFO')
 		if self.Host.Lobby.BattleID:
-			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
+			Mod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		else:
-			UnitsyncMod = self.Host.GetUnitsyncMod (self.Host.Battle['Mod'])
-		if UnitsyncMod and len (UnitsyncMod['Options']):
-			for Key in UnitsyncMod['Options'].keys ():
+			Mod = self.Host.GetUnitsyncMod (self.Host.Battle['Mod'])
+		if Mod and len (Mod['Options']):
+			for Key in Mod['Options'].keys ():
 				if not self.Host.Battle['ModOptions'].has_key (Key):
-					self.Host.Battle['ModOptions'][Key] = UnitsyncMod['Options'][Key]['Default']
+					self.Host.Battle['ModOptions'][Key] = Mod['Options'][Key]['Default']
 		try:
 			if not self.Host.Battle.has_key ('StartPosType') or not int (self.Host.Battle['StartPosType']) == self.Host.Battle['StartPosType']:
 				self.Host.Battle['StartPosType'] = 1
 		except:
 			self.Host.Battle['StartPosType'] = 1
-#		self.LogicFunctionBattleUpdateScript ()
+		self.LogicFunctionMapLoadDefaults ()
+	
+	
+	def LogicFunctionMapLoadDefaults (self):
+		self.Debug ('INFO')
+		if self.Host.Lobby.BattleID:
+			Map = self.Host.GetUnitsyncMap (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Map'])
+		else:
+			Map = self.Host.GetUnitsyncMap (self.Host.Battle['Map'])
+		self.Host.Battle['MapOptions'] = {}
+		if Map and Map.has_key ('Options'):
+			for Key in Map['Options'].keys ():
+				if not self.Host.Battle['MapOptions'].has_key (Key):
+					self.Host.Battle['MapOptions'][Key] = Map['Options'][Key]['Default']

@@ -44,7 +44,19 @@ class SpringUnitsync:
 		for iMap in range (0, self.Unitsync.GetMapCount ()):
 			Map = self.Unitsync.GetMapName (iMap)
 			self.Debug ('INFO', 'Load map::' + str (Map))
-			self.Maps[Version][Map] = {'Hash':self.SignInt (self.Unitsync.GetMapChecksum (iMap))}
+			self.Maps[Version][Map] = {
+				'Hash':self.SignInt (self.Unitsync.GetMapChecksum (iMap)),
+				'X':self.Unitsync.GetMapWidth (iMap),
+				'Y':self.Unitsync.GetMapHeight (iMap),
+				'Description':self.Unitsync.GetMapDescription (iMap),
+			}
+			if self.Unitsync.GetMapPosCount (iMap):
+				self.Maps[Version][Map]['StartPos'] = {}
+				for iPos in range (0, self.Unitsync.GetMapPosCount (iMap)):
+					self.Maps[Version][Map]['StartPos'][iPos] = {
+						'X':self.Unitsync.GetMapPosX (iMap, iPos),
+						'Y':self.Unitsync.GetMapPosZ (iMap, iPos),
+					}
 			if self.Unitsync.GetMapOptionCount (Map):
 				self.Maps[Version][Map]['Options'] = {}
 				for iOpt in range (0, self.Unitsync.GetMapOptionCount (Map)):
@@ -52,7 +64,7 @@ class SpringUnitsync:
 					if len (Option) > 0:
 						self.Maps[Version][Map]['Options'][Option['Key']] = Option
 	
-	
+		
 	def LoadMods (self, Version):
 		self.Debug ('INFO', Version)
 		self.Mods[Version] = {}
@@ -91,6 +103,7 @@ class SpringUnitsync:
 				'Title':self.Unitsync.GetOptionName (iOpt),
 				'Type':'Boolean',
 				'Default':self.Unitsync.GetOptionBoolDef (iOpt),
+				'Description':self.Unitsync.GetOptionDesc (iOpt),
 			}
 		elif self.Unitsync.GetOptionType (iOpt) == 2:
 			Data = {
@@ -98,6 +111,7 @@ class SpringUnitsync:
 				'Title':self.Unitsync.GetOptionName (iOpt),
 				'Type':'Select',
 				'Default':self.Unitsync.GetOptionListDef (iOpt),
+				'Description':self.Unitsync.GetOptionDesc (iOpt),
 				'Options':{},
 			}
 			if self.Unitsync.GetOptionListCount (iOpt):
@@ -112,9 +126,19 @@ class SpringUnitsync:
 				'Min':self.ConvertFloat (self.Unitsync.GetOptionNumberMin (iOpt)),
 				'Max':self.ConvertFloat (self.Unitsync.GetOptionNumberMax (iOpt)),
 				'Step':self.ConvertFloat (self.Unitsync.GetOptionNumberStep (iOpt)),
+				'Description':self.Unitsync.GetOptionDesc (iOpt),
+			}
+		elif self.Unitsync.GetOptionType (iOpt) == 4:
+			Data = {
+				'Key':self.Unitsync.GetOptionKey (iOpt),
+				'Title':self.Unitsync.GetOptionName (iOpt),
+				'Type':'String',
+				'Default':self.Unitsync.GetOptionStringDef (iOpt),
+				'MaxLength':self.Unitsync.GetOptionStringMaxLen (iOpt),
+				'Description':self.Unitsync.GetOptionDesc (iOpt),
 			}
 		elif self.Unitsync.GetOptionType (iOpt) == 5:
-			Ignore = 1
+			Ignore = 1	# Group header
 		else:
 			self.Debug ('ERROR', 'Unkown options type (' + str (self.Unitsync.GetOptionType (iOpt)) + ')')
 		return (Data)

@@ -213,8 +213,14 @@ class HostCmdsBattleLogic:
 			return ('StartPos must be between 0 and 3')
 	
 	
-	def LogicStartBattle (self):
+	def LogicStartBattle (self, ForceStart = 0):
 		self.Debug ('INFO')
+		self.Refresh ()
+		
+		if not ForceStart:
+			for User in self.BattleUsers:
+				if not self.BattleUsers[User]['Ready'] and not self.BattleUsers[User]['Spectator']:
+					return ('Not all users are ready yet')
 		
 		Locked = self.Lobby.Battles[self.Lobby.BattleID]['Locked']
 		self.Lobby.BattleLock (1)
@@ -297,10 +303,11 @@ class HostCmdsBattleLogic:
 			return ('No boxes to save')
 	
 	
-	def LogicBalance (self, Teams = 2, BalanceType = 'RANK'):
+	def LogicBalance (self, BalanceType = 'RANK'):
 		self.Refresh ()
 		TeamRank = {}
 		PlayerRank = {}
+		Teams = self.Host.Battle['Teams']
 		for iTeam in range (0, Teams):
 			TeamRank[iTeam] = 0
 		for User in self.BattleUsers:

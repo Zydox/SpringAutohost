@@ -17,7 +17,7 @@ class HostCmdsBattle:
 			'lock':[['OB'], 'Source', '!lock [0/1]', 'Locks/unlocks the battle'],
 			'kick':[['V'], 'Source', '!kick <user>', 'Kicks <user> from the battle'],
 			'ring':[['OV'], 'Source', '!ring [<user>]', 'Rings a specific user or all unready users'],
-			'addbox':[['I', 'I', 'I', 'I', 'I'], 'Source', '!addbox <Team> <Left> <Top> <Right> <Bottom> (0-100)', 'Adds a startbox'],
+			'addbox':[['I', 'I', 'I', 'I', 'OI'], 'Source', '!addbox <Left 0-100> <Top 0-100> <Right 0-100> <Bottom 0-100> <Team 1-16>', 'Adds a startbox (if no team is specified, the next empty one is used)'],
 			'udp':[['*'], 'Source', '!udp <command>', 'Sends a command to the spring server'],
 			'forcestart':[[], 'Source', '!forcestart', 'Force start the battle'],
 			'info':[[], 'PM', '!info', 'Returns the status of the current battle'],
@@ -71,7 +71,10 @@ class HostCmdsBattle:
 			else:
 				return (self.Logic.LogicRing ())
 		elif Command == 'addbox':
-			return (self.Logic.LogicAddBox (Data[0], Data[1], Data[2], Data[3], Data[4]))
+			if len (Data) == 4:
+				return (self.Logic.LogicAddBox (Data[0], Data[1], Data[2], Data[3]))
+			else:
+				return (self.Logic.LogicAddBox (Data[0], Data[1], Data[2], Data[3], Data[4]))
 		elif Command == 'udp':
 			self.Host.Spring.SpringTalk (Data[0])
 		elif Command == 'forcestart':

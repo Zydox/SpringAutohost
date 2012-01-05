@@ -273,11 +273,22 @@ class HostCmdsBattleLogic:
 				return ('OK')
 		
 	
-	def LogicAddBox (self, Team, Left, Top, Right, Bottom):
+	def LogicAddBox (self, Left, Top, Right, Bottom, Team = -1):
 		self.Refresh ()
-		if Left > 100 or Top > 100 or Right > 100 or Bottom > 100:
-			return ('Max value is 100')
-		Team = Team - 1
+		if Left > 100 or Top > 100 or Right > 100 or Bottom > 100 or Left < 0 or Top < 0 or Right < 0 or Bottom < 0:
+			return ('Box values must be between 0 and 100')
+		elif Team < -1 or Team == 0 or Team > 16:
+			return ('Team must be between 1 and 16')
+		
+		if Team == -1:
+			for iTeam in range (0, 15):
+				if not self.Battle['Boxes'].has_key (iTeam):
+					Team = iTeam
+					break
+			if Team == -1:
+				return ('No team is free, please specify which should be replaced')
+		else:
+			Team = Team - 1
 		
 		if self.Battle['Boxes'].has_key (Team):
 			self.LogicRemoveBox (Team + 1)
@@ -372,7 +383,7 @@ class HostCmdsBattleLogic:
 				self.LogicRemoveBoxes ()
 				for Box in Boxes.split ('\n'):
 					Box = Box.split (' ')
-					self.LogicAddBox (int (Box[0]) + 1, int (Box[1]) / 2, int (Box[2]) / 2, int (Box[3]) / 2, int (Box[4]) / 2)
+					self.LogicAddBox (int (Box[1]) / 2, int (Box[2]) / 2, int (Box[3]) / 2, int (Box[4]) / 2, int (Box[0]) + 1)
 		else:
 			self.LogicRemoveBoxes ()
 	

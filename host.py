@@ -114,14 +114,15 @@ class Host (threading.Thread):
 				if self.HostCmds.Commands.has_key (Input['Command']):
 					Data = Input['RawData']
 					Failed = 0
+					if Source == 'INTERAL_RETURN':
+						Input['Return'] = 'Return'
+					elif self.HostCmds.Commands[Input['Command']][1] == 'Source':
+						Input['Return'] = Input['Source']
+					else:
+						Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
+
 					for Field in self.HostCmds.Commands[Input['Command']][0]:
 						NewArg = ''
-						if Source == 'INTERAL_RETURN':
-							Input['Return'] = 'Return'
-						elif self.HostCmds.Commands[Input['Command']][1] == 'Source':
-							Input['Return'] = Input['Source']
-						else:
-							Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
 						if Field == '*' or (Field == 'O*' and len (Data) > 0):
 							NewArg = Data
 							if Field == '*' and len (NewArg) < 1:
@@ -173,7 +174,6 @@ class Host (threading.Thread):
 				return (Input['Message'])
 			
 			self.ReturnInput (Input)
-#			print (Input)
 	
 	
 	def HandleAccess (self, Input, Source = ''):

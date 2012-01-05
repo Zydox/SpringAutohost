@@ -117,10 +117,13 @@ class Host (threading.Thread):
 					if Source == 'INTERAL_RETURN':
 						Input['Return'] = 'Return'
 					elif self.HostCmds.Commands[Input['Command']][1] == 'Source':
-						Input['Return'] = Input['Source']
+						if Input['Source'] == 'Battle':
+							Input['Return'] = 'BattleMe'
+						else:
+							Input['Return'] = Input['Source']
 					else:
 						Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
-
+					
 					for Field in self.HostCmds.Commands[Input['Command']][0]:
 						NewArg = ''
 						if Field == '*' or (Field == 'O*' and len (Data) > 0):

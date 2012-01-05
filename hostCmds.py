@@ -33,7 +33,12 @@ class HostCmds:
 			for Command in self.Host.GroupConfig['Alias'][Command]:
 				for iArg in range (0, len (Data)):
 					Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
-				Return.append (self.Host.HandleInput ('INTERAL_RETURN', '!' + Command))
+				Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command)
+				if len (Result):
+					for Row in Result:
+						Return.append (Row)
+				else:
+					Return.append (Result)
 			Return.append ('Alias command completed')
 			return (Return)
 		else:

@@ -8,15 +8,16 @@ import sys
 
 
 class Spring:
-	def __init__ (self, ClassServer, ClassHost, ClassLobby):
+	def __init__ (self, ClassServer, ClassHost, ClassLobby, UDPPort):
 		self.Debug = ClassServer.Debug
 		self.Server = ClassServer
 		self.Host = ClassHost
 		self.Lobby = ClassLobby
-		self.SpringAutoHostPort = 9000
+		self.SpringAutoHostPort = UDPPort
 		self.SpringUDP = None
 		self.Headless = 0
 		self.HeadlessSpeed = [1, 3]
+		self.Debug ('INFO', 'UDP Port:' + str (self.SpringAutoHostPort))
 	
 	
 	def SpringEvent (self, Event, Data = ''):
@@ -230,51 +231,53 @@ class SpringUDP (threading.Thread):
 		while self.Active:
 			Data, self.ServerAddr = self.Socket.recvfrom (8192)
 			if Data:
-				if ord (Data[0]) == 1:	# Game stop
-					self.Spring.SpringEvent ('SERVER_QUIT')
-					self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
-				elif ord (Data[0]) == 2:	# Game start
-					self.Spring.SpringEvent ('GAME_START')
-					if self.Spring.Headless:
-						self.Talk ('/setminspeed 1')
-						self.Talk ('/setmaxspeed 1')
-						self.Talk ('/setminspeed ' + str (self.Spring.HeadlessSpeed[0]))
-						self.Talk ('/setmaxspeed ' + str (self.Spring.HeadlessSpeed[1]))
-				elif ord (Data[0]) == 3:	# Battle ended
-					self.Spring.SpringEvent ('GAME_END')
-					self.Spring.Lobby.BattleSay ('Battle ended', 1)
-				elif ord (Data[0]) == 4:	# Information
-					self.Spring.SpringEvent ('INFORMATION', Data[1:])
-				elif ord (Data[0]) == 10:	# User joined
-					self.Spring.SpringEvent ('USER_JOINED', Data[2:])
-					self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0, 'InGame':1}
-				elif ord (Data[0]) == 11:	# User left
-					self.Spring.SpringEvent ('USER_LEFT', self.SpringUsers[Data[1]]['Alias'])
-					self.SpringUsers[Data[1]]['InGame'] = 0
-				elif ord (Data[0]) == 12:	# User ready
-					self.Spring.SpringEvent ('USER_READY', self.SpringUsers[Data[1]]['Alias'])
-					self.SpringUsers[Data[1]]['Ready'] = 1
-					self.SpringUsers[Data[1]]['Alive'] = 1
-				elif ord (Data[0]) == 13:	# Battle chat
-					if ord (Data[2]) == 252:	# Ally chat
-						self.Spring.SpringEvent ('USER_CHAT_ALLY', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
-					if ord (Data[2]) == 253:	# Spec chat
-						self.Spring.SpringEvent ('USER_CHAT_SPEC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
-					if ord (Data[2]) == 254:	# Public chat
-						self.Spring.SpringEvent ('USER_CHAT_PUBLIC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
-				elif ord (Data[0]) == 14:	# User died
-					self.Spring.SpringEvent ('USER_DIED', self.SpringUsers[Data[1]]['Alias'])
-					self.SpringUsers[Data[1]]['Alive'] = 0
-				else:
-					if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
-						try:
-							self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
-						except:
+				try:
+					if ord (Data[0]) == 1:	# Game stop
+						self.Spring.SpringEvent ('SERVER_QUIT')
+						self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
+					elif ord (Data[0]) == 2:	# Game start
+						self.Spring.SpringEvent ('GAME_START')
+						if self.Spring.Headless:
+							self.Talk ('/setminspeed 1')
+							self.Talk ('/setmaxspeed 1')
+							self.Talk ('/setminspeed ' + str (self.Spring.HeadlessSpeed[0]))
+							self.Talk ('/setmaxspeed ' + str (self.Spring.HeadlessSpeed[1]))
+					elif ord (Data[0]) == 3:	# Battle ended
+						self.Spring.SpringEvent ('GAME_END')
+						self.Spring.Lobby.BattleSay ('Battle ended', 1)
+					elif ord (Data[0]) == 4:	# Information
+						self.Spring.SpringEvent ('INFORMATION', Data[1:])
+					elif ord (Data[0]) == 10:	# User joined
+						self.Spring.SpringEvent ('USER_JOINED', Data[2:])
+						self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0, 'InGame':1}
+					elif ord (Data[0]) == 11:	# User left
+						self.Spring.SpringEvent ('USER_LEFT', self.SpringUsers[Data[1]]['Alias'])
+						self.SpringUsers[Data[1]]['InGame'] = 0
+					elif ord (Data[0]) == 12:	# User ready
+						self.Spring.SpringEvent ('USER_READY', self.SpringUsers[Data[1]]['Alias'])
+						self.SpringUsers[Data[1]]['Ready'] = 1
+						self.SpringUsers[Data[1]]['Alive'] = 1
+					elif ord (Data[0]) == 13:	# Battle chat
+						if ord (Data[2]) == 252:	# Ally chat
+							self.Spring.SpringEvent ('USER_CHAT_ALLY', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+						if ord (Data[2]) == 253:	# Spec chat
+							self.Spring.SpringEvent ('USER_CHAT_SPEC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+						if ord (Data[2]) == 254:	# Public chat
+							self.Spring.SpringEvent ('USER_CHAT_PUBLIC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+					elif ord (Data[0]) == 14:	# User died
+						self.Spring.SpringEvent ('USER_DIED', self.SpringUsers[Data[1]]['Alias'])
+						self.SpringUsers[Data[1]]['Alive'] = 0
+					else:
+						if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
 							try:
-								self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
+								self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])) + '::' + str (Data[2:]))
 							except:
-								self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
-				
+								try:
+									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
+								except:
+									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
+				except:
+					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])))
 		self.Terminate ()
 	
 	
@@ -310,7 +313,7 @@ class SpringUDP (threading.Thread):
 	def Terminate (self, Message = ''):
 		self.Debug ('INFO', str (Message))
 		self.Active = 0
-		self.Talk ('/quit')
+		self.Talk ('/QUIT')
 		try:
 			self.Debug ('INFO', 'Terminate UDP socked')
 			self.Socket.terminate (2)

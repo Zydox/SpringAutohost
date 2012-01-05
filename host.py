@@ -20,7 +20,7 @@ class Host (threading.Thread):
 		self.SpringVersion = self.GetSpringVersion ()
 		self.Lobby = lobby.Lobby (self.Debug, self.HandleInput, self.HandleEvent, self.HandleLocalEvent, dict (AccountConfig, **{'LobbyHost':ClassServer.Config['General']['LobbyHost'], 'LobbyPort':ClassServer.Config['General']['LobbyPort']}))
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
-		self.Spring = spring.Spring (ClassServer, self, self.Lobby)
+		self.Spring = spring.Spring (ClassServer, self, self.Lobby, AccountConfig['UDPPort'])
 		self.UserRoles = {}		# [User][Role] = 1
 		self.Battle = {
 			'Mod':self.GroupConfig['Mod'],

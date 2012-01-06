@@ -11,17 +11,18 @@ class HostCmdsBattleBalance:
 		self.Host = ClassHost
 		self.Debug = ClassServer.Debug
 		self.Lobby = ClassHost.Lobby
+		self.DebugMode = 0
 	
 	
 	def Refresh (self):
-		if self.Host.Lobby.BattleID:
-			self.Battle = self.Host.Lobby.Battles[self.Host.Lobby.BattleID]
-			self.BattleUsers = self.Host.Lobby.BattleUsers
+		if self.Lobby.BattleID:
+			self.Battle = self.Lobby.Battles[self.Host.Lobby.BattleID]
+			self.BattleUsers = self.Lobby.BattleUsers
 		else:
 			self.Battle = {}
 			self.BattleUsers = {}
 			self.Debug ('WARNING', 'self.Host.Lobby.BattleID doesn\'t exist')
-
+		
 		self.Teams = self.Host.Battle['Teams']
 		self.Players = 0
 		self.TeamRank = {}
@@ -47,19 +48,13 @@ class HostCmdsBattleBalance:
 				self.PlayerList[User] = 1
 			elif not self.BattleUsers[User]['Spectator']:
 				self.PlayerList[User] = self.Lobby.Users[User]['Rank']
-#		self.PlayerList = {'[SNTT]lfing': 6, 'DeadnightWarrior': 5, '[CoW]HermuldSuuri': 6, 'ismo': 5, 'KipZonderKop': 3, 'NTG': 6}
-#		self.PlayerList = {'[SNTT]lfing': 6, '[CoW]HermuldSuuri': 6, 'ismo': 5, 'NTG': 6, 'DeadnightWarrior': 5}
-#		self.PlayerList = {'[SNTT]lfing': 6, 'DeadnightWarrior': 5, '[ONE]MotionLine': 5, 'Masta_Ali': 6, 'ismo': 5, 'NTG': 6}
-#		self.PlayerList = {'[CN]Zydox': 6, '[CN]Plato': 4, '[tN]Ray': 6, '[AG]Abma': 5}
-		
 		self.Players = len (self.PlayerList)
 		for User in self.PlayerList:
 			self.Data['TotalRank'] = self.Data['TotalRank'] + self.PlayerList[User]
 		self.Data['OptimalTeamRank'] = int (math.floor (self.Data['TotalRank'] / float (self.Teams)))
 		self.Data['OptimalTeamPlayers'] = int (math.floor (self.Players / float (self.Teams)))
-		Debug = 0
 		
-		if Debug:
+		if self.DebugMode:
 			print '1=============================='
 			print self.PlayerList
 			print self.TeamRank
@@ -71,7 +66,7 @@ class HostCmdsBattleBalance:
 		self.BalanceClans ()
 		self.BalancePlayers ()
 		
-		if Debug:
+		if self.DebugMode:
 			print ''
 			print '2=============================='
 			print self.PlayerList

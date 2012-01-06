@@ -10,6 +10,7 @@ class SpringUnitsync:
 		self.SpringCompile = None
 		self.Maps = {}
 		self.Mods = {}
+		self.LogicTest = self.Server.LogicTest
 		self.Load ()
 	
 	
@@ -33,7 +34,9 @@ class SpringUnitsync:
 		
 		self.Unitsync.UnInit ()
 		self.Unitsync.Init (True, 1)
-		self.LoadMaps (Version)
+			
+		if not self.LogicTest:
+			self.LoadMaps (Version)
 		self.LoadMods (Version)
 		return (True)
 

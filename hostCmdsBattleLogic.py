@@ -157,6 +157,15 @@ class HostCmdsBattleLogic:
 		return ('IDs fixed')
 	
 	
+	def LogicForceTeam (self, User, Team):
+		self.Refresh ()
+		if self.BattleUsers.has_key (User):
+			Team -= 1
+			if self.BattleUsers[User]['Ally'] != Team:
+				self.Lobby.BattleForceTeam (User, Team)
+		return ('OK')
+		
+	
 	def LogicChangeMap (self, Map):
 		self.Refresh ()
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
@@ -375,32 +384,11 @@ class HostCmdsBattleLogic:
 		return ('Saved')
 	
 	
-	def LogicBalance (self):
-		self.Refresh ()
-		TeamRank = {}
-		PlayerRank = {}
-		Teams = self.Host.Battle['Teams']
-		for iTeam in range (0, Teams):
-			TeamRank[iTeam] = 0
-		for User in self.BattleUsers:
-			if self.BattleUsers[User]['AI']:
-				PlayerRank[User] = 1
-			elif not self.BattleUsers[User]['Spectator']:
-				PlayerRank[User] = self.Lobby.Users[User]['Rank']
-		print '==============================='
-		print PlayerRank
-		print TeamRank
-		print '==============================='
-		print ''
-		
-		return ('Testing')
-	
-	
 	def LogicSetTeams (self, Teams):
 		if Teams > 16 or Teams < 2:
 			return ('Teams has to be between 2 and 16')
 		self.Host.Battle['Teams'] = Teams
-		self.LogicBalance ()
+		self.HostCmdsBattle.Balance.LogicBalance ()
 		return ('OK')
 	
 	

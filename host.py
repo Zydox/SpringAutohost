@@ -17,6 +17,7 @@ class Host (threading.Thread):
 		self.Debug ('INFO', 'Host Init')
 		self.Group = Group
 		self.GroupConfig = GroupConfig
+		self.LogicTest = self.Server.LogicTest
 		self.SpringVersion = self.GetSpringVersion ()
 		self.Lobby = lobby.Lobby (self.Debug, self.HandleInput, self.HandleEvent, self.HandleLocalEvent, dict (AccountConfig, **{'LobbyHost':ClassServer.Config['General']['LobbyHost'], 'LobbyPort':ClassServer.Config['General']['LobbyPort']}))
 		self.HostCmds = hostCmds.HostCmds (ClassServer, self)
@@ -35,13 +36,15 @@ class Host (threading.Thread):
 	
 	def run (self):
 		self.Debug ('INFO', 'Start host')
-		self.Lobby.start ()
-		if len (self.GroupConfig['LobbyChannels']) > 0:
-			for Channel in self.GroupConfig['LobbyChannels'].split (','):
-				self.Lobby.ChannelJoin (Channel)
+		if not self.LogicTest:
+			self.Lobby.start ()
+			if len (self.GroupConfig['LobbyChannels']) > 0:
+				for Channel in self.GroupConfig['LobbyChannels'].split (','):
+					self.Lobby.ChannelJoin (Channel)
 		self.SetDefaultMod ()
 		self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleLoadDefaults ()
 		self.Debug ('INFO', 'Run finnished')
+#		self.HostCmds.HostCmdsBattle.Balance.LogicBalance ()
 	
 	
 	def HandleEvent (self, Event, Data):

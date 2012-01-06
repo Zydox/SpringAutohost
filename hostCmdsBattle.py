@@ -1,5 +1,6 @@
 # -*- coding: ISO-8859-1 -*-
 import hostCmdsBattleLogic
+import hostCmdsBattleBalance
 
 class HostCmdsBattle:
 	def __init__ (self, ClassHostCmds, ClassServer, ClassHost):
@@ -9,10 +10,11 @@ class HostCmdsBattle:
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
 		self.Logic = hostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
+		self.Balance = hostCmdsBattleBalance.HostCmdsBattleBalance (self, ClassServer, ClassHost)
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
-			'map':[['*'], 'Source', '!map <map name>', 'Changes the map to <map name>'],
+			'map':[['*'], 'BattleMe', '!map <map name>', 'Changes the map to <map name>'],
 			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],
-			'start':[[], 'Source', '!start', 'Starts the battle if possible'],
+			'start':[[], 'BattleMe', '!start', 'Starts the battle if possible'],
 			'stop':[[], 'Source', '!stop', 'Stops the battle'],
 			'lock':[['OB'], 'Source', '!lock [0/1]', 'Locks/unlocks the battle'],
 			'kick':[['V'], 'Source', '!kick <user>', 'Kicks <user> from the battle'],
@@ -24,7 +26,7 @@ class HostCmdsBattle:
 			'addbot':[['I', 'I', 'V', 'V6', '*'], 'Source', '!addbot 1 1 CORE FFFFFF E323AI', 'Add a bot to the battle (Team, Ally, Side, Hex RGB Color, Bot)'],
 			'spec':[['V'], 'Source', '!spec <User>', 'Spectates the specified user'],
 			'fixid':[[], 'Source', '!fixid', 'Fix the player IDs'],
-			'balance':[[], 'Battle', '!balance', 'Balances the battle users based on rank'],
+			'balance':[[], 'BattleMe', '!balance', 'Balances the battle users based on rank'],
 			'openbattle':[[], 'Source', '!openbattle', 'Opens a battle'],
 			'spring':[['V'], 'Source', '!spring <spring version>', 'Sets the spring version to the specified tag'],
 			'modoption':[['V', 'O*'], 'Source', '!modoption <option> <value>', 'Sets a mod option'],
@@ -90,7 +92,7 @@ class HostCmdsBattle:
 		elif Command == 'fixid':
 			return (self.Logic.LogicFixID ())
 		elif Command == 'balance':
-			return (self.Logic.LogicBalance ())
+			return (self.Balance.LogicBalance ())
 		elif Command == 'openbattle':
 			return (self.Logic.LogicOpenBattle ())
 		elif Command == 'spring':

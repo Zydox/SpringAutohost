@@ -26,6 +26,7 @@ class Server:
 		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ('INFO', 'Initiate')
+		self.LogicTest = 0
 		self.HandleCFG = handleCFG.HandleCFG (self)
 		self.ClassDebug.SetFile (self.Config['General']['FileDebugLog'])
 		self.SpringUnitsync = springUnitsync.SpringUnitsync (self)

@@ -168,21 +168,31 @@ class HostCmdsBattleLogic:
 	
 	def LogicChangeMap (self, Map):
 		self.Refresh ()
-		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
-		if UnitsyncMap:
-			self.Host.Lobby.BattleMap (Map, UnitsyncMap['Hash'])
-			self.LogicFunctionMapLoadDefaults ()
-			self.LogicFunctionLoadBoxes ()
-			
-			return ('Map changed to ' + str (Map))
+		Match = self.LogicFunctionSearchMatch (Map, self.Host.GetUnitsyncMap ('#KEYS#'))
+		if Match:
+			UnitsyncMap = self.Host.GetUnitsyncMap (Match)
+			if UnitsyncMap:
+				self.Host.Battle['Map'] = Match
+				self.Host.Lobby.BattleMap (Match, UnitsyncMap['Hash'])
+				self.LogicFunctionMapLoadDefaults ()
+				self.LogicFunctionLoadBoxes ()
+				return ('Map changed to ' + str (Match))
 		else:
-			return ('Map "' + str (Map) + '" not found')
+			Matches = self.LogicFunctionSearchMatch (Map, self.Host.GetUnitsyncMap ('#KEYS#'), 1)
+			if Matches:
+				Return = ['Multiple maps found, listing the 10 first:']
+				for Map in Matches:
+					Return.append (Map)
+					if len (Return) == 11:
+						break
+				return (Return)
+		return ('Map "' + str (Map) + '" not found')
 	
 	
 	def LogicListMaps (self):
 		Return = []
-		UnitsyncMap = self.Host.GetUnitsyncMap ('#KEYS#')
-		for Map in UnitsyncMap:
+		Maps = self.Host.GetUnitsyncMap ('#KEYS#')
+		for Map in Maps:
 			Return.append (Map)
 		Return.sort ()
 		return (Return)
@@ -390,6 +400,20 @@ class HostCmdsBattleLogic:
 		self.Host.Battle['Teams'] = Teams
 		self.HostCmdsBattle.Balance.LogicBalance ()
 		return ('OK')
+	
+	
+	def LogicFunctionSearchMatch (self, Search, List, ListMatches = 0):
+		self.Debug ('INFO', 'Search: ' + str (Search))
+		Matches = []
+		for Match in List:
+			if Search.lower () in Match.lower ():
+				Matches.append (Match)
+		if len (Matches) == 1:
+			self.Debug ('INFO', 'Found:' + str (Matches[0]))
+			return (Matches[0])
+		elif len (Matches) and ListMatches:
+			return (Matches)
+		return (False)
 	
 	
 	def LogicFunctionLoadBoxes (self):

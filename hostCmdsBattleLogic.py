@@ -164,7 +164,7 @@ class HostCmdsBattleLogic:
 			if self.BattleUsers[User]['Ally'] != Team:
 				self.Lobby.BattleForceTeam (User, Team)
 		return ('OK')
-		
+	
 	
 	def LogicChangeMap (self, Map):
 		self.Refresh ()
@@ -195,6 +195,17 @@ class HostCmdsBattleLogic:
 		for Map in Maps:
 			Return.append (Map)
 		Return.sort ()
+		Return = ['Maps:'] + Return
+		return (Return)
+	
+	
+	def LogicListMods (self):
+		Return = []
+		Mods = self.Host.GetUnitsyncMod ('#KEYS#')
+		for Mod in Mods:
+			Return.append (Mod)
+		Return.sort ()
+		Return = ['Mods:'] + Return
 		return (Return)
 	
 	

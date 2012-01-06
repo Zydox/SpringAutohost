@@ -14,6 +14,7 @@ class HostCmdsBattle:
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
 			'map':[['*'], 'BattleMe', '!map <map name>', 'Changes the map to <map name>'],
 			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],
+			'mods':[[], 'PM', '!mods', 'Return a list with all the available mods'],
 			'start':[[], 'BattleMe', '!start', 'Starts the battle if possible'],
 			'stop':[[], 'Source', '!stop', 'Stops the battle'],
 			'lock':[['OB'], 'Source', '!lock [0/1]', 'Locks/unlocks the battle'],
@@ -51,6 +52,8 @@ class HostCmdsBattle:
 			return (self.Logic.LogicChangeMap (Data[0]))
 		elif Command == 'maps':
 			return (self.Logic.LogicListMaps ())
+		elif Command == 'mods':
+			return (self.Logic.LogicListMods ())
 		elif Command == 'start':
 			return (self.Logic.LogicStartBattle ())
 		elif Command == 'stop':

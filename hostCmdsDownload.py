@@ -18,7 +18,8 @@ class HostCmdsDownload:
 			'downloadsearch':[['*'], 'PM', '!downloadsearch <mod>', 'Searches for the specified file'],
 			'downloadmod':[['*'], 'PM', '!downloadmod <mod>', 'Downloads the specified mod'],
 			'downloadmap':[['*'], 'PM', '!downloadmap <map>', 'Downloads the specified map'],
-			'addspectator':[[], 'Source', '!addspectator', 'abma?'],
+			'maplink':[[], 'Source', '!maplink', 'Provides the current maplink'],
+			'modlink':[[], 'Source', '!modlink', 'Provides the current modlink'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -59,10 +60,25 @@ class HostCmdsDownload:
 					return ('Downloaded the map "' + str (Result[0]['springname']) + '".')
 				else:
 					return ('Download failed for the map "' + str (Data[0]) + '".')
-		elif Command == 'addspectator':
-			return ('This Is AMBA!!!!!!')
-		
-		return (Data[0])
+		elif Command == 'maplink' or Command == 'modlink':
+			if Command == 'maplink':
+				Type = 'Map'
+			else:
+				Type = 'Mod'
+			self.Debug ('INFO', Type + 'link:' + str (self.Host.Battle[Type]))
+			Result = self.XMLRPC_Proxy.springfiles.search ({"logical" : "or", "tag" : self.Host.Battle[Type], "filename" : self.Host.Battle[Type], "springname" : self.Host.Battle[Type], "torrent" : True})
+			
+			if not Result or not len (Result) == 1 or not Result[0].has_key ('mirrors'):
+				if not Result:
+					self.Debug ('WARNING', 'Download link not found for ' + Type.lower ())
+				elif not len (Result) == 1:
+					self.Debug ('WARNING', 'Multiple download links found for ' + Type.lower () + ' (' + str (len (Result)) + ')')
+				else:
+					self.Debug ('WARNING', 'No mirror found')
+				return ('No download link found for the current ' + Type.lower ())
+			else:
+				for Mirror in Result[0]['mirrors']:
+					return (Type + ' download link: ' + str (Mirror))
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

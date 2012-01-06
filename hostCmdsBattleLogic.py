@@ -208,8 +208,8 @@ class HostCmdsBattleLogic:
 			return ('This mod has no options')
 		elif not Mod['Options'].has_key (Option):
 			Return = ['Valid ModOptions are:']
-			for Key in Mod['Options']:
-				Return.append (Key)
+			for Key in Mod['Options'].keys ():
+				Return.append (Key + ' - ' + Mod['Options'][Key]['Title'])
 			return (Return)
 		elif Value == None:
 			return (self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1))
@@ -233,8 +233,8 @@ class HostCmdsBattleLogic:
 			return ('This map has no options')
 		elif not Map['Options'].has_key (Option):
 			Return = ['Valid MapOptions are:']
-			for Key in Map['Options']:
-				Return.append (Key)
+			for Key in Map['Options'].keys ():
+				Return.append (Key + ' - ' + Map['Options'][Key]['Title'])
 			return (Return)
 		elif Value == None:
 			return (self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1))

@@ -19,6 +19,7 @@ class HostCmdsSpecial:
 			'compile':[['V'], 'PM', '!compile <spring tag>', 'Compiles the provided spring version'],
 			'recompile':[['V'], 'PM', '!recompile <spring tag>', 'Re-compiles the provided spring version'],
 			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog'],
+			'showconfig':[[], 'PM', '!showconfig', 'Returns the bot\'s config'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -81,6 +82,14 @@ class HostCmdsSpecial:
 					Return.popleft ()
 			File.close ()
 			return (list (Return))
+		elif Command == 'showconfig':
+			Return = []
+			for Var in self.Host.GroupConfig.keys ():
+				if not isinstance(self.Host.GroupConfig[Var], dict) and not isinstance(self.Host.GroupConfig[Var], list):
+					Return.append (str (Var) + ' => ' + str (self.Host.GroupConfig[Var]))
+			Return.sort ()
+			return (['Autohost config:'] + Return)
+	
 	
 	def StringPad (self, String, Length, Char = '0'):
 		while len (String) < Length:

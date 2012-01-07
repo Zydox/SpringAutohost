@@ -76,6 +76,13 @@ class HandleCFG:
 					if 'Path' in Var:
 						Value = Value.replace ('~', os.environ['HOME'])
 #					print '::' + Type + '::' + str (GroupID) + '::' + str (UserID) + '::' + Var + '==' + Value
+					try:
+						Temp = int (Value)
+						if str (Temp) == Value:
+							Value = int (Value)
+					except:
+						pass
+					
 					if Type == 'General':
 						self.Server.Config['General'][Var] = Value
 					elif Type == 'Group':

@@ -13,7 +13,7 @@ class HostCmdsSpecial:
 		self.HostCmds = ClassHostCmds
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
 			'code':[[], 'PM', '!code', 'Displays the bots code files, bytes and last modified'],
-			'help':[[], 'PM', '!help', 'Displays help'],
+			'help':[['OV'], 'PM', '!help <optinal term>', 'Displays help'],
 			'terminate':[[], 'PM', '!terminate', 'Shuts down the bot'],
 			'terminateall':[[], 'PM', '!terminateall', 'Shuts down all bots'],
 			'compile':[['V'], 'PM', '!compile <spring tag>', 'Compiles the provided spring version'],
@@ -48,7 +48,11 @@ class HostCmdsSpecial:
 		elif Command == 'help':
 			Return = []
 			for Command in self.HostCmds.Commands:
-				Return.append (self.HostCmds.Commands[Command][2] + '   ' + self.HostCmds.Commands[Command][3])
+				Line = self.HostCmds.Commands[Command][2] + '   ' + self.HostCmds.Commands[Command][3]
+				if len (Data) == 0:
+					Return.append (Line)
+				elif Data[0].lower () in Line.lower ():
+					Return.append (Line)
 			return (Return)
 		elif Command == 'terminate':
 			self.Host.Terminate ()

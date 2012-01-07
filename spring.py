@@ -30,6 +30,7 @@ class Spring:
 			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringSpecToBattleLobby']:
 				self.Lobby.BattleSay ('<' + str (Data[0]) + '> Spec: ' + str (Data[1]))
 		elif Event == 'USER_CHAT_PUBLIC':
+			self.Host.HandleInput ('BATTLE_PUBLIC', Data[1], Data[0])
 			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringNormalToBattleLobby']:
 				self.Lobby.BattleSay ('<' + str (Data[0]) + '> ' + str (Data[1]))
 	

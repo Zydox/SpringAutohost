@@ -77,7 +77,7 @@ class Host (threading.Thread):
 			print Data
 	
 	
-	def HandleInput (self, Source, Data):
+	def HandleInput (self, Source, Data, User = None):
 		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Data))
 		
 		Input = {'Raw':Source + ' ' + ' '.join (Data), 'Reference':None}
@@ -106,6 +106,12 @@ class Host (threading.Thread):
 			Input['Return'] = 'Return'
 			Input['User'] = ''
 			Input['Reference'] = ''
+			Input['Input'] = Data
+		elif Source == 'BATTLE_PUBLIC':
+			Input['Source'] = 'GameBattle'
+			Input['Return'] = 'BattleMe'
+			Input['User'] = User
+			Input['Reference'] = User
 			Input['Input'] = Data
 		
 		if len (Input) > 2:
@@ -220,6 +226,8 @@ class Host (threading.Thread):
 						self.Lobby.BattleSay (Message, 0)
 					elif Data['Return'] == 'BattleMe':
 						self.Lobby.BattleSay (Message, 1)
+					elif Data['Return'] == 'GameBattle':
+						self.Spring.SpringTalk (Message)
 	
 	
 	# Function which is called when a users access roles should be re-calculated

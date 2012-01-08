@@ -72,6 +72,8 @@ class Lobby (threading.Thread):
 			'REMOVESTARTRECT':['I'],
 			'AGREEMENTEND':[],
 			'SETSCRIPTTAGS':['*'],
+			'DISABLEUNITS':['*'],
+			'ENABLEALLUNITS':[],
 		}
 	
 	
@@ -216,6 +218,7 @@ class Lobby (threading.Thread):
 					'Locked':0,
 					'Boxes':{},
 					'ScriptTags':{},
+					'DisabledUnits':{},
 				}
 				self.Users[Arg[3]]['InBattle'] = Arg[0]
 				self.SmurfDetection (Arg[3], Arg[4])
@@ -354,9 +357,23 @@ class Lobby (threading.Thread):
 			self.Send ('CONFIRMAGREEMENT', 1)
 			self.Login ()
 		elif Command == 'SETSCRIPTTAGS':
-			for Tag in Arg[0].split ('\t'):
-				Tag = Tag.split ('=')
-				self.Battles[self.BattleID]['ScriptTags'][Tag[0].lower ()] = Tag[1]
+			if self.BattleID:
+				for Tag in Arg[0].split ('\t'):
+					Tag = Tag.split ('=')
+					self.Battles[self.BattleID]['ScriptTags'][Tag[0].lower ()] = Tag[1]
+			else:
+				self.Debug ('WARNING', 'SETSCRIPTTAGS - no self.BattleID')
+		elif Command == 'DISABLEUNITS':
+			if self.BattleID:
+				for Unit in Arg[0].split (' '):
+					self.Battles[self.BattleID]['DisabledUnits'][Unit.lower ()] = Unit
+			else:
+				self.Debug ('WARNING', 'DISABLEUNITS - no self.BattleID')
+		elif Command == 'ENABLEALLUNITS':
+			if self.BattleID:
+				self.Battles[self.BattleID]['DisabledUnits'] = {}
+			else:
+				self.Debug ('WARNING', 'ENABLEALLUNITS - no self.BattleID')
 		
 		
 		if self.Commands.has_key (Command):
@@ -370,7 +387,7 @@ class Lobby (threading.Thread):
 	
 	def BattleOpen (self, Mod, ModHash, Map, MapHash, Title, MaxPlayers, MinRank = 0, Password = '*', Type = 0, Nat = 0):
 		self.Send ("OPENBATTLE " + str (Type) + ' ' + str (Nat) + ' ' + str (Password) + ' ' + str (self.BattlePort) + ' ' + str (MaxPlayers) + ' ' + str (ModHash) + ' ' + str (MinRank) + ' ' + str (MapHash) + ' ' + str (Map) + '\t' + str (Title) + '\t' + str (Mod))
-		
+	
 	
 	def BattleClose (self):
 		self.Send ('LEAVEBATTLE')
@@ -460,6 +477,20 @@ class Lobby (threading.Thread):
 	
 	def BattleHandicap (self, User, Handicap):
 		self.Send ('HANDICAP ' + str (User) + ' ' + str (Handicap))
+	
+	
+	def BattleDisableUnits (self, Units):
+		if isinstance (Units, list):
+			Units = ' '.join (Units)
+		Command = 'DISABLEUNITS ' + str (Units).lower ()
+		self.Send (Command)
+		self.HandleCommand (Command, 1)
+	
+	
+	def BattleEnableUnitsAll (self):
+		Command = 'ENABLEALLUNITS'
+		self.Send (Command)
+		self.HandleCommand (Command, 1)
 	
 	
 	def BattleUpdateScript (self, Tags):

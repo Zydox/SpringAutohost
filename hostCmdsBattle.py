@@ -40,6 +40,8 @@ class HostCmdsBattle:
 			'savepreset':[['V'], 'Source', '!savepreset <preset name>', 'Saves the current battle settings with the <preset name>'],
 			'teams':[['OI'], 'Source', '!teams <>|<1-16>', 'Sets or displays the number of teams in the battle'],
 			'mapoption':[['V', 'O*'], 'Source', '!mapoption <option> <value>', 'Sets a map option'],
+			'disableunit':[['V'], 'Source', '!disableunit <unit>', 'Disbles a unit'],
+			'enableunitsall':[[], 'Source', '!enableunitsall', 'Enables all units'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -129,3 +131,7 @@ class HostCmdsBattle:
 				return (self.Logic.LogicSetMapOption (Data[0], Data[1]))
 			else:
 				return (self.Logic.LogicSetMapOption (Data[0]))
+		elif Command == 'disableunit':
+			return (self.Logic.LogicDisableUnit (Data[0]))
+		elif Command == 'enableunitsall':
+			return (self.Logic.LogicEnableUnitsAll ())

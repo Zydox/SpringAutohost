@@ -35,6 +35,7 @@ class HostCmdsBattleLogic:
 		if self.Server.Config['General']['SpringBuildDefault'] != self.Host.SpringVersion:
 			Desc = 'Dev build:' + str (self.Host.SpringVersion) + ', ' + Desc
 		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], Desc, 16)
+		self.Lobby.BattleEnableUnitsAll ()
 	
 	
 	def LogicCloseBattle (self):
@@ -413,12 +414,53 @@ class HostCmdsBattleLogic:
 		return ('OK')
 	
 	
-	def LogicFunctionSearchMatch (self, Search, List, ListMatches = 0):
+	def LogicDisableUnit (self, SearchUnit):
+		self.Refresh ()
+		Mod = self.Host.GetUnitsyncMod ()
+		
+		Units = {}
+		for Unit in Mod['Units'].keys ():
+			Units[Unit] = Unit + ' - ' + Mod['Units'][Unit]
+		
+		Match = self.LogicFunctionSearchMatch (SearchUnit, Units)
+		if Match:
+			if Mod['Units'].has_key (Match):
+				self.Lobby.BattleDisableUnits (Match)
+				return ('"' + Match + '" has been disabled')
+		else:
+			Matches = self.LogicFunctionSearchMatch (SearchUnit, Units, 1, 0)
+			if Matches:
+				Matches = ['Available units:'] + Matches
+				return (Matches)
+		return ('No match found')
+	
+	
+	def LogicEnableUnitsAll (self):
+		self.Lobby.BattleEnableUnitsAll ()
+		return ('All units enabled')
+	
+	
+	def LogicFunctionSearchMatch (self, Search, List, ListMatches = 0, DictReturnKeys = 1):
 		self.Debug ('INFO', 'Search: ' + str (Search))
 		Matches = []
-		for Match in List:
-			if Search.lower () in Match.lower ():
-				Matches.append (Match)
+		if isinstance(List, list):
+			for Match in List:
+				if Search.lower () in Match.lower ():
+					if Search == Match and not ListMatches:
+						self.Debug ('INFO', 'Perfect match:' + str (Search))
+						return (Search)
+					else:
+						Matches.append (Match)
+		elif isinstance(List, dict):
+			for Match in List:
+				if Search.lower () in List[Match].lower ():
+					if Search == Match and not ListMatches:
+						self.Debug ('INFO', 'Perfect match:' + str (Search))
+						return (Search)
+					elif DictReturnKeys:
+						Matches.append (Match)
+					else:
+						Matches.append (List[Match])
 		if len (Matches) == 1:
 			self.Debug ('INFO', 'Found:' + str (Matches[0]))
 			return (Matches[0])

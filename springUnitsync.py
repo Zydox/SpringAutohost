@@ -82,6 +82,7 @@ class SpringUnitsync:
 				'Sides':{},
 				'Options':{},
 				'AI':{},
+				'Units':{},
 			}
 			if self.Unitsync.GetSideCount():
 				for iSide in xrange (self.Unitsync.GetSideCount()):
@@ -96,6 +97,10 @@ class SpringUnitsync:
 					self.Mods[Version][Mod]['AI'][iAI] = {}
 					for iAII in range (0, self.Unitsync.GetSkirmishAIInfoCount (iAI)):
 						self.Mods[Version][Mod]['AI'][iAI][self.Unitsync.GetInfoKey (iAII)] = self.Unitsync.GetInfoValue (iAII)
+			self.Unitsync.ProcessUnits ()
+			if self.Unitsync.GetUnitCount ():
+				for iUnit in range (0, self.Unitsync.GetUnitCount ()):
+					self.Mods[Version][Mod]['Units'][self.Unitsync.GetUnitName (iUnit)] = self.Unitsync.GetFullUnitName (iUnit)
 	
 	
 	def LoadOption (self, iOpt):

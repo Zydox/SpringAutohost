@@ -22,7 +22,6 @@ class Spring:
 	
 	def SpringEvent (self, Event, Data = ''):
 		self.Debug ('INFO', str (Event) + '::' + str (Data))
-		
 		if Event == 'USER_CHAT_ALLY':
 			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringAllyToBattleLobby']:
 				self.Lobby.BattleSay ('<' + str (Data[0]) + '> Ally: ' + str (Data[1]))
@@ -198,10 +197,21 @@ class Spring:
 				FP.write ('\t\tStartRectTop=' + str (round (float (Battle['Boxes'][Ally][1]) / 200, 2)) + ';\n')
 				FP.write ('\t\tStartRectRight=' + str (round (float (Battle['Boxes'][Ally][2]) / 200, 2)) + ';\n')
 				FP.write ('\t\tStartRectBottom=' + str (round (float (Battle['Boxes'][Ally][3]) / 200, 2)) + ';\n')
-
 			FP.write ('\t}\n')
 		
-		FP.write ('\tNumRestrictions=0;\n')
+		if len (Battle['DisabledUnits']) > 0:
+			FP.write ('\tNumRestrictions=' + str (len (Battle['DisabledUnits'])) + ';\n')
+			iUnit = 0
+			FP.write ('\t[RESTRICT]\n')
+			FP.write ('\t{\n')
+			for Unit in Battle['DisabledUnits'].keys ():
+				FP.write ('\t\tUnit' + str (iUnit) + '=' + str (Unit) + ';\n')
+				FP.write ('\t\tLimit' + str (iUnit) + '=0;\n')
+				iUnit += 1
+			FP.write ('\t}\n')
+		else:
+			FP.write ('\tNumRestrictions=0;\n')
+		
 		FP.write ('\t[MAPOPTIONS]\n')
 		FP.write ('\t{\n')
 		FP.write ('\t}\n')

@@ -50,10 +50,11 @@ class Spring:
 	
 	def SpringStop (self, Reason = 'UNKNOWN', Message = ''):
 		self.Debug ('INFO', 'Spring::Stop (' + Reason + '::' + Message + ')')
-		try:
-			self.SpringUDP.Terminate (Message)
-		except Exception as Error:
-			self.Debug('WARNING', 'Error killing SpringUDP: ' + str (Error))
+		if self.SpringUDP:
+			try:
+				self.SpringUDP.Terminate (Message)
+			except Exception as Error:
+				self.Debug('WARNING', 'Error killing SpringUDP: ' + str (Error))
 		
 		if self.SpringPID:
 			try:

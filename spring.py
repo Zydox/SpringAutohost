@@ -59,7 +59,7 @@ class Spring:
 			self.Lobby.BattleStop ()
 			return (True)
 		except Exception as e:
-			self.Error("Error killing spring: " + str(e))
+			self.Debug('ERROR', 'Error killing spring: ' + str(e))
 			return (False)
 	
 	

@@ -90,12 +90,16 @@ class HandleCFG:
 					elif Type == 'User':
 						self.Server.Config['GroupUsers'][GroupID][UserID][Var] = Value
 					elif Type == 'AccessCommand':
+						if not self.Server.AccessCommands.has_key (GroupID):
+							self.Server.AccessCommands[GroupID] = {}
 						Value = Value.split ('|')
-						self.Server.AccessCommands[Var] = Value[0].split (',')
+						self.Server.AccessCommands[GroupID][Var] = Value[0].split (',')
 					elif Type == 'AccessGroup':
-						self.Server.AccessRoles[Var] = {}
-						for GValue in Value.split (','):
-							self.Server.AccessRoles[Var][GValue] = 1
+						if not self.Server.AccessRoles.has_key (GroupID):
+							self.Server.AccessRoles[GroupID] = {}
+						self.Server.AccessRoles[GroupID][Var] = {}
+						for User in Value.split (','):
+							self.Server.AccessRoles[GroupID][Var][User.strip ()] = 1
 				elif Line and Type == 'Alias':
 					self.Server.Config['Groups'][GroupID]['Alias'][Alias].append (Line)
 					

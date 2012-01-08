@@ -44,16 +44,11 @@ class Host (threading.Thread):
 		self.SetDefaultMod ()
 		self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleLoadDefaults ()
 		self.Debug ('INFO', 'Run finnished')
-#		self.HostCmds.HostCmdsBattle.Balance.LogicBalance ()
 	
 	
 	def HandleEvent (self, Event, Data):
 		self.Debug ('DEBUG', 'HandleEvent::' + str (Event) + '::' + str (Data))
-		if Event == 'ADDUSER' or Event == 'REMOVEUSER' or Event == 'CLIENTBATTLESTATUS':
-			self.SetAccessRoles (Data[0])
-		elif (Event == 'JOINEDBATTLE' or Event == 'LEFTBATTLE' or Event == 'LEFTBATTLE') and Data[0] == self.Lobby.BattleID:
-			self.SetAccessRoles (Data[1])
-		elif Event == 'DENIED':
+		if Event == 'DENIED':
 			self.Terminate ('LOGIN_DENIED::' + str (Data[0]))
 		
 		if self.GroupConfig.has_key ('Events') and self.GroupConfig['Events'].has_key (Event):
@@ -192,11 +187,12 @@ class Host (threading.Thread):
 		OK = 0
 		if Source == 'INTERNAL' or Source == 'INTERAL_RETURN':
 			OK = 1
-		elif self.Server.AccessCommands.has_key (Input['Command']):
-			if self.UserRoles.has_key (Input['User']):
-				for Role in self.Server.AccessCommands[Input['Command']]:
-					if self.UserRoles[Input['User']].has_key (Role):
+		elif self.Server.AccessCommands[self.Group].has_key (Input['Command']):
+			for Group in self.Server.AccessCommands[self.Group][Input['Command']]:
+				if self.Server.AccessRoles[self.Group].has_key (Group):
+					if self.Server.AccessRoles[self.Group][Group].has_key (Input['User']):
 						OK = 1
+						break
 		else:
 			self.Debug ('INFO', 'HandleAccess::NO_AUTH_CHECK::' + str (Input['Command']))
 			OK = 1
@@ -207,7 +203,6 @@ class Host (threading.Thread):
 			Input['Message'] = 'Missing auth for command "' + str (Input['Command']) + '"'
 			Input['Return'] = 'PM'
 		return (Input)
-
 	
 	
 	def ReturnInput (self, Data):
@@ -228,33 +223,6 @@ class Host (threading.Thread):
 						self.Lobby.BattleSay (Message, 1)
 					elif Data['Return'] == 'GameBattle':
 						self.Spring.SpringTalk (Message)
-	
-	
-	# Function which is called when a users access roles should be re-calculated
-	def SetAccessRoles (self, User):
-		self.Debug ('INFO', 'SetAccessRoles::' + str (User))
-		if self.UserRoles.has_key (User):
-			self.UserRoles[User] = {}
-		
-		if self.Lobby.Users.has_key (User) and not User == self.Lobby.User:
-			for Role in self.Server.AccessRoles:
-				if self.Server.AccessRoles[Role].has_key (User):
-					if self.UserRoles.has_key (User):
-						self.UserRoles[User][Role] = 1
-					else:
-						self.UserRoles[User] = {Role:1}
-			if self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User].has_key ('Spectator'):
-				if not self.UserRoles.has_key (User):
-					self.UserRoles[User] = {}
-				if self.Lobby.BattleUsers[User]['Spectator']:
-					self.UserRoles[User]['%BattleSpectator%'] = 1
-				else:
-					self.UserRoles[User]['%BattlePlayer%'] = 1
-			
-#		if self.UserRoles.has_key (User):
-#			print ('USER WITH ACCESS ROLES (' + str (User) + ')')
-#			print (self.UserRoles[User])
-#			print (self.UserRoles)
 	
 	
 	def GetSpringVersion (self):

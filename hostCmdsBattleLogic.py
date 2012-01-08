@@ -45,8 +45,12 @@ class HostCmdsBattleLogic:
 	def LogicRing (self, User =''):
 		self.Refresh ()
 		if User:
-			self.Host.Lobby.BattleRing (User)
-			return ('Ringing "' + str (User) + '"')
+			Match = self.LogicFunctionSearchMatch (User, self.BattleUsers.keys ())
+			if self.BattleUsers.has_key (Match):
+				self.Host.Lobby.BattleRing (Match)
+				return ('Ringing "' + str (Match) + '"')
+			else:
+				return ('No user found')
 		else:
 			for User in self.BattleUsers:
 				if self.BattleUsers[User]['Spectator'] == 0 and self.BattleUsers[User]['Ready'] == 0:

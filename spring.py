@@ -60,7 +60,6 @@ class Spring:
 				self.SpringPID.terminate ()
 				if self.SpringPID.wait () == None:
 					self.SpringPID.kill ()
-				self.SpringPID.kill ()
 				self.SpringPID = None
 			except Exception as Error:
 				self.Debug('ERROR', 'Error killing Spring: ' + str (Error))

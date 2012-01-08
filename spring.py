@@ -15,6 +15,7 @@ class Spring:
 		self.Lobby = ClassLobby
 		self.SpringAutoHostPort = UDPPort
 		self.SpringUDP = None
+		self.SpringPID = None
 		self.Headless = 0
 		self.HeadlessSpeed = [1, 3]
 		self.Debug ('INFO', 'UDP Port:' + str (self.SpringAutoHostPort))
@@ -68,7 +69,7 @@ class Spring:
 			self.SpringUDP.Talk (UDP_Command)
 		except:
 			return (False)
-
+	
 	
 	def GenerateBattleScript (self, FilePath):
 		self.Debug ('INFO', 'Spring::GenerateBattleScript::' + str (FilePath))
@@ -230,7 +231,7 @@ class SpringUDP (threading.Thread):
 		self.Socket.setsockopt (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.ServerAddr = None
 		self.SpringUsers = {}	# [ID] = {'Alias', 'Ready', 'Alive', 'InGame'}
-		
+	
 	
 	def run (self):
 		self.Debug ('INFO', 'SpringUDP start')
@@ -289,6 +290,7 @@ class SpringUDP (threading.Thread):
 									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
 				except:
 					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])))
+		self.Debug ('INFO', 'UDP run finnsihed')
 	
 	
 	def IsReady (self, SearchUser):
@@ -310,7 +312,7 @@ class SpringUDP (threading.Thread):
 	def AddUser (self, User, Password):
 		self.Debug ('INFO', 'User:' + str (User) + ', Passwd:' + str (Password))
 		self.Talk ('/ADDUSER ' + str (User) + ' ' + str (Password))
-		
+	
 	
 	def Talk (self, Message):
 		self.Debug ('INFO', str (Message))

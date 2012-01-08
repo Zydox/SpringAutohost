@@ -50,19 +50,15 @@ class Spring:
 	def SpringStop (self, Reason = 'UNKNOWN', Message = ''):
 		self.Debug ('INFO', 'Spring::Stop (' + Reason + '::' + Message + ')')
 		try:
-			self.Debug ('DEBUG', 1)
 			self.SpringUDP.Terminate (Message)
-			self.Debug ('DEBUG', 2)
 			self.SpringPID.terminate ()
-			self.Debug ('DEBUG', 3)
-			self.SpringPID.wait ()
-			self.Debug ('DEBUG', 5)
-#			self.SpringPID.kill ()
+			if self.SpringPID.wait () == None:
+				self.SpringPID.kill ()
+			self.SpringPID.kill ()
 			self.Lobby.BattleStop ()
-			self.Debug ('DEBUG', 6)
 			return (True)
-		except:
-			self.Debug ('DEBUG', 7)
+		except Exception as e:
+			self.Error("Error killing spring: " + str(e))
 			return (False)
 	
 	
@@ -239,8 +235,12 @@ class SpringUDP (threading.Thread):
 	def run (self):
 		self.Debug ('INFO', 'SpringUDP start')
 		self.Socket.bind ((str ('127.0.0.1'), int (self.Spring.SpringAutoHostPort)))
+		self.Socket.settimeout(1)
 		while self.Active:
-			Data, self.ServerAddr = self.Socket.recvfrom (8192)
+			try:
+				Data, self.ServerAddr = self.Socket.recvfrom (8192)
+			except socket.timeout:
+				continue
 			if Data:
 				try:
 					if ord (Data[0]) == 1:	# Game stop
@@ -289,7 +289,6 @@ class SpringUDP (threading.Thread):
 									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
 				except:
 					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])))
-		self.Terminate ()
 	
 	
 	def IsReady (self, SearchUser):
@@ -325,11 +324,6 @@ class SpringUDP (threading.Thread):
 		self.Debug ('INFO', str (Message))
 		self.Active = 0
 		self.Talk ('/QUIT')
-		try:
-			self.Debug ('INFO', 'Terminate UDP socked')
-			self.Socket.terminate (2)
-		except:
-			self.Debug ('ERROR', 'FAILED: Terminate UDP socked')
 		try:
 			self.Debug ('INFO', 'Close UDP socked')
 			self.Socket.close ()

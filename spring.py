@@ -52,15 +52,20 @@ class Spring:
 		self.Debug ('INFO', 'Spring::Stop (' + Reason + '::' + Message + ')')
 		try:
 			self.SpringUDP.Terminate (Message)
-			self.SpringPID.terminate ()
-			if self.SpringPID.wait () == None:
+		except Exception as Error:
+			self.Debug('WARNING', 'Error killing SpringUDP: ' + str (Error))
+		
+		if self.SpringPID:
+			try:
+				self.SpringPID.terminate ()
+				if self.SpringPID.wait () == None:
+					self.SpringPID.kill ()
 				self.SpringPID.kill ()
-			self.SpringPID.kill ()
-			self.Lobby.BattleStop ()
-			return (True)
-		except Exception as e:
-			self.Debug('ERROR', 'Error killing spring: ' + str(e))
-			return (False)
+				self.SpringPID = None
+			except Exception as Error:
+				self.Debug('ERROR', 'Error killing Spring: ' + str (Error))
+		self.Lobby.BattleStop ()
+		return (True)
 	
 	
 	def SpringTalk (self, UDP_Command):

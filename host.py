@@ -184,19 +184,32 @@ class Host (threading.Thread):
 	
 	
 	def HandleAccess (self, Input, Source = ''):
+		self.Debug ('DEBUG', 'HandleAccess::' + str (Input['User']) + '::' + str (Input['Command']))
 		OK = 0
 		if Source == 'INTERNAL' or Source == 'INTERAL_RETURN':
 			OK = 1
 		elif self.Server.AccessCommands[self.Group].has_key (Input['Command']):
 			for Group in self.Server.AccessCommands[self.Group][Input['Command']]:
-				if self.Server.AccessRoles[self.Group].has_key (Group):
+				if Group == '%BattlePlayer%':
+					if self.Lobby.BattleUsers.has_key (Input['User']) and self.Lobby.BattleUsers[Input['User']]['Spectator'] == 0:
+						OK = 1
+				elif Group == '%BattleSpectator%':
+					if self.Lobby.BattleUsers.has_key (Input['User']) and self.Lobby.BattleUsers[Input['User']]['Spectator'] == 1:
+						OK = 1
+				elif Group == '%GamePlayer%':
+					OK = self.Spring.UserIsPlaying (Input['User'])
+				elif Group == '%GameSpectator%':
+					OK = self.Spring.UserIsSpectating (Input['User'])
+				elif self.Server.AccessRoles[self.Group].has_key (Group):
 					if self.Server.AccessRoles[self.Group][Group].has_key (Input['User']):
 						OK = 1
-						break
+				if OK:
+					break
 		else:
 			self.Debug ('INFO', 'HandleAccess::NO_AUTH_CHECK::' + str (Input['Command']))
 			OK = 1
 		
+		self.Debug ('DEBUG', 'HandleAccessResult::' + str (Input['User']) + '::' + str (Input['Command']) + '==' + str (OK))
 		if OK:
 			Input['Message'] = self.HostCmds.HandleInput (Input['Source'], Input['Command'], Input['Data'])
 		else:

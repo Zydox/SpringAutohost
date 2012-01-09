@@ -35,6 +35,17 @@ class Spring:
 				self.Lobby.BattleSay ('<' + str (Data[0]) + '> ' + str (Data[1]))
 	
 	
+	def UserIsPlaying (self, User):
+		if self.SpringUDP and self.SpringUDP.Active:
+			return (self.SpringUDP.IsPlaying (User))
+	
+	
+	def UserIsSpectating (self, User):
+		if self.SpringUDP and self.SpringUDP.Active:
+			return (self.SpringUDP.IsSpectating (User))
+		return (False)
+	
+	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('INFO', 'Spring::Start (' + Reason + ')')
 		
@@ -235,13 +246,14 @@ class SpringUDP (threading.Thread):
 		self.Socket = socket.socket (socket.AF_INET, socket.SOCK_DGRAM)
 		self.Socket.setsockopt (socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.ServerAddr = None
-		self.SpringUsers = {}	# [ID] = {'Alias', 'Ready', 'Alive', 'InGame'}
+		self.SpringUsers = {}	# [ID] = Alias
+		self.Users = {}			# [Alias] = {'Ready', 'Alive', 'InGame'}
 	
 	
 	def run (self):
 		self.Debug ('INFO', 'SpringUDP start')
 		self.Socket.bind ((str ('127.0.0.1'), int (self.Spring.SpringAutoHostPort)))
-		self.Socket.settimeout(1)
+		self.Socket.settimeout (1)
 		while self.Active:
 			try:
 				Data, self.ServerAddr = self.Socket.recvfrom (8192)
@@ -259,31 +271,48 @@ class SpringUDP (threading.Thread):
 							self.Talk ('/setmaxspeed 1')
 							self.Talk ('/setminspeed ' + str (self.Spring.HeadlessSpeed[0]))
 							self.Talk ('/setmaxspeed ' + str (self.Spring.HeadlessSpeed[1]))
+						for User in self.Users.keys ():
+							if self.Users[User]['Alive']:
+								self.Users[User]['Playing'] = 1
+						self.Spring.SpringEvent ('GAME_START')
 					elif ord (Data[0]) == 3:	# Battle ended
 						self.Spring.SpringEvent ('GAME_END')
 						self.Spring.Lobby.BattleSay ('Battle ended', 1)
+						for User in self.Users.keys ():
+							self.Users[User]['Playing'] = 0
 					elif ord (Data[0]) == 4:	# Information
 						self.Spring.SpringEvent ('INFORMATION', Data[1:])
+						Info = Data[1:].split (' ')
+						if Info[0] == 'Player' and Info[2] == 'finished':
+							if not self.Users.has_key (Info[1]):
+								self.Users[Info[1]] = {'Ready':0, 'Playing':0, 'Alive':0, 'InGame':1}
+							self.Users[Info[1]]['Alive'] = 1
+							self.Spring.SpringEvent ('PLAYER_JOINED', Info[1])
+						elif Info[0] == 'Spectator' and Info[2] == 'finished':
+							self.Spring.SpringEvent ('SPECTATOR_JOINED', Info[1])
+							if not self.Users.has_key (Info[1]):
+								self.Users[Info[1]] = {'Ready':0, 'Playing':0, 'Alive':0, 'InGame':1}
 					elif ord (Data[0]) == 10:	# User joined
 						self.Spring.SpringEvent ('USER_JOINED', Data[2:])
-						self.SpringUsers[Data[1]] = {'Alias':Data[2:], 'Ready':0, 'Alive':0, 'InGame':1}
+						self.SpringUsers[Data[1]] = Data[2:]
+						self.Users[self.GetUserFromID (Data[1])]['InGame'] = 1
 					elif ord (Data[0]) == 11:	# User left
-						self.Spring.SpringEvent ('USER_LEFT', self.SpringUsers[Data[1]]['Alias'])
-						self.SpringUsers[Data[1]]['InGame'] = 0
+						self.Spring.SpringEvent ('USER_LEFT', self.GetUserFromID (Data[1]))
+						self.Users[self.GetUserFromID (Data[1])]['InGame'] = 0
 					elif ord (Data[0]) == 12:	# User ready
-						self.Spring.SpringEvent ('USER_READY', self.SpringUsers[Data[1]]['Alias'])
-						self.SpringUsers[Data[1]]['Ready'] = 1
-						self.SpringUsers[Data[1]]['Alive'] = 1
+						self.Spring.SpringEvent ('USER_READY', self.GetUserFromID (Data[1]))
+						self.Users[self.GetUserFromID (Data[1])]['Ready'] = 1
+						self.Users[self.GetUserFromID (Data[1])]['Alive'] = 1
 					elif ord (Data[0]) == 13:	# Battle chat
 						if ord (Data[2]) == 252:	# Ally chat
-							self.Spring.SpringEvent ('USER_CHAT_ALLY', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+							self.Spring.SpringEvent ('USER_CHAT_ALLY', [self.GetUserFromID (Data[1]), str (Data[3:])])
 						if ord (Data[2]) == 253:	# Spec chat
-							self.Spring.SpringEvent ('USER_CHAT_SPEC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+							self.Spring.SpringEvent ('USER_CHAT_SPEC', [self.GetUserFromID (Data[1]), str (Data[3:])])
 						if ord (Data[2]) == 254:	# Public chat
-							self.Spring.SpringEvent ('USER_CHAT_PUBLIC', [self.SpringUsers[Data[1]]['Alias'], str (Data[3:])])
+							self.Spring.SpringEvent ('USER_CHAT_PUBLIC', [self.GetUserFromID (Data[1]), str (Data[3:])])
 					elif ord (Data[0]) == 14:	# User died
-						self.Spring.SpringEvent ('USER_DIED', self.SpringUsers[Data[1]]['Alias'])
-						self.SpringUsers[Data[1]]['Alive'] = 0
+						self.Spring.SpringEvent ('USER_DIED', self.GetUserFromID (Data[1]))
+						self.Users[self.GetUserFromID (Data[1])]['Alive'] = 0
 					else:
 						if not ord (Data[0]) == 20 and not ord (Data[0]) == 60:
 							try:
@@ -293,25 +322,43 @@ class SpringUDP (threading.Thread):
 									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])) + '::' + str (ord (Data[1])))
 								except:
 									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
-				except:
-					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])))
+				except Exception as Error:
+					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])) + ' => ' + str (Error))
 		self.Debug ('INFO', 'UDP run finnsihed')
 	
 	
-	def IsReady (self, SearchUser):
-		self.Debug ('INFO', 'InReady::' + str (SearchUser))
-		if len (self.SpringUsers):
-			for User in self.SpringUsers:
-				if self.SpringUsers[User]['Alias'] == SearchUser:
-					return (self.SpringUsers[User]['Ready'])
+	def GetUserFromID (self, ID):
+		if self.SpringUsers.has_key (ID):
+			return (self.SpringUsers[ID])
+		self.Debug ('ERROR', 'No user found for "' + str (ord (ID)) + '"')
+	
+	
+	def IsReady (self, User):
+		self.Debug ('INFO', 'InReady::' + str (User))
+		if self.Users.has_key (User):
+			return (self.Users[User]['Ready'])
+		return (False)
 	
 	
 	def IsAlive (self, SearchUser):
-		self.Debug ('INFO', 'InAlive::' + str (SearchUser))
-		if len (self.SpringUsers):
-			for User in self.SpringUsers:
-				if self.SpringUsers[User]['Alias'] == SearchUser:
-					return (self.SpringUsers[User]['Alive'])
+		self.Debug ('INFO', 'InAlive::' + str (User))
+		if self.Users.has_key (User):
+			return (self.Users[User]['Alive'])
+		return (False)
+	
+	
+	def IsSpectating (self, User):
+		self.Debug ('INFO', 'IsSpectating::' + str (User))
+		if self.Users.has_key (User) and self.Users[User]['InGame'] and not self.Users[User]['Playing']:
+			return (True)
+		return (False)
+	
+	
+	def IsPlaying (self, User):
+		self.Debug ('INFO', 'IsPlaying::' + str (User))
+		if self.Users.has_key (User) and self.Users[User]['InGame'] and self.Users[User]['Playing']:
+			return (True)
+		return (False)
 	
 	
 	def AddUser (self, User, Password):

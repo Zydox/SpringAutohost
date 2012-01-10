@@ -74,14 +74,18 @@ class HostCmdsSpecial:
 			self.Host.Lobby.BattleLock (0)
 			return (Return)
 		elif Command == 'infolog':
-			File = open('/root/.spring/infolog.txt', 'r')
+			try:
+				File = open('/root/.spring/infolog.txt', 'r')
+			except IOError as Error:
+				self.Debug ('ERROR', 'File open failed: ' + str (Error))
+				return ('Infolog read failed')	
 			Return = deque ([])
 			for Line in File:
 				Return.append (Line)
 				if len (Return) > 20:
 					Return.popleft ()
 			File.close ()
-			return (list (Return))
+			return (['Last 20 lines of the infolog:'] + list (Return))
 		elif Command == 'showconfig':
 			Return = []
 			for Var in self.Host.GroupConfig.keys ():

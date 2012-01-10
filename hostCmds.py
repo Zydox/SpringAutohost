@@ -20,29 +20,33 @@ class HostCmds:
 	
 	def HandleInput (self, Source, Command, Data):
 		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
-		if self.HostCmdsBattle.Commands.has_key (Command):
-			return (self.HostCmdsBattle.HandleInput (Command, Data))
-		elif self.HostCmdsSpecial.Commands.has_key (Command):
-			return (self.HostCmdsSpecial.HandleInput (Command, Data))
-		elif self.HostCmdsLadderbot.Commands.has_key (Command):
-			return (self.HostCmdsLadderbot.HandleInput (Command, Data))
-		elif self.HostCmdsDownload.Commands.has_key (Command):
-			return (self.HostCmdsDownload.HandleInput (Command, Data))
-		elif self.Host.GroupConfig['Alias'].has_key (Command):
-			Return = []
-			for Command in self.Host.GroupConfig['Alias'][Command]:
-				for iArg in range (0, len (Data)):
-					Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
-				Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command)
-				if isinstance (Result, list) :
-					for Row in Result:
-						Return.append (Row)
-				else:
-					Return.append (Result)
-			Return.append ('Alias command completed')
-			return (Return)
-		else:
-			return ('Unknown command type')
+		try:
+			if self.HostCmdsBattle.Commands.has_key (Command):
+				return (self.HostCmdsBattle.HandleInput (Command, Data))
+			elif self.HostCmdsSpecial.Commands.has_key (Command):
+				return (self.HostCmdsSpecial.HandleInput (Command, Data))
+			elif self.HostCmdsLadderbot.Commands.has_key (Command):
+				return (self.HostCmdsLadderbot.HandleInput (Command, Data))
+			elif self.HostCmdsDownload.Commands.has_key (Command):
+				return (self.HostCmdsDownload.HandleInput (Command, Data))
+			elif self.Host.GroupConfig['Alias'].has_key (Command):
+				Return = []
+				for Command in self.Host.GroupConfig['Alias'][Command]:
+					for iArg in range (0, len (Data)):
+						Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
+					Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command)
+					if isinstance (Result, list) :
+						for Row in Result:
+							Return.append (Row)
+					else:
+						Return.append (Result)
+				Return.append ('Alias command completed')
+				return (Return)
+			else:
+				return ('Unknown command type')
+		except Exception as Error:
+			self.Debug ('ERROR', 'Failed with error: ' + str (Error))
+			return ('Internal failure (crashed)')
 	
 	
 	def LoadAlias (self):

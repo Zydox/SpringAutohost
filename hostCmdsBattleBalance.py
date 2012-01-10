@@ -104,7 +104,7 @@ class HostCmdsBattleBalance:
 		
 		SortedUsers = {}
 		for User in self.PlayerList.keys ():
-			SortedUsers[User] = int (User[-1:])
+			SortedUsers[User] = self.PlayerList[User]
 		SortedUsers = sorted(SortedUsers.items(), key=itemgetter(1), reverse=True)
 		
 		for User, Rank in SortedUsers:

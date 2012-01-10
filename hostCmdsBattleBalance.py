@@ -2,6 +2,7 @@
 import time
 import math
 from operator import itemgetter
+import operator
 
 
 class HostCmdsBattleBalance:
@@ -101,7 +102,12 @@ class HostCmdsBattleBalance:
 		if len (self.PlayerList) == 0:
 			return (True)
 		
+		SortedUsers = {}
 		for User in self.PlayerList.keys ():
+			SortedUsers[User] = int (User[-1:])
+		SortedUsers = sorted(SortedUsers.items(), key=itemgetter(1), reverse=True)
+		
+		for User, Rank in SortedUsers:
 			Team = self.GetBestTeam (1, self.PlayerList[User])
 			self.TeamPlayers[Team] += 1
 			self.TeamRank[Team] += self.PlayerList[User]

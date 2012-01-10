@@ -11,7 +11,7 @@ class HostCmdsBattleBalance:
 		self.Host = ClassHost
 		self.Debug = ClassServer.Debug
 		self.Lobby = ClassHost.Lobby
-		self.DebugMode = 0
+		self.DebugBalanceFunction = None
 	
 	
 	def Refresh (self):
@@ -34,7 +34,7 @@ class HostCmdsBattleBalance:
 			'OptimalTeamRank':0,
 			'OptimalTeamPlayers':0,
 		}
-
+	
 	
 	def LogicBalance (self):
 		self.Debug ('INFO')
@@ -54,29 +54,14 @@ class HostCmdsBattleBalance:
 		self.Data['OptimalTeamRank'] = int (math.floor (self.Data['TotalRank'] / float (self.Teams)))
 		self.Data['OptimalTeamPlayers'] = int (math.floor (self.Players / float (self.Teams)))
 		
-		if self.DebugMode:
-			print '1=============================='
-			print self.PlayerList
-			print self.TeamRank
-			print self.TeamPlayers
-			print self.Teams
-			print self.Players
-			print '==============================='
-
 		self.BalanceClans ()
 		self.BalancePlayers ()
 		
-		if self.DebugMode:
-			print ''
-			print '2=============================='
-			print self.PlayerList
-			print self.TeamRank
-			print self.TeamPlayers
-			print self.Balance
-			print '==============================='
-		
-		for Balance in self.Balance:
-			self.HostCmdsBattle.Logic.LogicForceTeam (Balance[0], Balance[1])
+		if self.DebugBalanceFunction:
+			self.DebugBalanceFunction (self.Balance)
+		else:
+			for Balance in self.Balance:
+				self.HostCmdsBattle.Logic.LogicForceTeam (Balance[0], Balance[1])
 		
 		return ('Balancing...')
 	
@@ -145,10 +130,4 @@ class HostCmdsBattleBalance:
 			
 			# Give bonus to the team with the loest rank
 			Teams[Team] -= self.TeamRank[Team]
-#		print '**************'
-#		print Teams	
-#		print sorted(Teams.items(), key=itemgetter(1), reverse=True)
 		return (sorted(Teams.items(), key=itemgetter(1), reverse=True)[0][0])
-			
-			
-			

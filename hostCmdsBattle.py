@@ -45,6 +45,7 @@ class HostCmdsBattle:
 			'id':[['V', 'I'], 'BattleMe', '!id <user> <new id>', 'Changes a users ID'],
 			'team':[['V', 'I'], 'BattleMe', '!team <user> <new id>', 'Changes a users team'],
 			'color':[['V', 'V'], 'BattleMe', '!color <user> <Hex color>', 'Changes a users color'],
+			'split':[['V', 'I', 'OB'], 'BattleMe', '!split <type> <size> <optional 1 to clear boxes>', 'Creates multiple boxes'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -144,3 +145,8 @@ class HostCmdsBattle:
 			return (self.Logic.LogicForceTeam (Data[0], Data[1]))
 		elif Command == 'color':
 			return (self.Logic.LogicForceColor (Data[0], Data[1]))
+		elif Command == 'split':
+			if len (Data) == 3:
+				return (self.Logic.LogicSplitBox (Data[0], Data[1], Data[2]))
+			else:
+				return (self.Logic.LogicSplitBox (Data[0], Data[1]))

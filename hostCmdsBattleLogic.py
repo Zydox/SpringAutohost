@@ -389,6 +389,38 @@ class HostCmdsBattleLogic:
 		return ('Box added')
 	
 	
+	def LogicSplitBox (self, Type, Size, ClearBoxes = 0):
+		if Type != 'h' and Type != 'v' and Type != 'c1' and Type != 'c2' and Type != 'c' and Type != 's':
+			return ('The box type wasn\'t of a valid type')
+		if Size < 1 or Size > 100:
+			return ('Size must be between 1 and 100')
+		if ClearBoxes:
+			self.LogicRemoveBoxes ()
+		if Type == 'h':
+			self.LogicAddBox (0, 0, Size, 100, 1)
+			self.LogicAddBox (100 - Size, 0, 100, 100, 2)
+		elif Type == 'v':
+			self.LogicAddBox (0, 0, 100, Size, 1)
+			self.LogicAddBox (0, 100 - Size, 100, 100, 2)
+		elif Type =='c1':
+			self.LogicAddBox (100 - Size, 0, 100, Size, 1)
+			self.LogicAddBox (0, 100 - Size, Size, 100, 2)
+		elif Type == 'c2':
+			self.LogicAddBox (0, 0, Size, Size, 1)
+			self.LogicAddBox (100 - Size, 100 - Size, 100, 100, 2)
+		elif Type == 'c':
+			self.LogicAddBox (0, 0, Size, Size, 1)
+			self.LogicAddBox (100 - Size, 100 - Size, 100, 100, 2)
+			self.LogicAddBox (100 - Size, 0, 100, Size, 3)
+			self.LogicAddBox (0, 100 - Size, Size, 100, 4)
+		elif Type == 's':
+			self.LogicAddBox (0, 0, Size, 100, 1)
+			self.LogicAddBox (100 - Size, 0, 100, 100, 2)
+			self.LogicAddBox (0, 0, 100, Size, 3)
+			self.LogicAddBox (0, 100 - Size, 100, 100, 4)
+		return ('Boxes added')
+	
+	
 	def LogicRemoveBox (self, Team):
 		self.Lobby.BattleRemoveBox (Team - 1)
 	

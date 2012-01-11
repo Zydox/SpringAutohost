@@ -421,6 +421,17 @@ class HostCmdsBattleLogic:
 		return ('Boxes added')
 	
 	
+	def LogicClearBox (self, Box):
+		if Box < 0 or Box > 16:
+			return ('Box has to be between 0 and 16')
+		elif Box:
+			self.LogicRemoveBox (Box)
+			return ('Box cleared')
+		else:
+			self.LogicRemoveBoxes ()
+			return ('Boxes cleared')
+	
+	
 	def LogicRemoveBox (self, Team):
 		self.Lobby.BattleRemoveBox (Team - 1)
 	

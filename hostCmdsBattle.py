@@ -42,6 +42,9 @@ class HostCmdsBattle:
 			'mapoption':[['V', 'O*'], 'Source', '!mapoption <option> <value>', 'Sets a map option'],
 			'disableunit':[['V'], 'Source', '!disableunit <unit>', 'Disbles a unit'],
 			'enableunitsall':[[], 'Source', '!enableunitsall', 'Enables all units'],
+			'id':[['V', 'I'], 'BattleMe', '!id <user> <new id>', 'Changes a users ID'],
+			'team':[['V', 'I'], 'BattleMe', '!team <user> <new id>', 'Changes a users team'],
+			'color':[['V', 'V'], 'BattleMe', '!color <user> <Hex color>', 'Changes a users color'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -135,3 +138,9 @@ class HostCmdsBattle:
 			return (self.Logic.LogicDisableUnit (Data[0]))
 		elif Command == 'enableunitsall':
 			return (self.Logic.LogicEnableUnitsAll ())
+		elif Command == 'id':
+			return (self.Logic.LogicForceID (Data[0], Data[1]))
+		elif Command == 'team':
+			return (self.Logic.LogicForceTeam (Data[0], Data[1]))
+		elif Command == 'color':
+			return (self.Logic.LogicForceColor (Data[0], Data[1]))

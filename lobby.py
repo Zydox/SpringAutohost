@@ -447,6 +447,10 @@ class Lobby (threading.Thread):
 		self.Send ('FORCEALLYNO ' + str (User) + ' ' + str (Team))
 	
 	
+	def BattleForceColor (self, User, Color):
+		self.Send ('FORCETEAMCOLOR ' + str (User) + ' ' + str (Color))
+	
+	
 	def BattleRing (self, User):
 		self.Send ('RING ' + str (User))
 	

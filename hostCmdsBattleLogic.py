@@ -164,11 +164,39 @@ class HostCmdsBattleLogic:
 	
 	def LogicForceTeam (self, User, Team):
 		self.Refresh ()
+		if Team < 1 or Team > 16:
+			return ('Team has to be between 1 to 16')
 		if self.BattleUsers.has_key (User):
 			Team -= 1
 			if self.BattleUsers[User]['Ally'] != Team:
 				self.Lobby.BattleForceTeam (User, Team)
-		return ('OK')
+			return ('Team changed')
+		else:
+			return ('User not found')
+	
+	
+	def LogicForceID (self, User, ID):
+		self.Refresh ()
+		if ID < 1 or ID > 16:
+			return ('ID has to be between 1 to 16')
+		if self.BattleUsers.has_key (User):
+			ID -= 1
+			if self.BattleUsers[User]['Team'] != ID:
+				self.Lobby.BattleForceID (User, ID)
+			return ('ID changed')
+		else:
+			return ('User not found')
+	
+	
+	def LogicForceColor (self, User, Color):
+		self.Refresh ()
+		if not len (Color) == 6 or Color.upper().strip ('0123456789ABCDEF'):
+			return ('Color was not a Hex RGB color')
+		if self.BattleUsers.has_key (User):
+			self.Lobby.BattleForceColor (User, self.LogicFunctionBattleColor (Color))
+			return ('Color changed')
+		else:
+			return ('User not found')
 	
 	
 	def LogicChangeMap (self, Map):

@@ -11,21 +11,21 @@ class HostCmdsSpecial:
 		self.Debug ('INFO', 'HostCmdsSpecial Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
-		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
-			'code':[[], 'PM', '!code', 'Displays the bots code files, bytes and last modified'],
-			'help':[['OV'], 'PM', '!help <optinal term>', 'Displays help'],
-			'terminate':[[], 'PM', '!terminate', 'Shuts down the bot'],
-			'terminateall':[[], 'PM', '!terminateall', 'Shuts down all bots'],
-			'compile':[['V'], 'PM', '!compile <spring tag>', 'Compiles the provided spring version'],
-			'recompile':[['V'], 'PM', '!recompile <spring tag>', 'Re-compiles the provided spring version'],
-			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog'],
-			'showconfig':[[], 'PM', '!showconfig', 'Returns the bot\'s config'],
+		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
+			'code':[[], 'PM', '!code', 'Displays the bots code files, bytes and last modified', 'Special'],
+			'help':[['OV'], 'PM', '!help <optional term>', 'Displays help', 'Special', ['!help        displays all available commands', '!help he     displays all available commands containing "he"', '!help help   if a single match is found, a more detailed help is displayed (like this)']],
+			'terminate':[[], 'PM', '!terminate', 'Shuts down the bot', 'Special'],
+			'terminateall':[[], 'PM', '!terminateall', 'Shuts down all bots', 'Special'],
+			'compile':[['V'], 'PM', '!compile <spring tag>', 'Compiles the provided spring version', 'Special'],
+			'recompile':[['V'], 'PM', '!recompile <spring tag>', 'Re-compiles the provided spring version', 'Special'],
+			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog', 'Special'],
+			'showconfig':[[], 'PM', '!showconfig', 'Returns the bot\'s config', 'Special'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
 	
 
-	def HandleInput (self, Command, Data):
+	def HandleInput (self, Command, Data, User):
 		self.Debug ('DEBUG', 'HandleInput::' + str (Command) + '::' + str (Data))
 		
 		if Command == 'code':
@@ -47,13 +47,52 @@ class HostCmdsSpecial:
 			Return.append (self.StringPad ('Summary:', Length, ' ') + '  ' + self.StringPad (str (Size), 8, ' ') + '  ' + str (round (LastChange / 3600, 1)) + " hours ago")
 			return (Return)
 		elif Command == 'help':
-			Return = []
+			Result = {}
+			Matches = 0
 			for Command in self.HostCmds.Commands:
-				Line = self.HostCmds.Commands[Command][2] + '   ' + self.HostCmds.Commands[Command][3]
-				if len (Data) == 0:
-					Return.append (Line)
-				elif Data[0].lower () in Line.lower ():
-					Return.append (Line)
+				if not self.HostCmds.ActiveAlias.has_key (Command):		# Exclude all alias commands
+					Line = self.HostCmds.Commands[Command][2] + '   ' + self.HostCmds.Commands[Command][3]
+					if len (self.HostCmds.Commands[Command]) > 4:
+						Category = self.HostCmds.Commands[Command][4]
+					else:
+						Category = '*'
+					if not Result.has_key (Category):
+						Result[Category] = []
+					if len (Data) == 0:
+						if self.Host.HandleAccess ({'Command':Command, 'User':User}, 'INTERNAL_AUTH_CHECK'):
+							Result[Category].append (Line)
+							Matches += 1
+							Match = Command
+					elif Data[0].lower () in Line.lower ():
+						if self.Host.HandleAccess ({'Command':Command, 'User':User}, 'INTERNAL_AUTH_CHECK'):
+							Result[Category].append (Line)
+							Matches += 1
+							Match = Command
+			Return = []
+			if Matches == 1:
+				Return.append ('==[ !' + Match + ' ]==')
+				Return.append (self.HostCmds.Commands[Match][2])
+				Return.append (self.HostCmds.Commands[Match][3])
+				if len (self.HostCmds.Commands[Match]) > 5:
+					for Line in self.HostCmds.Commands[Match][5]:
+						Return.append (' ' + Line)
+			else:
+				if len (Result) > 0:
+					Categories = Result.keys ()
+					Categories.sort ()
+					for Category in Categories:
+						if len (Result[Category]):
+							if Category != '*':
+								Return.append ('==[ ' + Category + ' ]==')
+								Result[Category].sort ()
+								Return = Return + Result[Category]
+								Return.append (chr (160))		# No-break space char
+					if Result.has_key ('*') and len (Result['*']):
+						Return.append ('==[ Uncategorized ]==')
+						Result['*'].sort ()
+						Return = Return + Result['*']
+				else:
+					Return = 'No help was found for that command'
 			return (Return)
 		elif Command == 'terminate':
 			self.Host.Terminate ()

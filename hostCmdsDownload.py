@@ -14,7 +14,7 @@ class HostCmdsDownload:
 		self.Debug ('INFO', 'HostCmdsDownload Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
-		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
+		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
 			'downloadsearch':[['*'], 'PM', '!downloadsearch <mod>', 'Searches for the specified file'],
 			'downloadmod':[['*'], 'PM', '!downloadmod <mod>', 'Downloads the specified mod'],
 			'downloadmap':[['*'], 'PM', '!downloadmap <map>', 'Downloads the specified map'],

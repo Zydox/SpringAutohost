@@ -11,6 +11,7 @@ class HostCmds:
 		self.Debug ('INFO', 'HostCmds Init')
 		self.Host = ClassHost
 		self.Commands = {}
+		self.ActiveAlias = {}
 		self.HostCmdsBattle = hostCmdsBattle.HostCmdsBattle (self, ClassServer, ClassHost)
 		self.HostCmdsSpecial = hostCmdsSpecial.HostCmdsSpecial (self, ClassServer, ClassHost)
 		self.HostCmdsLadderbot = hostCmdsLadderbot.HostCmdsLadderbot (self, ClassServer, ClassHost)
@@ -18,13 +19,13 @@ class HostCmds:
 		self.LoadAlias ()
 		
 	
-	def HandleInput (self, Source, Command, Data):
+	def HandleInput (self, Source, Command, Data, User):
 		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
 		try:
 			if self.HostCmdsBattle.Commands.has_key (Command):
 				return (self.HostCmdsBattle.HandleInput (Command, Data))
 			elif self.HostCmdsSpecial.Commands.has_key (Command):
-				return (self.HostCmdsSpecial.HandleInput (Command, Data))
+				return (self.HostCmdsSpecial.HandleInput (Command, Data, User))
 			elif self.HostCmdsLadderbot.Commands.has_key (Command):
 				return (self.HostCmdsLadderbot.HandleInput (Command, Data))
 			elif self.HostCmdsDownload.Commands.has_key (Command):
@@ -67,6 +68,7 @@ class HostCmds:
 				for iVar in range (0, iArgs):
 					Vars.append ('V')
 				self.Commands[Key] = [Vars, 'PM', '!' + Key, '!' + Key]
+				self.ActiveAlias[Key] = 1
 	
 	
 	def Notifications (self, Event):

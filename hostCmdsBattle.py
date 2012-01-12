@@ -11,7 +11,7 @@ class HostCmdsBattle:
 		self.HostCmds = ClassHostCmds
 		self.Logic = hostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
 		self.Balance = hostCmdsBattleBalance.HostCmdsBattleBalance (self, ClassServer, ClassHost)
-		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
+		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
 			'map':[['*'], 'BattleMe', '!map <map name>', 'Changes the map to <map name>'],
 			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],
 			'mods':[[], 'PM', '!mods', 'Return a list with all the available mods'],

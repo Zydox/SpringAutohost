@@ -209,9 +209,12 @@ class Host (threading.Thread):
 			self.Debug ('INFO', 'HandleAccess::NO_AUTH_CHECK::' + str (Input['Command']))
 			OK = 1
 		
+		if Source == 'INTERNAL_AUTH_CHECK':
+			return (OK)
+		
 		self.Debug ('DEBUG', 'HandleAccessResult::' + str (Input['User']) + '::' + str (Input['Command']) + '==' + str (OK))
 		if OK:
-			Input['Message'] = self.HostCmds.HandleInput (Input['Source'], Input['Command'], Input['Data'])
+			Input['Message'] = self.HostCmds.HandleInput (Input['Source'], Input['Command'], Input['Data'], Input['User'])
 		else:
 			Input['Message'] = 'Missing auth for command "' + str (Input['Command']) + '"'
 			Input['Return'] = 'PM'

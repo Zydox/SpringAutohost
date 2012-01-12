@@ -9,7 +9,7 @@ class HostCmdsLadderbot:
 		self.Debug ('INFO', 'Ladderbot Init')
 		self.Host = ClassHost
 		self.HostCmds = ClassHostCmds
-		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc
+		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
 			'ladderbot':[['*'], 'Source', '!ladderbot <command>', 'Accepts commands from the LadderBot to set up specific battles'],
 		}
 		for Command in self.Commands:

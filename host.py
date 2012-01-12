@@ -108,6 +108,12 @@ class Host (threading.Thread):
 			Input['User'] = User
 			Input['Reference'] = User
 			Input['Input'] = Data
+		elif Source == 'SAIDBATTLEEX':
+			Input['Source'] = 'BattleMe'
+			Input['Return'] = 'BattleMe'
+			Input['User'] = Data[0]
+			Input['Reference'] = Data[0]
+			Input['Input'] = self.ConvertSuggestion (Data[1])
 		
 		if len (Input) > 2:
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':
@@ -239,6 +245,26 @@ class Host (threading.Thread):
 						self.Lobby.BattleSay (Message, 1)
 					elif Data['Return'] == 'GameBattle':
 						self.Spring.SpringTalk (Message)
+	
+	
+	def ConvertSuggestion (self, Data):
+		Info = Data.split (' ')
+		if Info[0] == 'suggests':
+			if Info[1] == 'that':
+				if Info[3] == 'changes' and Info[4] == 'to' and Info[5] == 'ally':
+					Data = '!team ' + Info[2] + ' ' + re.sub ('\D', '', Info[6])
+				elif Info[3] == 'changes' and Info[4] == 'to' and Info[5] == 'team':
+					Data = '!id ' + Info[2] + ' ' + re.sub ('\D', '', Info[6])
+				elif Info[3] == 'becomes' and Info[4] == 'a' and Info[5] == 'spectator.':
+					Data = '!spec ' + Info[2]
+			else:
+				Data = '!map ' + Data[9:]
+		elif Info[0] == 'thinks' and Info[2] == 'should':
+			if Info[3] == 'leave.':
+				Data = '!kick ' + Info[1]
+			elif Info[3] == 'get' and Info[4] == 'a' and Info[6] == 'resource' and Info[7] == 'bonus':
+				Data = '!hcp ' + Info[1] + ' ' + re.sub ('\D', '', Info[5])
+		return (Data)
 	
 	
 	def GetSpringVersion (self):

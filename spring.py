@@ -200,7 +200,7 @@ class Spring:
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t\tHost=0;\n')
 					FP.write ('\t}\n')
-					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, 'AI'])
+					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, 0, 'AI', self.Lobby.BattleUsers[User]['AIDLL']])
 					iAI = iAI + 1
 				else:
 					Players[User] = iP
@@ -213,7 +213,7 @@ class Spring:
 					FP.write ('\t\tSpectator=' + str (self.Lobby.BattleUsers[User]['Spectator']) + ';\n')
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t}\n')
-					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, self.Lobby.Users[User]['ID']])
+					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, self.Lobby.BattleUsers[User]['Spectator'], self.Lobby.Users[User]['ID'], self.Lobby.Users[User]['Rank']])
 					iP = iP + 1
 		
 		FP.write ('\tNumTeams=' + str (len (Teams)) + ';\n')
@@ -233,11 +233,11 @@ class Spring:
 				else:
 					FP.write ('\t\tTeamLeader=' + str (Players[User]) + ';\n')
 				FP.write ('\t\tAllyTeam=' + str (Allys[self.Lobby.BattleUsers[User]['Ally']]) + ';\n')
-				Return['Allies'][Allys[self.Lobby.BattleUsers[User]['Ally']]].append ([Teams[self.Lobby.BattleUsers[User]['Team']], UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']], self.Lobby.BattleUsers[User]['Handicap'], self.Lobby.BattleUsers[User]['Color']])
 				FP.write ('\t\tRgbColor=' + str (round (int (self.Lobby.BattleUsers[User]['Color'][0:2], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][2:4], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][4:6], 16) / 255.0, 5)) + ';\n')
 				FP.write ('\t\tSide=' + str (UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']]) + ';\n')
 				FP.write ('\t\tHandicap=' + str (self.Lobby.BattleUsers[User]['Handicap']) + ';\n')
 				FP.write ('\t}\n')
+				Return['Allies'][Allys[self.Lobby.BattleUsers[User]['Ally']]].append ([Teams[self.Lobby.BattleUsers[User]['Team']], UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']], self.Lobby.BattleUsers[User]['Handicap'], self.Lobby.BattleUsers[User]['Color']])
 		
 		FP.write ('\tNumAllyTeams=' + str (len (Allys)) + ';\n')
 		for Ally in Allys:

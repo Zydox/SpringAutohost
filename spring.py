@@ -5,7 +5,8 @@ import threading
 import time
 import socket
 import sys
-
+import math
+from doxFunctions import *
 
 class Spring:
 	def __init__ (self, ClassServer, ClassHost, ClassLobby, UDPPort):
@@ -16,9 +17,11 @@ class Spring:
 		self.SpringAutoHostPort = UDPPort
 		self.SpringUDP = None
 		self.SpringPID = None
+		self.SpringOutput = None
 		self.Headless = 0
 		self.HeadlessSpeed = [1, 3]
 		self.Debug ('INFO', 'UDP Port:' + str (self.SpringAutoHostPort))
+		self.Game = {}
 	
 	
 	def SpringEvent (self, Event, Data = ''):
@@ -33,6 +36,22 @@ class Spring:
 			self.Host.HandleInput ('BATTLE_PUBLIC', Data[1], Data[0])
 			if self.Lobby.BattleID and self.Host.GroupConfig['PassthoughSpringNormalToBattleLobby']:
 				self.Lobby.BattleSay ('<' + str (Data[0]) + '> ' + str (Data[1]))
+		elif Event == 'BATTLE_STARTED':
+			self.Host.HostCmds.Notifications ('BATTLE_STARTED')
+		elif Event == 'BATTLE_SCRIPT_CREATED':
+			self.Game = Data
+			self.Game['TimeCreated'] = doxTime ()
+			self.Game['Deaths'] = []
+		elif Event == 'GAME_START':
+			self.Game['TimeStart'] = doxTime ()
+		elif Event == 'GAME_END':
+			self.Game['TimeEnd'] = doxTime ()
+			self.Server.HandleDB.StoreBattle (self.Lobby.Users[self.Lobby.User]['ID'], self.Host.GroupConfig['ConfigGroupRank'], self.Game['Game'], self.Game['Map'], self.Game['TimeCreated'], self.Game['GameID'], self.Game)
+		elif Event == 'USER_DIED':
+			self.Game['Deaths'].append ([Data, doxTime ()])
+		elif Event == 'GAMEOUTPUT_GAMEID':
+			self.Game['GameID'] = Data
+			
 	
 	
 	def UserIsPlaying (self, User):
@@ -51,11 +70,13 @@ class Spring:
 		
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
-		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI]) 
+		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI], stdout=subprocess.PIPE)
+		self.SpringEvent ('BATTLE_STARTED')
+		self.SpringOutput = SpringOutput (self, self.Debug)
+		self.SpringOutput.start ()
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()
 		
-		self.Host.HostCmds.Notifications ('BATTLE_STARTED')
 		return (True)
 	
 	
@@ -75,6 +96,13 @@ class Spring:
 				self.SpringPID = None
 			except Exception as Error:
 				self.Debug('ERROR', 'Error killing Spring: ' + str (Error))
+		
+		if self.SpringOutput:
+			try:
+				self.SpringOutput.Terminate (Message)
+			except Exception as Error:
+				self.Debug('ERROR', 'Error killing SpringOutput: ' + str (Error))
+		
 		self.Lobby.BattleStop ()
 		return (True)
 	
@@ -95,11 +123,13 @@ class Spring:
 		for User in Battle['Users']:
 			if not User == self.Lobby.User and self.Lobby.BattleUsers[User]['AI'] and self.Lobby.BattleUsers[User]['AIOwner'] == self.Lobby.User:
 				self.Headless = 1
+		Return = {}
 		
 		FP = open (FilePath, 'w')
 		FP.write ('[GAME]\n')
 		FP.write ('{\n')
 		FP.write ('\tMapname=' + str (Battle['Map']) + ';\n')
+		Return['Map'] = Battle['Map']
 		FP.write ('\t[modoptions]\n')
 		FP.write ('\t{\n')
 		if self.Host.Battle.has_key ('ModOptions'):
@@ -111,6 +141,8 @@ class Spring:
 					self.HeadlessSpeed[1] = self.Host.Battle['ModOptions'][Key]
 		FP.write ('\t}\n')
 		FP.write ('\tStartPosType=' + str (self.Host.Battle['StartPosType']) + ';\n')
+		Return['StartPosType'] = str (self.Host.Battle['StartPosType'])
+		Return['Game'] = str (Battle['Mod'])
 		FP.write ('\tGameType=' + str (Battle['Mod']) + ';\n')
 		FP.write ('\tHostIP=' + str (self.Lobby.IP) + ';\n')
 		FP.write ('\tHostPort=' + str (self.Lobby.BattlePort) + ';\n')
@@ -151,10 +183,12 @@ class Spring:
 			FP.write ('\t}\n')
 			iP = iP + 1
 		
+		Return['Teams'] = {}
 		for User in Battle['Users']:
 			if User != self.Lobby.User:
 				if not Teams.has_key (self.Lobby.BattleUsers[User]['Team']):
 					Teams[self.Lobby.BattleUsers[User]['Team']] = iT
+					Return['Teams'][iT] = []
 					iT = iT + 1
 				
 				if self.Lobby.BattleUsers[User]['AI']:
@@ -166,6 +200,7 @@ class Spring:
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t\tHost=0;\n')
 					FP.write ('\t}\n')
+					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, 'AI'])
 					iAI = iAI + 1
 				else:
 					Players[User] = iP
@@ -178,14 +213,17 @@ class Spring:
 					FP.write ('\t\tSpectator=' + str (self.Lobby.BattleUsers[User]['Spectator']) + ';\n')
 					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
 					FP.write ('\t}\n')
+					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, self.Lobby.Users[User]['ID']])
 					iP = iP + 1
 		
 		FP.write ('\tNumTeams=' + str (len (Teams)) + ';\n')
 		
+		Return['Allies'] = {}
 		for User in Battle['Users']:
 			if User != self.Lobby.User and (self.Lobby.BattleUsers[User]['Spectator'] == 0 or self.Lobby.BattleUsers[User]['AI']):
 				if not Allys.has_key (self.Lobby.BattleUsers[User]['Ally']):
 					Allys[self.Lobby.BattleUsers[User]['Ally']] = iA
+					Return['Allies'][iA] = []
 					iA = iA + 1
 				
 				FP.write ('\t[TEAM' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ']\n')
@@ -195,6 +233,7 @@ class Spring:
 				else:
 					FP.write ('\t\tTeamLeader=' + str (Players[User]) + ';\n')
 				FP.write ('\t\tAllyTeam=' + str (Allys[self.Lobby.BattleUsers[User]['Ally']]) + ';\n')
+				Return['Allies'][Allys[self.Lobby.BattleUsers[User]['Ally']]].append ([Teams[self.Lobby.BattleUsers[User]['Team']], UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']], self.Lobby.BattleUsers[User]['Handicap'], self.Lobby.BattleUsers[User]['Color']])
 				FP.write ('\t\tRgbColor=' + str (round (int (self.Lobby.BattleUsers[User]['Color'][0:2], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][2:4], 16) / 255.0, 5)) + ' ' + str (round (int (self.Lobby.BattleUsers[User]['Color'][4:6], 16) / 255.0, 5)) + ';\n')
 				FP.write ('\t\tSide=' + str (UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']]) + ';\n')
 				FP.write ('\t\tHandicap=' + str (self.Lobby.BattleUsers[User]['Handicap']) + ';\n')
@@ -230,6 +269,7 @@ class Spring:
 		FP.write ('\t}\n')
 		FP.write ('}\n')
 		FP.close ()
+		self.SpringEvent ('BATTLE_SCRIPT_CREATED', Return)
 	
 	
 	def Terminate (self):
@@ -265,7 +305,6 @@ class SpringUDP (threading.Thread):
 						self.Spring.SpringEvent ('SERVER_QUIT')
 						self.Spring.SpringStop ('UDP_SERVER_QUIT', 'Spring sent SERVER_QUIT')
 					elif ord (Data[0]) == 2:	# Game start
-						self.Spring.SpringEvent ('GAME_START')
 						if self.Spring.Headless:
 							self.Talk ('/setminspeed 1')
 							self.Talk ('/setmaxspeed 1')
@@ -276,10 +315,10 @@ class SpringUDP (threading.Thread):
 								self.Users[User]['Playing'] = 1
 						self.Spring.SpringEvent ('GAME_START')
 					elif ord (Data[0]) == 3:	# Battle ended
-						self.Spring.SpringEvent ('GAME_END')
 						self.Spring.Lobby.BattleSay ('Battle ended', 1)
 						for User in self.Users.keys ():
 							self.Users[User]['Playing'] = 0
+						self.Spring.SpringEvent ('GAME_END')
 					elif ord (Data[0]) == 4:	# Information
 						self.Spring.SpringEvent ('INFORMATION', Data[1:])
 						Info = Data[1:].split (' ')
@@ -368,10 +407,11 @@ class SpringUDP (threading.Thread):
 	
 	def Talk (self, Message):
 		self.Debug ('INFO', str (Message))
-		try:
-			self.Socket.sendto (str (Message), self.ServerAddr)
-		except:
-			self.Debug ('ERROR', 'Socked send failed')
+		if self.Active:
+			try:
+				self.Socket.sendto (str (Message), self.ServerAddr)
+			except:
+				self.Debug ('ERROR', 'Socked send failed')
 	
 	
 	def Terminate (self, Message = ''):
@@ -383,3 +423,27 @@ class SpringUDP (threading.Thread):
 			self.Socket.close ()
 		except:
 			self.Debug ('ERROR', 'FAILED: Close UDP socked')
+
+
+class SpringOutput (threading.Thread): 
+	def __init__ (self, ClassSpring, FunctionDebug):
+		threading.Thread.__init__ (self)
+		self.Spring = ClassSpring
+		self.Debug = FunctionDebug
+		self.Active = 1
+		self.PID = self.Spring.SpringPID
+	
+	
+	def run (self):
+		self.Debug ('INFO', 'SpringOutput start')
+		while self.Active:
+			Line = self.PID.stdout.readline ()
+			if Line:
+				self.Debug ('DEBUG_GAME', Line)
+				if 'GameID:' in Line:
+					self.Spring.SpringEvent ('GAMEOUTPUT_GAMEID', doxReMatch ('[a-fA-F0-9]{32}', Line))
+	
+	
+	def Terminate (self, Message = ''):
+		self.Debug ('INFO', str (Message))
+		self.Active = 0

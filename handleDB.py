@@ -40,6 +40,14 @@ class HandleDB:
 		return (Result)
 	
 	
+	def StoreBattle (self, HostSpringID, RankingGroup, Game, Map, Time, GameHash, Data):
+		MapID = self.GetValueID ('Map', Map)
+		GameID = self.GetValueID ('Game', Game)
+		HostID = self.GetValueID ('SpringID', HostSpringID)
+		RankGroupID = self.GetValueID ('RankingGroup', RankingGroup)
+		self.Query ('REPLACE INTO BattleRecords SET HostID=' + self.Value (HostID) + ', RankGroupID=' + self.Value (RankGroupID) + ', GameHash=' + self.Value (GameHash) + ', GameID=' + self.Value (GameID) + ', Time=' + self.Value (Time) + ', MapID=' + self.Value (MapID) + ', Data=' + self.Value (Data))
+	
+	
 	def StoreSmurf (self, SpringID, User, IP, Country, CPU):
 #		print ''
 		SpringID = self.GetValueID ('SpringID', SpringID)
@@ -139,6 +147,10 @@ class HandleDB:
 				'Password':self.Server.Config['General']['SQL_Password'],
 				'Database':self.Server.Config['General']['SQL_Database'],
 			}
+	
+	
+	def Value (self, Value):
+		return ('\'' + str (Value).replace ('\'', '\\\'') + '\'')
 	
 	
 	def Query (self, Query, ReturnType = '2D'):

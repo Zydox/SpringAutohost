@@ -18,6 +18,7 @@ class Spring:
 		self.SpringUDP = None
 		self.SpringPID = None
 		self.SpringOutput = None
+		self.SpringError = None
 		self.Headless = 0
 		self.HeadlessSpeed = [1, 3]
 		self.Debug ('INFO', 'UDP Port:' + str (self.SpringAutoHostPort))
@@ -70,10 +71,12 @@ class Spring:
 		
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
-		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI], stdout=subprocess.PIPE)
+		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.SpringEvent ('BATTLE_STARTED')
 		self.SpringOutput = SpringOutput (self, self.Debug)
 		self.SpringOutput.start ()
+		self.SpringError = SpringError (self, self.Debug)
+		self.SpringError.start ()
 		self.SpringUDP = SpringUDP (self, self.Debug)
 		self.SpringUDP.start ()
 		
@@ -102,6 +105,12 @@ class Spring:
 				self.SpringOutput.Terminate (Message)
 			except Exception as Error:
 				self.Debug('ERROR', 'Error killing SpringOutput: ' + str (Error))
+		
+		if self.SpringError:
+			try:
+				self.SpringError.Terminate (Message)
+			except Exception as Error:
+				self.Debug('ERROR', 'Error killing SpringError: ' + str (Error))
 		
 		self.Lobby.BattleStop ()
 		return (True)
@@ -425,7 +434,7 @@ class SpringUDP (threading.Thread):
 			self.Debug ('ERROR', 'FAILED: Close UDP socked')
 
 
-class SpringOutput (threading.Thread): 
+class SpringOutput (threading.Thread):
 	def __init__ (self, ClassSpring, FunctionDebug):
 		threading.Thread.__init__ (self)
 		self.Spring = ClassSpring
@@ -442,6 +451,28 @@ class SpringOutput (threading.Thread):
 				self.Debug ('DEBUG_GAME', Line)
 				if 'GameID:' in Line:
 					self.Spring.SpringEvent ('GAMEOUTPUT_GAMEID', doxReMatch ('[a-fA-F0-9]{32}', Line))
+	
+	
+	def Terminate (self, Message = ''):
+		self.Debug ('INFO', str (Message))
+		self.Active = 0
+
+
+class SpringError (threading.Thread):
+	def __init__ (self, ClassSpring, FunctionDebug):
+		threading.Thread.__init__ (self)
+		self.Spring = ClassSpring
+		self.Debug = FunctionDebug
+		self.Active = 1
+		self.PID = self.Spring.SpringPID
+	
+	
+	def run (self):
+		self.Debug ('INFO', 'SpringError start')
+		while self.Active:
+			Line = self.PID.stdout.readline ()
+			if Line:
+				self.Debug ('DEBUG_GAME_ERROR', Line)
 	
 	
 	def Terminate (self, Message = ''):

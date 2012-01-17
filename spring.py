@@ -470,7 +470,7 @@ class SpringError (threading.Thread):
 	def run (self):
 		self.Debug ('INFO', 'SpringError start')
 		while self.Active:
-			Line = self.PID.stdout.readline ()
+			Line = self.PID.stderr.readline ()
 			if Line:
 				self.Debug ('DEBUG_GAME_ERROR', Line)
 	

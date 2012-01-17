@@ -32,7 +32,7 @@ class SpringCompile:
 			self.Exec ('/usr/bin/git clone git://github.com/spring/spring.git')
 			self.Debug ('INFO', 'GIT: Clone spring finnished')
 			os.chdir (self.BasePath + 'spring')
-			self.Exec ('INFO', '/usr/bin/git fetch origin')
+			self.Exec ('/usr/bin/git fetch origin')
 			Result = self.Exec ('/usr/bin/git checkout -f ' + str (Version))
 			if Result.find ('error: pathspec') != -1:
 				self.Debug ('WARNING', 'Checkout for "' + str (Version) + '" failed')

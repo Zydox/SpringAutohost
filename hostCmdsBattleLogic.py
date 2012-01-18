@@ -118,13 +118,16 @@ class HostCmdsBattleLogic:
 	
 	def LogicKick (self, User):
 		self.Refresh ()
-		self.Host.Spring.SpringTalk ('/kick ' + User)
-		if self.Host.Lobby.BattleUsers.has_key (User):
+		if self.Lobby.User.lower () == User.lower ():
+			return ('Can\'t kick the host... use !terminate')
+		elif self.Host.Lobby.BattleUsers.has_key (User):
 			if self.Host.Lobby.BattleUsers[User]['AI']:
 				self.Host.Lobby.BattleKickAI (User)
+				self.Host.Spring.SpringTalk ('/kick ' + User)
 				return ('AI "'+ str (User) + '" kicked')
 			else:
 				self.Host.Lobby.BattleKick (User)
+				self.Host.Spring.SpringTalk ('/kick ' + User)
 				return ('User "'+ str (User) + '" kicked')
 		else:
 			return ('Can\'t find the user "' + str (User) + '"')

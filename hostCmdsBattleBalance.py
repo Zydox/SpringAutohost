@@ -48,7 +48,7 @@ class HostCmdsBattleBalance:
 		for User in self.BattleUsers:
 			if self.BattleUsers[User]['AI']:
 				self.PlayerList[User] = 1
-			elif not self.BattleUsers[User]['Spectator']:
+			elif self.BattleUsers[User].has_key ('Spectator') and not self.BattleUsers[User]['Spectator']:
 				self.PlayerList[User] = self.Lobby.Users[User]['Rank']
 		self.Players = len (self.PlayerList)
 		for User in self.PlayerList:

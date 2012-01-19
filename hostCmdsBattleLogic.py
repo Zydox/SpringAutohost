@@ -320,6 +320,7 @@ class HostCmdsBattleLogic:
 	def LogicStartBattle (self, ForceStart = 0):
 		self.Debug ('INFO')
 		self.Refresh ()
+		self.LogicFixID ()
 		
 		if not ForceStart:
 			for User in self.BattleUsers:
@@ -399,10 +400,10 @@ class HostCmdsBattleLogic:
 			return ('Size must be between 1 and 100')
 		if ClearBoxes:
 			self.LogicRemoveBoxes ()
-		if Type == 'h':
+		if Type == 'v':
 			self.LogicAddBox (0, 0, Size, 100, 1)
 			self.LogicAddBox (100 - Size, 0, 100, 100, 2)
-		elif Type == 'v':
+		elif Type == 'h':
 			self.LogicAddBox (0, 0, 100, Size, 1)
 			self.LogicAddBox (0, 100 - Size, 100, 100, 2)
 		elif Type =='c1':

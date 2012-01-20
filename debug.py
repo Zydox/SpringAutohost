@@ -2,6 +2,8 @@
 import os
 import inspect
 import time
+import traceback
+import sys
 
 class Debug:
 	def __init__ (self):
@@ -11,7 +13,7 @@ class Debug:
 		self.LogHistory = []
 	
 	
-	def Debug (self, Level, Info = ''):
+	def Debug (self, Level, Info = '', CaptureCrash = 0):
 		frame = inspect.currentframe ()
 		filename = os.path.basename (frame.f_back.f_code.co_filename)
 		fileline = frame.f_back.f_lineno
@@ -23,6 +25,8 @@ class Debug:
 			self.WriteLogToFile (LogLine)
 		else:
 			print (LogLine)
+		if CaptureCrash:
+			self.CaptureCrash ()
 	
 	
 	def WriteLogToFile (self, Line):
@@ -40,3 +44,10 @@ class Debug:
 		for Line in self.LogHistory:
 			self.WriteLogToFile (Line)
 		self.LogHistory = []
+	
+	
+	def CaptureCrash (self):
+		for Entry in traceback.format_exception_only (sys.exc_type, sys.exc_value):
+			self.Debug ('CRASH', 'Exception: ' + str (Entry))
+		for Entry in traceback.format_tb (sys.exc_info ()[2]):
+			self.Debug ('CRASH', 'Trace: ' + str (Entry))

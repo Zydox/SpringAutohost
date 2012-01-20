@@ -46,7 +46,7 @@ class HostCmds:
 			else:
 				return ('Unknown command type')
 		except Exception as Error:
-			self.Debug ('ERROR', 'Failed with error: ' + str (Error))
+			self.Debug ('ERROR', 'Failed with error: ' + str (Error), 1)
 			return ('Internal failure (crashed)')
 	
 	

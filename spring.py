@@ -184,6 +184,7 @@ class Spring:
 		AIs = {}
 		
 		if self.Headless:
+			Players[self.Lobby.User] = iP
 			FP.write ('\t[PLAYER' + str (iP) + ']\n')
 			FP.write ('\t{\n')
 			FP.write ('\t\tName=' + str (self.Lobby.User) + ';\n')
@@ -200,18 +201,7 @@ class Spring:
 					Return['Teams'][iT] = []
 					iT = iT + 1
 				
-				if self.Lobby.BattleUsers[User]['AI']:
-					AIs[User] = iAI
-					FP.write ('\t[AI' + str (iAI) + ']\n')
-					FP.write ('\t{\n')
-					FP.write ('\t\tName=' + str (User) + ';\n')
-					FP.write ('\t\tShortName=' + str (self.Lobby.BattleUsers[User]['AIDLL']) + ';\n')
-					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
-					FP.write ('\t\tHost=0;\n')
-					FP.write ('\t}\n')
-					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, 0, 'AI', self.Lobby.BattleUsers[User]['AIDLL']])
-					iAI = iAI + 1
-				else:
+				if not self.Lobby.BattleUsers[User]['AI']:
 					Players[User] = iP
 					FP.write ('\t[PLAYER' + str (iP) + ']\n')
 					FP.write ('\t{\n')
@@ -224,6 +214,20 @@ class Spring:
 					FP.write ('\t}\n')
 					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, self.Lobby.BattleUsers[User]['Spectator'], self.Lobby.Users[User]['ID'], self.Lobby.Users[User]['Rank']])
 					iP = iP + 1
+		
+		for User in Battle['Users']:
+			if User != self.Lobby.User:
+				if self.Lobby.BattleUsers[User]['AI']:
+					AIs[User] = iAI
+					FP.write ('\t[AI' + str (iAI) + ']\n')
+					FP.write ('\t{\n')
+					FP.write ('\t\tName=' + str (User) + ';\n')
+					FP.write ('\t\tShortName=' + str (self.Lobby.BattleUsers[User]['AIDLL']) + ';\n')
+					FP.write ('\t\tTeam=' + str (Teams[self.Lobby.BattleUsers[User]['Team']]) + ';\n')
+					FP.write ('\t\tHost=' + str (Players[self.Lobby.BattleUsers[User]['AIOwner']]) + ';\n')
+					FP.write ('\t}\n')
+					Return['Teams'][Teams[self.Lobby.BattleUsers[User]['Team']]].append ([User, 0, 'AI', self.Lobby.BattleUsers[User]['AIDLL'], Players[self.Lobby.BattleUsers[User]['AIOwner']]])
+					iAI = iAI + 1
 		
 		FP.write ('\tNumTeams=' + str (len (Teams)) + ';\n')
 		

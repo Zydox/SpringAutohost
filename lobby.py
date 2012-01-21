@@ -245,7 +245,7 @@ class Lobby (threading.Thread):
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].append (Arg[1])
 				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - self.Battles[Arg[0]]['Spectators']
-				if Arg[0] == self.BattleID:
+				if self.BattleID and Arg[0] == self.BattleID:
 					self.BattleUsers[Arg[1]] = {
 						'Password':Arg[2],
 						'AI':0,
@@ -263,7 +263,7 @@ class Lobby (threading.Thread):
 			if (self.Battles.has_key (Arg[0])):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
 				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - self.Battles[Arg[0]]['Spectators']
-				if self.BattleID == Arg[0]:
+				if self.BattleID and self.BattleID == Arg[0]:
 					del (self.BattleUsers[Arg[1]])
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
@@ -312,7 +312,7 @@ class Lobby (threading.Thread):
 		elif Command == 'LEFT':
 			del (self.Channels[Arg[0]]['Users'][Arg[1]])
 		elif Command == 'ADDBOT':
-			if Arg[0] == self.BattleID:
+			if self.BattleID and Arg[0] == self.BattleID:
 				self.Battles[Arg[0]]['Users'].append (Arg[1])
 				self.BattleUsers[Arg[1]] = {
 					'AI':1,
@@ -335,7 +335,7 @@ class Lobby (threading.Thread):
 		elif Command == 'DENIED':
 			self.Debug ('DEBUG', 'DENIED::' + str (Arg[0]))
 		elif Command == 'UPDATEBOT':
-			if Arg[0] == self.BattleID:
+			if self.BattleID and Arg[0] == self.BattleID:
 				self.BattleUsers[Arg[1]]['Ready'] = int (Arg[2][1])
 				self.BattleUsers[Arg[1]]['Team'] = int (Arg[2][5]) * 8 + int (Arg[2][4]) * 4 + int (Arg[2][3]) * 2 + int (Arg[2][2])
 				self.BattleUsers[Arg[1]]['Ally'] = int (Arg[2][9]) * 8 + int (Arg[2][8]) * 4 + int (Arg[2][7]) * 2 + int (Arg[2][6])

@@ -264,6 +264,8 @@ class Host (threading.Thread):
 				Data = '!kick ' + Info[1]
 			elif Info[3] == 'get' and Info[4] == 'a' and Info[6] == 'resource' and Info[7] == 'bonus':
 				Data = '!hcp ' + Info[1] + ' ' + re.sub ('\D', '', Info[5])
+		elif Info[0] == 'sugests' and Info[1] == 'that' and Info[3] == 'changes' and Info[4] == 'colour.':
+			Data = '!fixcolor ' + Info[2]
 		return (Data)
 	
 	

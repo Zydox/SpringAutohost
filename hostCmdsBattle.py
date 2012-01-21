@@ -47,6 +47,8 @@ class HostCmdsBattle:
 			'color':[['V', 'V'], 'BattleMe', '!color <user> <Hex color>', 'Changes a users color'],
 			'split':[['V', 'I', 'OB'], 'BattleMe', '!split <type> <size> <optional 1 to clear boxes>', 'Creates multiple boxes'],
 			'clearbox':[['I'], 'BattleMe', '!clearbox <0 = all|1-16>', 'Removes one or all boxes'],
+			'fixcolor':[['V'], 'BattleMe', '!fixcolor <user>', 'Fixes the <user>s battle color'],
+			'fixcolors':[[], 'BattleMe', '!fixcolors', 'Fixes all users battle colors'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -153,3 +155,7 @@ class HostCmdsBattle:
 				return (self.Logic.LogicSplitBox (Data[0], Data[1]))
 		elif Command == 'clearbox':
 			return (self.Logic.LogicClearBox (Data[0]))
+		elif Command == 'fixcolor':
+			return (self.Logic.LogicFixColors (Data[0]))
+		elif Command == 'fixcolors':
+			return (self.Logic.LogicFixColors ())

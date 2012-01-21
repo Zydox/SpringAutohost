@@ -1,6 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 import time
 from decimal import *
+import math
 
 
 class HostCmdsBattleLogic:
@@ -196,7 +197,10 @@ class HostCmdsBattleLogic:
 		if not len (Color) == 6 or Color.upper().strip ('0123456789ABCDEF'):
 			return ('Color was not a Hex RGB color')
 		if self.BattleUsers.has_key (User):
-			self.Lobby.BattleForceColor (User, self.LogicFunctionBattleColor (Color))
+			if not self.BattleUsers[User]['AI']:
+				self.Lobby.BattleForceColor (User, self.LogicFunctionBattleColor (Color))
+			else:
+				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (Color))
 			return ('Color changed')
 		else:
 			return ('User not found')
@@ -517,6 +521,55 @@ class HostCmdsBattleLogic:
 	def LogicEnableUnitsAll (self):
 		self.Lobby.BattleEnableUnitsAll ()
 		return ('All units enabled')
+	
+	
+	def LogicFixColors (self, ColorUser = None):
+		self.Debug ('DEBUG', str (ColorUser))
+		self.Refresh ()
+		List = ['FF0000', '00FF00', '0000FF', '00FFFF', 'FF00FF', 'FFFF00', '000000', 'FFFFFF', '808080']
+		
+		''' Collect current colors '''
+		CurrentList = {}
+		for User in self.BattleUsers:
+			if not self.BattleUsers[User]['Spectator'] or self.BattleUsers[User]['AI']:
+				CurrentList[self.BattleUsers[User]['Team']] = self.Lobby.BattleUsers[User]['Color']
+		
+		if ColorUser:
+			if not self.BattleUsers.has_key (ColorUser):
+				return ('No user found')
+			for Diff in [400, 300, 200, 150, 100, 50, 10, 0]:
+#				print 'DIFF::' + str (Diff)
+				for Color in List:
+					ColorOK = 1
+					for Team in CurrentList.keys ():
+						if Team != self.BattleUsers[ColorUser]['Team']:
+#							print 'CNG::' + str (ColorUser) + '::' + str (Color) + '<>' + str (CurrentList[Team]) + '::' + str (self.LogicFunctionCompareColors (self.Lobby.BattleUsers[ColorUser]['Color'], Color))
+							ColorDiff = self.LogicFunctionCompareColors (Color, CurrentList[Team])
+							if ColorDiff <= Diff:
+#								print '----Skip(BAD_EXISTING)'
+								ColorOK = 0
+					if ColorOK and Color != self.Lobby.BattleUsers[ColorUser]['Color']:
+#						print '--CNG-CHANGE::' + ColorUser + '::' + Color
+						self.Lobby.BattleUsers[ColorUser]['Color'] = Color
+						return (self.LogicForceColor (ColorUser, Color))
+		else:
+			for User in self.BattleUsers:
+				if not self.BattleUsers[User]['Spectator'] or self.BattleUsers[User]['AI']:
+					for Team in CurrentList.keys ():
+						if Team != self.BattleUsers[User]['Team']:
+#							print 'CHK::' + User + '::' + str (self.LogicFunctionCompareColors (self.BattleUsers[User]['Color'], CurrentList[Team]))
+							if self.LogicFunctionCompareColors (self.BattleUsers[User]['Color'], CurrentList[Team]) < 50:
+#								print '--CHK-CHANGE'
+								self.LogicFixColors (User)
+			return ('Colors fixed')
+	
+	
+	def LogicFunctionCompareColors (self, Color1, Color2):
+		Diff = 0
+		Diff += abs (int (Color1[4:6], 16) - int (Color2[4:6], 16))
+		Diff += abs (int (Color1[2:4], 16) - int (Color2[2:4], 16))
+		Diff += abs (int (Color1[0:2], 16) - int (Color2[0:2], 16))
+		return (Diff)
 	
 	
 	def LogicFunctionSearchMatch (self, Search, List, ListMatches = 0, DictReturnKeys = 1):

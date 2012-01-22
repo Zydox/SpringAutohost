@@ -279,6 +279,9 @@ class Spring:
 		
 		FP.write ('\t[MAPOPTIONS]\n')
 		FP.write ('\t{\n')
+		if self.Host.Battle.has_key ('MapOptions'):
+			for Key in self.Host.Battle['MapOptions'].keys ():
+				FP.write ('\t\t' + str (Key) + '=' + str (self.Host.Battle['MapOptions'][Key]) + ';\n')
 		FP.write ('\t}\n')
 		FP.write ('}\n')
 		FP.close ()

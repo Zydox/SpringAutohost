@@ -737,11 +737,8 @@ class HostCmdsBattleLogic:
 	
 	def LogicFunctionBattleLoadDefaults (self):
 		self.Debug ('INFO')
-		if self.Host.Lobby.BattleID:
-			Mod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
-		else:
-			Mod = self.Host.GetUnitsyncMod (self.Host.Battle['Mod'])
-		if Mod and len (Mod['Options']):
+		Mod = self.Host.GetUnitsyncMod (self.Host.Battle['Mod'])
+		if Mod and Mod.has_key ('Options') and len (Mod['Options']):
 			for Key in Mod['Options'].keys ():
 				if not self.Host.Battle['ModOptions'].has_key (Key):
 					self.Host.Battle['ModOptions'][Key] = Mod['Options'][Key]['Default']
@@ -755,12 +752,9 @@ class HostCmdsBattleLogic:
 	
 	def LogicFunctionMapLoadDefaults (self):
 		self.Debug ('INFO')
-		if self.Host.Lobby.BattleID:
-			Map = self.Host.GetUnitsyncMap (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Map'])
-		else:
-			Map = self.Host.GetUnitsyncMap (self.Host.Battle['Map'])
+		Map = self.Host.GetUnitsyncMap (self.Host.Battle['Map'])
 		self.Host.Battle['MapOptions'] = {}
-		if Map and Map.has_key ('Options'):
+		if Map and Map.has_key ('Options') and len (Map['Options']):
 			for Key in Map['Options'].keys ():
 				if not self.Host.Battle['MapOptions'].has_key (Key):
 					self.Host.Battle['MapOptions'][Key] = Map['Options'][Key]['Default']

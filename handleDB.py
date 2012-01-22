@@ -1,5 +1,6 @@
 # -*- coding: ISO-8859-1 -*-
 from sqlalchemy import create_engine
+from threading import RLock
 
 class HandleDB:
 	def __init__ (self, ClassServer):
@@ -7,6 +8,7 @@ class HandleDB:
 		self.Debug = self.Server.Debug
 		self.Cache = {}
 		
+		self.Lock = RLock ()
 		self.Type = 'MySQL'
 		self.Config = {}
 		self.SetConfig ()
@@ -160,6 +162,7 @@ class HandleDB:
 	
 	def Query (self, Query, ReturnType = '2D'):
 		self.Debug ('DEBUG', Query)
+		self.Lock.acquire ()
 		try:
 			Result = self.Engine.execute (Query)
 		except:
@@ -187,6 +190,7 @@ class HandleDB:
 					Return = Return[0]
 		except:
 			pass
+		self.Lock.release ()
 		return (Return)
 	
 	

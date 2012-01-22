@@ -3,6 +3,7 @@ import hostCmdsBattle
 import hostCmdsSpecial
 import hostCmdsLadderbot
 import hostCmdsDownload
+import hostCmdsUsers
 
 class HostCmds:
 	def __init__ (self, ClassServer, ClassHost):
@@ -16,6 +17,7 @@ class HostCmds:
 		self.HostCmdsSpecial = hostCmdsSpecial.HostCmdsSpecial (self, ClassServer, ClassHost)
 		self.HostCmdsLadderbot = hostCmdsLadderbot.HostCmdsLadderbot (self, ClassServer, ClassHost)
 		self.HostCmdsDownload = hostCmdsDownload.HostCmdsDownload (self, ClassServer, ClassHost)
+		self.HostCmdsUsers = hostCmdsUsers.HostCmdsUsers (self, ClassServer, ClassHost)
 		self.LoadAlias ()
 		
 	
@@ -30,6 +32,8 @@ class HostCmds:
 				return (self.HostCmdsLadderbot.HandleInput (Command, Data))
 			elif self.HostCmdsDownload.Commands.has_key (Command):
 				return (self.HostCmdsDownload.HandleInput (Command, Data))
+			elif self.HostCmdsUsers.Commands.has_key (Command):
+				return (self.HostCmdsUsers.HandleInput (Command, Data, User))
 			elif self.Host.GroupConfig['Alias'].has_key (Command):
 				Return = []
 				for Command in self.Host.GroupConfig['Alias'][Command]:

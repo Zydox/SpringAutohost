@@ -18,6 +18,11 @@ class HandleDB:
 		self.Connect ()
 	
 	
+	def SearchUser (self, User):
+		Result = self.Query ("SELECT Smurfs.ID, Users.Value AS User, FROM_UNIXTIME(MAX(Smurfs.LastSeen)) AS LastSeen FROM Smurfs LEFT JOIN TableValues AS Users ON Smurfs.UserID=Users.ID WHERE Users.Value LIKE " + self.Value (User) + " GROUP BY Smurfs.UserID", '1D')
+		return (Result)
+	
+	
 	def StoreBoxes (self, Group, Map, Teams, StartPosType, Boxes):
 		GroupID = self.GetGroupID (Group)
 		MapID = self.GetMapID (Map)

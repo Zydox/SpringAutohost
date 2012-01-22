@@ -265,6 +265,8 @@ class Lobby (threading.Thread):
 				self.Battles[Arg[0]]['Players'] = len (self.Battles[Arg[0]]['Users']) - self.Battles[Arg[0]]['Spectators']
 				if self.BattleID and self.BattleID == Arg[0]:
 					del (self.BattleUsers[Arg[1]])
+					self.BattleUpdate ()
+					self.CallbackInternalEvent ('USER_LEFT_BATTLE', [Arg[1]])
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 			if self.Users.has_key (Arg[1]):

@@ -66,6 +66,8 @@ class Host (threading.Thread):
 		elif Event == 'USER_JOINED_BATTLE':
 			if self.Spring.SpringUDP and self.Spring.SpringUDP.Active:
 				self.Spring.SpringUDP.AddUser (Data[0], Data[1])
+		elif Event == 'USER_LEFT_BATTLE':
+			pass
 		else:
 			print ''
 			print Event

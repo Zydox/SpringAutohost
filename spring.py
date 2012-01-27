@@ -428,6 +428,7 @@ class SpringUDP (threading.Thread):
 				self.Socket.sendto (str (Message), self.ServerAddr)
 			except:
 				self.Debug ('ERROR', 'Socked send failed')
+				self.Spring.SpringStop ('UDP_TALK_FAIED', 'SpringUDP lost connection to spring')
 	
 	
 	def Terminate (self, Message = ''):

@@ -398,6 +398,7 @@ class HostCmdsBattleLogic:
 	
 	
 	def LogicSplitBox (self, Type, Size, ClearBoxes = 0):
+		self.LogicSetStartPos (2)
 		if Type != 'h' and Type != 'v' and Type != 'c1' and Type != 'c2' and Type != 'c' and Type != 's':
 			return ('The box type wasn\'t of a valid type')
 		if Size < 1 or Size > 100:

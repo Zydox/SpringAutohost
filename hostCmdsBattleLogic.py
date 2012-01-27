@@ -361,17 +361,26 @@ class HostCmdsBattleLogic:
 	
 	def LogicReHostWithMod (self, Mod):
 		self.Refresh ()
-		if self.Battle['Mod'] == Mod:
-			return ('"' + str (Mod) + '" is already hosted')
+		
+		Match = self.LogicFunctionSearchMatch (Mod, self.Host.GetUnitsyncMod ('#KEYS#'))
+		if Match and self.Battle['Mod'] == Match:
+			return ('"' + str (Match) + '" is already hosted')
+		elif Match:
+			self.Host.Battle['Mod'] = Match
+			self.LogicCloseBattle ()
+			self.LogicOpenBattle ()
+			self.LogicFunctionLoadBoxes ()
+			return ('Mod changed to "' + Match + '"')
 		else:
-			if not self.Host.GetUnitsyncMod (Mod):
-				return ('"' + str (Mod) + '" doesn\'t exist on this host')
-			else:
-				self.Host.Battle['Mod'] = Mod
-				self.LogicCloseBattle ()
-				self.LogicOpenBattle ()
-				self.LogicFunctionLoadBoxes ()
-				return ('OK')
+			Matches = self.LogicFunctionSearchMatch (Mod, self.Host.GetUnitsyncMod ('#KEYS#'), 1)
+			if Matches:
+				Return = ['Multiple mods found, listing the 10 first:']
+				for Mod in Matches:
+					Return.append (Mod)
+					if len (Return) == 11:
+						break
+				return (Return)
+		return ('Mod "' + str (Mod) + '" not found')
 	
 	
 	def LogicAddBox (self, Left, Top, Right, Bottom, Team = -1):

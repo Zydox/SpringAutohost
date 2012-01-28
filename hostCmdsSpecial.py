@@ -45,7 +45,7 @@ class HostCmdsSpecial:
 				Return.append (self.StringPad (File, Length, ' ') + '  ' + self.StringPad (str (os.path.getsize (Path + '/' + File)), 8, ' ') + '  ' + str (round ((time.time() - os.path.getmtime (Path + '/' + File)) / 3600, 1)) + " hours ago")
 			Return.sort ()
 			Return.append (self.StringPad ('Summary:', Length, ' ') + '  ' + self.StringPad (str (Size), 8, ' ') + '  ' + str (round (LastChange / 3600, 1)) + " hours ago")
-			return (Return)
+			return ([True, Return])
 		elif Command == 'help':
 			Result = {}
 			Matches = 0
@@ -93,7 +93,7 @@ class HostCmdsSpecial:
 						Return = Return + Result['*']
 				else:
 					Return = 'No help was found for that command'
-			return (Return)
+			return ([True, Return])
 		elif Command == 'terminate':
 			self.Host.Terminate ()
 		elif Command == 'terminateall':
@@ -111,27 +111,27 @@ class HostCmdsSpecial:
 				Return = 'Spring "' + str (Data[0]) + '" compile failed'
 			self.Host.Lobby.BattleSay ('Battle un-locked, build completed', 1)
 			self.Host.Lobby.BattleLock (0)
-			return (Return)
+			return ([True, Return])
 		elif Command == 'infolog':
 			try:
 				File = open('/root/.spring/infolog.txt', 'r')
 			except IOError as Error:
 				self.Debug ('ERROR', 'File open failed: ' + str (Error))
-				return ('Infolog read failed')	
+				return ([False, 'Infolog read failed'])
 			Return = deque ([])
 			for Line in File:
 				Return.append (Line)
 				if len (Return) > 20:
 					Return.popleft ()
 			File.close ()
-			return (['Last 20 lines of the infolog:'] + list (Return))
+			return ([True, ['Last 20 lines of the infolog:'] + list (Return)])
 		elif Command == 'showconfig':
 			Return = []
 			for Var in self.Host.GroupConfig.keys ():
 				if not isinstance(self.Host.GroupConfig[Var], dict) and not isinstance(self.Host.GroupConfig[Var], list):
 					Return.append (str (Var) + ' => ' + str (self.Host.GroupConfig[Var]))
 			Return.sort ()
-			return (['Autohost config:'] + Return)
+			return ([True, ['Autohost config:'] + Return])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

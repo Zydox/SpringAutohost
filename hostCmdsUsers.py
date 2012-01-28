@@ -20,5 +20,5 @@ class HostCmdsUsers:
 		if Command == 'searchuser':
 			Data = self.Server.HandleDB.SearchUser  (Data[0])
 			if Data:
-				return (Data['User'] + ' => ' + str (Data['LastSeen']))
-			return ('No user found')
+				return ([True, Data['User'] + ' => ' + str (Data['LastSeen'])])
+			return ([False, 'No user found'])

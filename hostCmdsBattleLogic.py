@@ -28,19 +28,21 @@ class HostCmdsBattleLogic:
 		Map = self.Host.Battle['Map']
 		UnitsyncMod = self.Host.GetUnitsyncMod (Mod)
 		if not UnitsyncMod:
-			return ('Mod doesn\'t exist')
+			return ([False, 'Mod doesn\'t exist'])
 		UnitsyncMap = self.Host.GetUnitsyncMap (Map)
 		if not UnitsyncMap:
-			return ('Map doesn\'t exist')
+			return ([False, 'Map doesn\'t exist'])
 		Desc = self.Host.Battle['BattleDescription']
 		if self.Server.Config['General']['SpringBuildDefault'] != self.Host.SpringVersion:
 			Desc = 'Dev build:' + str (self.Host.SpringVersion) + ', ' + Desc
 		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], Desc, 16)
 		self.Lobby.BattleEnableUnitsAll ()
+		return ([True])
 	
 	
 	def LogicCloseBattle (self):
 		self.Lobby.BattleClose ()
+		return ([True])
 	
 	
 	def LogicRing (self, User =''):
@@ -49,19 +51,19 @@ class HostCmdsBattleLogic:
 			Match = self.LogicFunctionSearchMatch (User, self.BattleUsers.keys ())
 			if self.BattleUsers.has_key (Match):
 				self.Host.Lobby.BattleRing (Match)
-				return ('Ringing "' + str (Match) + '"')
+				return ([True, 'Ringing "' + str (Match) + '"'])
 			else:
-				return ('No user found')
+				return ([False, 'No user found'])
 		else:
 			for User in self.BattleUsers:
 				if self.BattleUsers[User]['Spectator'] == 0 and self.BattleUsers[User]['Ready'] == 0:
 					self.Host.Lobby.BattleRing (User)
-			return ('Ringing all unready users')
+			return ([True, 'Ringing all unready users'])
 	
 	
 	def LogicAddBot (self, Team, Ally, Side, Color, Bot):
 		if not self.Host.Lobby.BattleID:
-			return ('No battle open')
+			return ([False, 'No battle open'])
 		self.Refresh ()
 		Version = 0
 		AI_ID = 0
@@ -72,7 +74,7 @@ class HostCmdsBattleLogic:
 			if Mod['Sides'][iSide] == Side:
 				SideOK = 1
 		if not SideOK:
-			return ('Side "' + str (Side) + '" doesn\'t exist')
+			return ([False, 'Side "' + str (Side) + '" doesn\'t exist'])
 		
 		for AI in Mod['AI']:
 			if Mod['AI'][AI]['shortName'] == Bot:
@@ -89,8 +91,8 @@ class HostCmdsBattleLogic:
 		if AI_ID:
 			AI_Data = Mod['AI'][AI_ID]
 			self.Lobby.BattleAddAI ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
-			return (Name)
-		return ('No AI found with that name')
+			return ([True, Name])
+		return ([False, 'No AI found with that name'])
 	
 	
 	def LogicInfo (self):
@@ -106,32 +108,32 @@ class HostCmdsBattleLogic:
 					R = 'N/A'
 					A = 'N/A'
 				Return.append (Alias + '   ' + 'A:' + A + '   R:' + R)
-		return (Return)
+		return ([True, Return])
 	
 	
 	def LogicSpec (self, User):
 		self.Refresh ()
 		if self.BattleUsers.has_key (User):
 			self.Lobby.Send ('FORCESPECTATORMODE ' + str (User))
-			return ('User "' + str (User) + '" spectated')
-		return ('User "' + str (User) + '" not found in battle')
+			return ([True, 'User "' + str (User) + '" spectated'])
+		return ([False, 'User "' + str (User) + '" not found in battle'])
 	
 	
 	def LogicKick (self, User):
 		self.Refresh ()
 		if self.Lobby.User.lower () == User.lower ():
-			return ('Can\'t kick the host... use !terminate')
+			return ([False, 'Can\'t kick the host... use !terminate'])
 		elif self.Host.Lobby.BattleUsers.has_key (User):
 			if self.Host.Lobby.BattleUsers[User]['AI']:
 				self.Host.Lobby.BattleKickAI (User)
 				self.Host.Spring.SpringTalk ('/kick ' + User)
-				return ('AI "'+ str (User) + '" kicked')
+				return ([True, 'AI "'+ str (User) + '" kicked'])
 			else:
 				self.Host.Lobby.BattleKick (User)
 				self.Host.Spring.SpringTalk ('/kick ' + User)
-				return ('User "'+ str (User) + '" kicked')
+				return ([True, 'User "'+ str (User) + '" kicked'])
 		else:
-			return ('Can\'t find the user "' + str (User) + '"')
+			return ([False, 'Can\'t find the user "' + str (User) + '"'])
 	
 	
 	def LogicKickBots (self):
@@ -144,7 +146,7 @@ class HostCmdsBattleLogic:
 					self.Host.Spring.SpringTalk ('/kick ' + User)
 					Return.append ('AI "' + User + '" kicked')
 		if Return:
-			return (Return)
+			return ([True, Return])
 	
 	
 	def LogicFixID (self):
@@ -163,47 +165,47 @@ class HostCmdsBattleLogic:
 				self.Lobby.BattleUpdateAI (AI, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[AI]['Ally'], 0, self.BattleUsers[AI]['Handicap'], 0, self.BattleUsers[AI]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[AI]['Color']))
 				if ID < 15:
 					ID = ID + 1
-		return ('IDs fixed')
+		return ([True, 'IDs fixed'])
 	
 	
 	def LogicForceTeam (self, User, Team):
 		self.Refresh ()
 		if Team < 1 or Team > 16:
-			return ('Team has to be between 1 to 16')
+			return ([False, 'Team has to be between 1 to 16'])
 		if self.BattleUsers.has_key (User):
 			Team -= 1
 			if self.BattleUsers[User]['Ally'] != Team:
 				self.Lobby.BattleForceTeam (User, Team)
-			return ('Team changed')
+			return ([True, 'Team changed'])
 		else:
-			return ('User not found')
+			return ([False, 'User not found'])
 	
 	
 	def LogicForceID (self, User, ID):
 		self.Refresh ()
 		if ID < 1 or ID > 16:
-			return ('ID has to be between 1 to 16')
+			return ([False, 'ID has to be between 1 to 16'])
 		if self.BattleUsers.has_key (User):
 			ID -= 1
 			if self.BattleUsers[User]['Team'] != ID:
 				self.Lobby.BattleForceID (User, ID)
-			return ('ID changed')
+			return ([True, 'ID changed'])
 		else:
-			return ('User not found')
+			return ([False, 'User not found'])
 	
 	
 	def LogicForceColor (self, User, Color):
 		self.Refresh ()
 		if not len (Color) == 6 or Color.upper().strip ('0123456789ABCDEF'):
-			return ('Color was not a Hex RGB color')
+			return ([False, 'Color was not a Hex RGB color'])
 		if self.BattleUsers.has_key (User):
 			if not self.BattleUsers[User]['AI']:
 				self.Lobby.BattleForceColor (User, self.LogicFunctionBattleColor (Color))
 			else:
 				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (Color))
-			return ('Color changed')
+			return ([True, 'Color changed'])
 		else:
-			return ('User not found')
+			return ([False, 'User not found'])
 	
 	
 	def LogicChangeMap (self, Map):
@@ -216,7 +218,7 @@ class HostCmdsBattleLogic:
 				self.Host.Lobby.BattleMap (Match, UnitsyncMap['Hash'])
 				self.LogicFunctionMapLoadDefaults ()
 				self.LogicFunctionLoadBoxes ()
-				return ('Map changed to ' + str (Match))
+				return ([True, 'Map changed to ' + str (Match)])
 		else:
 			Matches = self.LogicFunctionSearchMatch (Map, self.Host.GetUnitsyncMap ('#KEYS#'), 1)
 			if Matches:
@@ -225,8 +227,8 @@ class HostCmdsBattleLogic:
 					Return.append (Map)
 					if len (Return) == 11:
 						break
-				return (Return)
-		return ('Map "' + str (Map) + '" not found')
+				return ([False, Return])
+		return ([False, 'Map "' + str (Map) + '" not found'])
 	
 	
 	def LogicListMaps (self):
@@ -236,7 +238,7 @@ class HostCmdsBattleLogic:
 			Return.append (Map)
 		Return.sort ()
 		Return = ['Maps:'] + Return
-		return (Return)
+		return ([True, Return])
 	
 	
 	def LogicListMods (self):
@@ -246,7 +248,7 @@ class HostCmdsBattleLogic:
 			Return.append (Mod)
 		Return.sort ()
 		Return = ['Mods:'] + Return
-		return (Return)
+		return ([True, Return])
 	
 	
 	def LogicSetSpringVersion (self, SpringVersion):
@@ -255,59 +257,59 @@ class HostCmdsBattleLogic:
 			self.Host.SpringVersion = SpringVersion
 			self.Lobby.BattleClose ()
 			self.LogicOpenBattle ()
-			return ('Spring "' + str (SpringVersion) + '" loaded')
+			return ([True, 'Spring "' + str (SpringVersion) + '" loaded'])
 		else:
-			return ('Spring "' + str (SpringVersion) + '" not found (use !compile to add it)')
+			return ([False, 'Spring "' + str (SpringVersion) + '" not found (use !compile to add it)'])
 	
 	
 	def LogicSetModOption (self, Option, Value = None):
 		self.Debug ('INFO', str (Option) + '=>' + str (Value))
 		if not self.Host.Lobby.BattleID:
-			return ('No battle is open')
+			return ([False, 'No battle is open'])
 		Mod = self.Host.GetUnitsyncMod (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Mod'])
 		if not Mod.has_key ('Options'):
-			return ('This mod has no options')
+			return ([True, 'This mod has no options'])
 		elif not Mod['Options'].has_key (Option):
 			Return = ['Valid ModOptions are:']
 			for Key in Mod['Options'].keys ():
 				Return.append (Key + ' - ' + Mod['Options'][Key]['Title'])
-			return (Return)
+			return ([False, Return])
 		elif Value == None:
-			return (self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1))
+			return ([False, self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1)])
 		else:
 			Result = self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value)
 			if Result['OK']:
 				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
 				self.Host.Battle['ModOptions'][Option] = Result['Value']
 				self.LogicFunctionBattleUpdateScript ()
-				return ('OK')
+				return ([True, 'OK'])
 			else:
-				return (self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1))
+				return ([False, self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1)])
 	
 	
 	def LogicSetMapOption (self, Option, Value = None):
 		self.Debug ('INFO', str (Option) + '=>' + str (Value))
 		if not self.Host.Lobby.BattleID:
-			return ('No battle is open')
+			return ([False, 'No battle is open'])
 		Map = self.Host.GetUnitsyncMap (self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Map'])
 		if not Map.has_key ('Options'):
-			return ('This map has no options')
+			return ([True, 'This map has no options'])
 		elif not Map['Options'].has_key (Option):
 			Return = ['Valid MapOptions are:']
 			for Key in Map['Options'].keys ():
 				Return.append (Key + ' - ' + Map['Options'][Key]['Title'])
-			return (Return)
+			return ([False, Return])
 		elif Value == None:
-			return (self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1))
+			return ([False, self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1)])
 		else:
 			Result = self.LogicFunctionOptionValueValid (Map['Options'][Option], Value)
 			if Result['OK']:
 				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
 				self.Host.Battle['MapOptions'][Option] = Result['Value']
 				self.LogicFunctionBattleUpdateScript ()
-				return ('OK')
+				return ([True, 'OK'])
 			else:
-				return (self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1))
+				return ([False, self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1)])
 	
 	
 	def LogicSetStartPos (self, StartPos):
@@ -316,9 +318,9 @@ class HostCmdsBattleLogic:
 			self.Host.Battle['StartPosType'] = StartPos
 			self.LogicFunctionBattleUpdateScript ()
 			self.LogicFunctionLoadBoxes ()
-			return ('StartPos set')
+			return ([True, 'StartPos set'])
 		else:
-			return ('StartPos must be between 0 and 3')
+			return ([False, 'StartPos must be between 0 and 3'])
 	
 	
 	def LogicStartBattle (self, ForceStart = 0):
@@ -329,7 +331,7 @@ class HostCmdsBattleLogic:
 		if not ForceStart:
 			for User in self.BattleUsers:
 				if not self.BattleUsers[User]['Ready'] and not self.BattleUsers[User]['Spectator']:
-					return ('Not all users are ready yet')
+					return ([False, 'Not all users are ready yet'])
 		
 		Locked = self.Lobby.Battles[self.Lobby.BattleID]['Locked']
 		self.Lobby.BattleLock (1)
@@ -339,10 +341,10 @@ class HostCmdsBattleLogic:
 		if self.Host.Spring.SpringStart ():
 			self.Lobby.BattleStart ()
 			self.Lobby.BattleLock (Locked)
-			return ('Battle started')
+			return ([True, 'Battle started'])
 		else:
 			self.Lobby.BattleLock (Locked)
-			return ('Battle failed to start')
+			return ([False, 'Battle failed to start'])
 	
 	
 	def LogicSetHandicap (self, User, Hcp):
@@ -353,10 +355,11 @@ class HostCmdsBattleLogic:
 					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, int (Hcp), 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
 				else:
 					self.Lobby.BattleHandicap (User, Hcp)
+				return ([True, 'OK'])
 			else:
-				return ('Handicap must be in the range of 0 - 100')
+				return ([False, 'Handicap must be in the range of 0 - 100'])
 		else:
-			return ('User "' + str (User) + '" is not in this battle')
+			return ([False, 'User "' + str (User) + '" is not in this battle'])
 	
 	
 	def LogicReHostWithMod (self, Mod):
@@ -364,13 +367,13 @@ class HostCmdsBattleLogic:
 		
 		Match = self.LogicFunctionSearchMatch (Mod, self.Host.GetUnitsyncMod ('#KEYS#'))
 		if Match and self.Battle['Mod'] == Match:
-			return ('"' + str (Match) + '" is already hosted')
+			return ([True, '"' + str (Match) + '" is already hosted'])
 		elif Match:
 			self.Host.Battle['Mod'] = Match
 			self.LogicCloseBattle ()
 			self.LogicOpenBattle ()
 			self.LogicFunctionLoadBoxes ()
-			return ('Mod changed to "' + Match + '"')
+			return ([True, 'Mod changed to "' + Match + '"'])
 		else:
 			Matches = self.LogicFunctionSearchMatch (Mod, self.Host.GetUnitsyncMod ('#KEYS#'), 1)
 			if Matches:
@@ -379,16 +382,16 @@ class HostCmdsBattleLogic:
 					Return.append (Mod)
 					if len (Return) == 11:
 						break
-				return (Return)
-		return ('Mod "' + str (Mod) + '" not found')
+				return ([False, Return])
+		return ([False, 'Mod "' + str (Mod) + '" not found'])
 	
 	
 	def LogicAddBox (self, Left, Top, Right, Bottom, Team = -1):
 		self.Refresh ()
 		if Left > 100 or Top > 100 or Right > 100 or Bottom > 100 or Left < 0 or Top < 0 or Right < 0 or Bottom < 0:
-			return ('Box values must be between 0 and 100')
+			return ([False, 'Box values must be between 0 and 100'])
 		elif Team < -1 or Team == 0 or Team > 16:
-			return ('Team must be between 1 and 16')
+			return ([False, 'Team must be between 1 and 16'])
 		
 		if Team == -1:
 			for iTeam in range (0, 15):
@@ -396,22 +399,22 @@ class HostCmdsBattleLogic:
 					Team = iTeam
 					break
 			if Team == -1:
-				return ('No team is free, please specify which should be replaced')
+				return ([False, 'No team is free, please specify which should be replaced'])
 		else:
 			Team = Team - 1
 		
 		if self.Battle['Boxes'].has_key (Team):
 			self.LogicRemoveBox (Team + 1)
 		self.Lobby.BattleAddBox (Team, Left * 2, Top * 2, Right * 2, Bottom * 2)
-		return ('Box added')
+		return ([True, 'Box added'])
 	
 	
 	def LogicSplitBox (self, Type, Size, ClearBoxes = 0):
 		self.LogicSetStartPos (2)
 		if Type != 'h' and Type != 'v' and Type != 'c1' and Type != 'c2' and Type != 'c' and Type != 's':
-			return ('The box type wasn\'t of a valid type')
+			return ([False, 'The box type wasn\'t of a valid type'])
 		if Size < 1 or Size > 100:
-			return ('Size must be between 1 and 100')
+			return ([False, 'Size must be between 1 and 100'])
 		if ClearBoxes:
 			self.LogicRemoveBoxes ()
 		if Type == 'v':
@@ -436,18 +439,18 @@ class HostCmdsBattleLogic:
 			self.LogicAddBox (100 - Size, 0, 100, 100, 2)
 			self.LogicAddBox (0, 0, 100, Size, 3)
 			self.LogicAddBox (0, 100 - Size, 100, 100, 4)
-		return ('Boxes added')
+		return ([True, 'Boxes added'])
 	
 	
 	def LogicClearBox (self, Box):
 		if Box < 0 or Box > 16:
-			return ('Box has to be between 0 and 16')
+			return ([False, 'Box has to be between 0 and 16'])
 		elif Box:
 			self.LogicRemoveBox (Box)
-			return ('Box cleared')
+			return ([True, 'Box cleared'])
 		else:
 			self.LogicRemoveBoxes ()
-			return ('Boxes cleared')
+			return ([True, 'Boxes cleared'])
 	
 	
 	def LogicRemoveBox (self, Team):
@@ -464,7 +467,7 @@ class HostCmdsBattleLogic:
 	def LogicSaveBoxes (self):
 		self.Refresh ()
 		if self.Host.Battle['StartPosType'] != 2:
-			return ('Can only save boxes for "Choose in game"')
+			return ([False, 'Can only save boxes for "Choose in game"'])
 		
 		Boxes = []
 		for Team in self.Battle['Boxes'].keys ():
@@ -472,9 +475,9 @@ class HostCmdsBattleLogic:
 		if len (Boxes) > 0:
 			Boxes = '\n'.join (Boxes)
 			self.Server.HandleDB.StoreBoxes (self.Host.Group, self.Battle['Map'], self.Host.Battle['Teams'], self.Host.Battle['StartPosType'], Boxes)
-			return ('Saved')
+			return ([True, 'Saved'])
 		else:
-			return ('No boxes to save')
+			return ([False, 'No boxes to save'])
 	
 	
 	def LogicLoadPreset (self, Preset = 'Default'):
@@ -482,9 +485,9 @@ class HostCmdsBattleLogic:
 		if Config:
 			for Command in Config.split ('\n'):
 				self.Host.HandleInput ('INTERNAL', '!' + Command.strip ())
-			return ('Preset loaded')
+			return ([True, 'Preset loaded'])
 		else:
-			return ('No preset found for "' + str (Preset) + '"')
+			return ([True, 'No preset found for "' + str (Preset) + '"'])
 	
 	
 	def LogicSavePreset (self, Preset):
@@ -496,15 +499,15 @@ class HostCmdsBattleLogic:
 				if str (Mod['Options'][ModKey]['Default']) != str (self.Host.Battle['ModOptions'][ModKey]):
 					Config.append ('modoption ' + str (ModKey) + ' ' + str (self.Host.Battle['ModOptions'][ModKey]))
 		self.Server.HandleDB.StorePreset (self.Host.Group, Preset, '\n'.join (Config))
-		return ('Saved')
+		return ([True, 'Saved'])
 	
 	
 	def LogicSetTeams (self, Teams):
 		if Teams > 16 or Teams < 2:
-			return ('Teams has to be between 2 and 16')
+			return ([False, 'Teams has to be between 2 and 16'])
 		self.Host.Battle['Teams'] = Teams
 		self.HostCmdsBattle.Balance.LogicBalance ()
-		return ('OK')
+		return ([True, 'OK'])
 	
 	
 	def LogicDisableUnit (self, SearchUnit):
@@ -519,18 +522,18 @@ class HostCmdsBattleLogic:
 		if Match:
 			if Mod['Units'].has_key (Match):
 				self.Lobby.BattleDisableUnits (Match)
-				return ('"' + Match + '" has been disabled')
+				return ([True, '"' + Match + '" has been disabled'])
 		else:
 			Matches = self.LogicFunctionSearchMatch (SearchUnit, Units, 1, 0)
 			if Matches:
 				Matches = ['Available units:'] + Matches
-				return (Matches)
-		return ('No match found')
+				return ([False, Matches])
+		return ([False, 'No match found'])
 	
 	
 	def LogicEnableUnitsAll (self):
 		self.Lobby.BattleEnableUnitsAll ()
-		return ('All units enabled')
+		return ([True, 'All units enabled'])
 	
 	
 	def LogicFixColors (self, ColorUser = None):
@@ -546,7 +549,7 @@ class HostCmdsBattleLogic:
 		
 		if ColorUser:
 			if not self.BattleUsers.has_key (ColorUser):
-				return ('No user found')
+				return ([False, 'No user found'])
 			for Diff in [400, 300, 200, 150, 100, 50, 10, 0]:
 #				print 'DIFF::' + str (Diff)
 				for Color in List:
@@ -571,7 +574,7 @@ class HostCmdsBattleLogic:
 							if self.LogicFunctionCompareColors (self.BattleUsers[User]['Color'], CurrentList[Team]) < 50:
 #								print '--CHK-CHANGE'
 								self.LogicFixColors (User)
-			return ('Colors fixed')
+			return ([True, 'Colors fixed'])
 	
 	
 	def LogicFunctionCompareColors (self, Color1, Color2):

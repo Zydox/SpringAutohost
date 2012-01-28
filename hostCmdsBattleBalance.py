@@ -66,7 +66,7 @@ class HostCmdsBattleBalance:
 			for Balance in self.Balance:
 				self.HostCmdsBattle.Logic.LogicForceTeam (Balance[0], Balance[1])
 		
-		return ('Balancing...')
+		return ([True, 'Balancing...'])
 	
 	
 	def BalanceClans (self):

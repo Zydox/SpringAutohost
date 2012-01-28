@@ -25,33 +25,45 @@ class HostCmds:
 		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
 		try:
 			if self.HostCmdsBattle.Commands.has_key (Command):
-				return (self.HostCmdsBattle.HandleInput (Command, Data))
+				Return = self.HostCmdsBattle.HandleInput (Command, Data)
 			elif self.HostCmdsSpecial.Commands.has_key (Command):
-				return (self.HostCmdsSpecial.HandleInput (Command, Data, User))
+				Return = self.HostCmdsSpecial.HandleInput (Command, Data, User)
 			elif self.HostCmdsLadderbot.Commands.has_key (Command):
-				return (self.HostCmdsLadderbot.HandleInput (Command, Data))
+				Return = self.HostCmdsLadderbot.HandleInput (Command, Data)
 			elif self.HostCmdsDownload.Commands.has_key (Command):
-				return (self.HostCmdsDownload.HandleInput (Command, Data))
+				Return = self.HostCmdsDownload.HandleInput (Command, Data)
 			elif self.HostCmdsUsers.Commands.has_key (Command):
-				return (self.HostCmdsUsers.HandleInput (Command, Data, User))
+				Return = self.HostCmdsUsers.HandleInput (Command, Data, User)
 			elif self.Host.GroupConfig['Alias'].has_key (Command):
-				Return = []
-				for Command in self.Host.GroupConfig['Alias'][Command]:
+				if len (self.Host.GroupConfig['Alias'][Command]) == 1:
+					Command = self.Host.GroupConfig['Alias'][Command][0]
 					for iArg in range (0, len (Data)):
 						Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
-					Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command)
-					if isinstance (Result, list) :
-						for Row in Result:
-							Return.append (Row)
+					if Source == 'Battle':
+						Return = self.Host.HandleInput ('INTERNAL_ALIAS_BATTLE', '!' + Command, User)
 					else:
-						Return.append (Result)
-				Return.append ('Alias command completed')
-				return (Return)
+						Return = self.Host.HandleInput ('INTERNAL_ALIAS_PM', '!' + Command, User)
+				else:
+					Return = []
+					for Command in self.Host.GroupConfig['Alias'][Command]:
+						for iArg in range (0, len (Data)):
+							Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
+						Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command, User)
+						if isinstance (Result, list) :
+							for Row in Result:
+								Return.append (Row)
+						else:
+							Return.append (Result)
+					Return.append ('Alias command completed')
+					Return = [True, Return]
 			else:
-				return ('Unknown command type')
+				Return = [False, 'Unknown command type']
 		except Exception as Error:
 			self.Debug ('ERROR', 'Failed with error: ' + str (Error), 1)
-			return ('Internal failure (crashed)')
+			Return = [False, 'Internal failure (crashed)']
+		
+		if Return and len (Return) > 1:
+			return (Return[1])
 	
 	
 	def LoadAlias (self):

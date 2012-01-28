@@ -95,13 +95,13 @@ class Host (threading.Thread):
 		elif Source == 'INTERNAL':
 			Input['Source'] = 'Battle'
 			Input['Return'] = 'BattleMe'
-			Input['User'] = ''
+			Input['User'] = User
 			Input['Reference'] = ''
 			Input['Input'] = Data
 		elif Source == 'INTERAL_RETURN':
 			Input['Source'] = 'PM'
 			Input['Return'] = 'Return'
-			Input['User'] = ''
+			Input['User'] = User
 			Input['Reference'] = ''
 			Input['Input'] = Data
 		elif Source == 'BATTLE_PUBLIC':
@@ -116,6 +116,18 @@ class Host (threading.Thread):
 			Input['User'] = Data[0]
 			Input['Reference'] = Data[0]
 			Input['Input'] = self.ConvertSuggestion (Data[1])
+		elif Source == 'INTERNAL_ALIAS_BATTLE':
+			Input['Source'] = 'Battle'
+			Input['Return'] = 'BattleMe'
+			Input['User'] = User
+			Input['Reference'] = User
+			Input['Input'] = Data
+		elif Source == 'INTERNAL_ALIAS_PM':
+			Input['Source'] = 'PM'
+			Input['Return'] = 'PM'
+			Input['User'] = User
+			Input['Reference'] = User
+			Input['Input'] = Data
 		
 		if len (Input) > 2:
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':

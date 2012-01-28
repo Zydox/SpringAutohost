@@ -75,9 +75,9 @@ class HostCmdsBattle:
 				Lock = {0:1, 1:0}[self.Host.Lobby.Battles[self.Host.Lobby.BattleID]['Locked']]
 			self.Host.Lobby.BattleLock (Lock)
 			if Lock:
-				return ('Battle locked')		
+				return ([True, 'Battle locked'])
 			else:
-				return ('Battle unlocked')		
+				return ([True, 'Battle unlocked'])
 		elif Command == 'kick':
 			return (self.Logic.LogicKick (Data[0]))
 		elif Command == 'ring':
@@ -132,7 +132,7 @@ class HostCmdsBattle:
 			if len (Data) == 1:
 				return (self.Logic.LogicSetTeams (Data[0]))
 			else:
-				return ('No. of teams: ' + str (self.Host.Battle['Teams']))
+				return ([True, 'No. of teams: ' + str (self.Host.Battle['Teams'])])
 		elif Command == 'mapoption':
 			if len (Data) == 2:
 				return (self.Logic.LogicSetMapOption (Data[0], Data[1]))

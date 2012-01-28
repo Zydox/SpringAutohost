@@ -35,31 +35,31 @@ class HostCmdsDownload:
 				Return = ['Found matcher (top 10 max):']
 				for Result in Results:
 					Return.append ('* ' + str (Result['springname']) + ' (' + str (Result['filename']) + ')')
-				return (Return)
+				return ([True, Return])
 			else:
-				return ('No matches found for "' + str (Data[0]) + '".')
+				return ([False, 'No matches found for "' + str (Data[0]) + '".'])
 		elif Command == 'downloadmod':
 			Result = self.XMLRPC_Proxy.springfiles.search ({"logical" : "or", "tag" : Data[0], "filename" : Data[0], "springname" : Data[0], "torrent" : True})
 			if not Result:
-				return ('No match found for "' + str (Data[0]) + '".')
+				return ([False, 'No match found for "' + str (Data[0]) + '".'])
 			if not len (Result) == 1:
-				return ('To many matches found for "' + str (Data[0]) + '", only one match is allowed.')
+				return ([False, 'To many matches found for "' + str (Data[0]) + '", only one match is allowed.'])
 			else:
 				if self.DownloadFile (Result[0], 'Mod'):
-					return ('Downloaded the mod "' + str (Result[0]['springname']) + '".')
+					return ([True, 'Downloaded the mod "' + str (Result[0]['springname']) + '".'])
 				else:
-					return ('Download failed for the mod "' + str (Data[0]) + '".')
+					return ([False, 'Download failed for the mod "' + str (Data[0]) + '".'])
 		elif Command == 'downloadmap':
 			Result = self.XMLRPC_Proxy.springfiles.search ({"logical" : "or", "tag" : Data[0], "filename" : Data[0], "springname" : Data[0], "torrent" : True})
 			if not Result:
-				return ('No match found for "' + str (Data[0]) + '".')
+				return ([False, 'No match found for "' + str (Data[0]) + '".'])
 			if not len (Result) == 1:
-				return ('To many matches found for "' + str (Data[0]) + '", only one match is allowed.')
+				return ([False, 'To many matches found for "' + str (Data[0]) + '", only one match is allowed.'])
 			else:
 				if self.DownloadFile (Result[0], 'Map'):
-					return ('Downloaded the map "' + str (Result[0]['springname']) + '".')
+					return ([True, 'Downloaded the map "' + str (Result[0]['springname']) + '".'])
 				else:
-					return ('Download failed for the map "' + str (Data[0]) + '".')
+					return ([False, 'Download failed for the map "' + str (Data[0]) + '".'])
 		elif Command == 'maplink' or Command == 'modlink':
 			if Command == 'maplink':
 				Type = 'Map'
@@ -75,10 +75,10 @@ class HostCmdsDownload:
 					self.Debug ('WARNING', 'Multiple download links found for ' + Type.lower () + ' (' + str (len (Result)) + ')')
 				else:
 					self.Debug ('WARNING', 'No mirror found')
-				return ('No download link found for the current ' + Type.lower ())
+				return ([False, 'No download link found for the current ' + Type.lower ()])
 			else:
 				for Mirror in Result[0]['mirrors']:
-					return (Type + ' download link: ' + str (Mirror))
+					return ([True, Type + ' download link: ' + str (Mirror)])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

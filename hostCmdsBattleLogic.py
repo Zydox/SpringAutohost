@@ -577,6 +577,26 @@ class HostCmdsBattleLogic:
 			return ([True, 'Colors fixed'])
 	
 	
+	def LogicSetBotSide (self, User, Side):
+		if self.Host.Lobby.BattleUsers.has_key (User):
+			if self.BattleUsers[User]['AI']:
+				Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
+				SideOK = 0
+				for iSide in Mod['Sides'].keys ():
+					if Mod['Sides'][iSide] == Side:
+						SideOK = 1
+				if not SideOK:
+					return ([False, 'Side "' + str (Side) + '" doesn\'t exist'])
+				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, Side), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
+				return ([True, 'OK'])
+			else:
+				return ([False, 'User "' + str (User) + '" is not a bot'])
+		else:
+			return ([False, 'User "' + str (User) + '" is not in this battle'])
+		
+		
+	
+	
 	def LogicFunctionCompareColors (self, Color1, Color2):
 		Diff = 0
 		Diff += abs (int (Color1[4:6], 16) - int (Color2[4:6], 16))

@@ -49,6 +49,7 @@ class HostCmdsBattle:
 			'clearbox':[['I'], 'BattleMe', '!clearbox <0 = all|1-16>', 'Removes one or all boxes'],
 			'fixcolor':[['V'], 'BattleMe', '!fixcolor <user>', 'Fixes the <user>s battle color'],
 			'fixcolors':[[], 'BattleMe', '!fixcolors', 'Fixes all users battle colors'],
+			'botside':[['V', 'V'], 'BattleMe', '!botside <bot> <side>', 'Forces <bot> to switch side to <side>'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -159,3 +160,5 @@ class HostCmdsBattle:
 			return (self.Logic.LogicFixColors (Data[0]))
 		elif Command == 'fixcolors':
 			return (self.Logic.LogicFixColors ())
+		elif Command == 'botside':
+			return (self.Logic.LogicSetBotSide (Data[0], Data[1]))

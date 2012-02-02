@@ -6,6 +6,7 @@ import re
 import lobby
 import hostCmds
 import spring
+from doxFunctions import *
 
 
 class Host (threading.Thread):
@@ -148,48 +149,11 @@ class Host (threading.Thread):
 					else:
 						Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
 					
-					for Field in self.HostCmds.Commands[Input['Command']][0]:
-						NewArg = ''
-						if Field == '*' or (Field == 'O*' and len (Data) > 0):
-							NewArg = Data
-							if Field == '*' and len (NewArg) < 1:
-								Failed = 'Missing data'
-						elif Field == 'I' or (Field == 'OI' and len (Data) > 0):
-							try:
-								NewArg = int (self.Lobby.ReturnValue (Data, ' '))
-							except:
-								Failed = 'INT field not numeric'
-						elif Field == 'V' or (Field == 'OV' and len (Data) > 0):
-							NewArg = self.Lobby.ReturnValue (Data, ' ')
-							if Field == 'V' and len (NewArg) < 1:
-								Failed ='Missing variable'
-						elif Field[0] == 'V' and len (Field) > 1:
-							try:
-								NewArg = self.Lobby.ReturnValue (Data, ' ')
-								if len (NewArg) != int (Field[1:]):
-									Failed = 'Variable not the correct length'
-							except:
-								NewArg = 'Faulty variable'
-						elif Field == 'B' or (Field == 'OB' and len (Data) > 0):
-							try:
-								NewArg = int (self.Lobby.ReturnValue (Data, ' '))
-								if NewArg != 0 and NewArg != 1:
-									Failed = 'BOOL field not 0 or 1'
-							except:
-								Failed = 'BOOL CONVERSION FAILED'
-						elif len (Data) == 0 and (Field == 'OI' or Field == 'OV' or Field == 'OB' or Field == 'O*'):
-							NewArg = ''
-						else:
-							Failed = 'UNKNOWN INPUT TYPE::' + str (Field)
-						if len (str (NewArg)) > 0:
-							Input['Data'].append (NewArg)
-							Data = Data[len (str (NewArg)) + 1:]
-					
-					if Failed:
-						Input['Message'] = 'ERROR:' + str (Field) + '::' + Failed
-					elif len (Data) > 0:
-						Input['Message'] = 'TO MUCH DATA/BAD DATA'
+					Extracted = doxExtractInput (Input['RawData'], self.HostCmds.Commands[Input['Command']][0])
+					if not Extracted[0]:
+						Input['Message'] = 'ERROR:' + str (Extracted[1])
 					else:
+						Input['Data'] = Extracted[1]
 						Input = self.HandleAccess (Input, Source)
 				else:
 					Input['Message'] = ['UNKNOWN COMMAND ("' + str (Input['Command']) + '")', 'Use !help to list the available commands']

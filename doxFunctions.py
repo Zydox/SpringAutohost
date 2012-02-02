@@ -13,3 +13,57 @@ def doxReMatch (Pattern, Text):
 
 def doxTime ():
     return (int (math.floor (time.time ())))
+
+
+def doxExtractInput (Data, Fields):
+	Failed = None
+	Return = []
+	
+	for Field in Fields:
+		NewArg = ''
+		if Field == '*' or (Field == 'O*' and len (Data) > 0):
+			NewArg = Data
+			if Field == '*' and len (NewArg) < 1:
+				Failed = 'Missing data'
+		elif Field == 'I' or (Field == 'OI' and len (Data) > 0):
+			try:
+				NewArg = int (doxReturnValue (Data, ' '))
+			except:
+				Failed = 'INT field not numeric'
+		elif Field == 'V' or (Field == 'OV' and len (Data) > 0):
+			NewArg = doxReturnValue (Data, ' ')
+			if Field == 'V' and len (NewArg) < 1:
+				Failed ='Missing variable'
+		elif Field[0] == 'V' and len (Field) > 1:
+			try:
+				NewArg = doxReturnValue (Data, ' ')
+				if len (NewArg) != int (Field[1:]):
+					Failed = 'Variable not the correct length'
+			except:
+				NewArg = 'Faulty variable'
+		elif Field == 'B' or (Field == 'OB' and len (Data) > 0):
+			try:
+				NewArg = int (doxReturnValue (Data, ' '))
+				if NewArg != 0 and NewArg != 1:
+					Failed = 'BOOL field not 0 or 1'
+			except:
+				Failed = 'BOOL CONVERSION FAILED'
+		elif len (Data) == 0 and (Field == 'OI' or Field == 'OV' or Field == 'OB' or Field == 'O*'):
+			NewArg = ''
+		else:
+			Failed = 'UNKNOWN INPUT TYPE::' + str (Field)
+		if len (str (NewArg)) > 0:
+			Return.append (NewArg)
+			Data = Data[len (str (NewArg)) + 1:]
+	
+	if Failed:
+		Return = [False, Failed]
+	else:
+		Return = [True, Return]
+	return (Return)
+	
+
+def doxReturnValue (String, StopChar):
+	if String.find (StopChar) != -1:
+		return (String[0:String.find (StopChar)])
+	return (String)

@@ -4,6 +4,8 @@ import hostCmdsSpecial
 import hostCmdsLadderbot
 import hostCmdsDownload
 import hostCmdsUsers
+from doxFunctions import *
+
 
 class HostCmds:
 	def __init__ (self, ClassServer, ClassHost):
@@ -39,10 +41,13 @@ class HostCmds:
 					Command = self.Host.GroupConfig['Alias'][Command][0]
 					for iArg in range (0, len (Data)):
 						Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
-					if Source == 'Battle':
-						Return = self.Host.HandleInput ('INTERNAL_ALIAS_BATTLE', '!' + Command, User)
+					Cmd = doxReturnValue (Command, ' ')
+					Input = Command[len (Cmd) + 1:]
+					Input = doxExtractInput (Input, self.Commands[Cmd][0])
+					if Input[0]:
+						return (self.HandleInput (Source, Cmd, Input[1], User))
 					else:
-						Return = self.Host.HandleInput ('INTERNAL_ALIAS_PM', '!' + Command, User)
+						Return = [False, 'Alias command failed::' + Input[1]]
 				else:
 					Return = []
 					for Command in self.Host.GroupConfig['Alias'][Command]:

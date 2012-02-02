@@ -20,6 +20,8 @@ class HostCmdsSpecial:
 			'recompile':[['V'], 'PM', '!recompile <spring tag>', 'Re-compiles the provided spring version', 'Special'],
 			'infolog':[[], 'PM', '!infolog', 'Returns the last 20 lines from the hosts infolog', 'Special'],
 			'showconfig':[[], 'PM', '!showconfig', 'Returns the bot\'s config', 'Special'],
+			'battlesay':[['*'], 'BattleMe', '!battlesay <text>', 'The bot says <text> in the battle room'],
+			'battlesayme':[['*'], 'BattleMe', '!battlesayme <text>', 'The bot says /me <text> in the battle room'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -134,6 +136,12 @@ class HostCmdsSpecial:
 					Return.append (str (Var) + ' => ' + str (self.Host.GroupConfig[Var]))
 			Return.sort ()
 			return ([True, ['Autohost config:'] + Return])
+		elif Command == 'battlesay':
+			self.Host.Lobby.BattleSay (Data[0])
+			return ([True, 'OK'])
+		elif Command == 'battlesayme':
+			self.Host.Lobby.BattleSay (Data[0], 1)
+			return ([True, 'OK'])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

@@ -37,12 +37,12 @@ class HostCmdsBattleLogic:
 			Desc = 'Dev build:' + str (self.Host.SpringVersion) + ', ' + Desc
 		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], Desc, 16)
 		self.Lobby.BattleEnableUnitsAll ()
-		return ([True])
+		return ([True, 'Battle opened'])
 	
 	
 	def LogicCloseBattle (self):
 		self.Lobby.BattleClose ()
-		return ([True])
+		return ([True, 'Battle Closed'])
 	
 	
 	def LogicRing (self, User =''):

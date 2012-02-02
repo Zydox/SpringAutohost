@@ -96,8 +96,10 @@ class HostCmdsSpecial:
 			return ([True, Return])
 		elif Command == 'terminate':
 			self.Host.Terminate ()
+			return ([True, 'Terminated'])
 		elif Command == 'terminateall':
 			self.Server.Terminate ()
+			return ([True, 'All hosts terminated'])
 		elif Command == 'compile' or Command == 'recompile':
 			self.Host.Lobby.BattleLock (1)
 			self.Host.Lobby.BattleSay ('Battle locked, building spring "' + str (Data[0]) + '"...', 1)

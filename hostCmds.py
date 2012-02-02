@@ -23,7 +23,7 @@ class HostCmds:
 		self.LoadAlias ()
 		
 	
-	def HandleInput (self, Source, Command, Data, User):
+	def HandleInput (self, Source, Command, Data, User, ReturnSuccess = False):
 		self.Debug ('DEBUG', 'HandleInput::' + str (Source) + '::' + str (Command) + '::' + str (Data))
 		try:
 			if self.HostCmdsBattle.Commands.has_key (Command):
@@ -49,25 +49,40 @@ class HostCmds:
 					else:
 						Return = [False, 'Alias command failed::' + Input[1]]
 				else:
-					Return = []
+					Return = [True, []]
 					for Command in self.Host.GroupConfig['Alias'][Command]:
 						for iArg in range (0, len (Data)):
 							Command = Command.replace ('%' + str (iArg + 1), Data[iArg])
-						Result = self.Host.HandleInput ('INTERAL_RETURN', '!' + Command, User)
-						if isinstance (Result, list) :
-							for Row in Result:
-								Return.append (Row)
+						Cmd = doxReturnValue (Command, ' ')
+						Input = Command[len (Cmd) + 1:]
+						Input = doxExtractInput (Input, self.Commands[Cmd][0])
+						if Input[0]:
+							Result = self.HandleInput (Source, Cmd, Input[1], User, True)
+							if not Result[0]:
+								Return[0] = False
+							if isinstance (Result[1], list):
+								for Line in Result[1]:
+									Return[1].append (Line)
+							else:
+								Return[1].append (Result[1])
 						else:
-							Return.append (Result)
-					Return.append ('Alias command completed')
-					Return = [True, Return]
+							Return[0] = False
+							Return[1].append ('Alias command failed::' + Input[1])
+							break
+					Return[1].append ('Alias command completed')
 			else:
 				Return = [False, 'Unknown command type']
 		except Exception as Error:
 			self.Debug ('ERROR', 'Failed with error: ' + str (Error), 1)
 			Return = [False, 'Internal failure (crashed)']
 		
+		if ReturnSuccess:
+			return (Return)
 		if Return and len (Return) > 1:
+			if not Return[0]:
+				print 'FAILED...'
+				print Return[1]
+				print '...'
 			return (Return[1])
 	
 	

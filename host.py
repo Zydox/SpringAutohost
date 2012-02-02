@@ -227,22 +227,22 @@ class Host (threading.Thread):
 	
 	def ConvertSuggestion (self, Data):
 		Info = Data.split (' ')
-		if Info[0] == 'suggests':
-			if Info[1] == 'that':
-				if Info[3] == 'changes' and Info[4] == 'to' and Info[5] == 'ally':
+		if len (Info) > 1 and Info[0] == 'suggests':
+			if len (Info) > 1 and Info[1] == 'that':
+				if len (Info) > 6 and Info[3] == 'changes' and Info[4] == 'to' and Info[5] == 'ally':
 					Data = '!team ' + Info[2] + ' ' + re.sub ('\D', '', Info[6])
-				elif Info[3] == 'changes' and Info[4] == 'to' and Info[5] == 'team':
+				elif len (Info) > 6 and Info[3] == 'changes' and Info[4] == 'to' and Info[5] == 'team':
 					Data = '!id ' + Info[2] + ' ' + re.sub ('\D', '', Info[6])
-				elif Info[3] == 'becomes' and Info[4] == 'a' and Info[5] == 'spectator.':
+				elif len (Info) > 5 and Info[3] == 'becomes' and Info[4] == 'a' and Info[5] == 'spectator.':
 					Data = '!spec ' + Info[2]
 			else:
 				Data = '!map ' + Data[9:]
-		elif Info[0] == 'thinks' and Info[2] == 'should':
+		elif len (Info) > 3 and Info[0] == 'thinks' and Info[2] == 'should':
 			if Info[3] == 'leave.':
 				Data = '!kick ' + Info[1]
-			elif Info[3] == 'get' and Info[4] == 'a' and Info[6] == 'resource' and Info[7] == 'bonus':
+			elif len (Info) > 7 and Info[3] == 'get' and Info[4] == 'a' and Info[6] == 'resource' and Info[7] == 'bonus':
 				Data = '!hcp ' + Info[1] + ' ' + re.sub ('\D', '', Info[5])
-		elif Info[0] == 'sugests' and Info[1] == 'that' and Info[3] == 'changes' and Info[4] == 'colour.':
+		elif len (Info) > 4 and Info[0] == 'sugests' and Info[1] == 'that' and Info[3] == 'changes' and Info[4] == 'colour.':
 			Data = '!fixcolor ' + Info[2]
 		return (Data)
 	

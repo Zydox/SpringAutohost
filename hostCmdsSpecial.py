@@ -22,6 +22,7 @@ class HostCmdsSpecial:
 			'showconfig':[[], 'PM', '!showconfig', 'Returns the bot\'s config', 'Special'],
 			'battlesay':[['*'], 'BattleMe', '!battlesay <text>', 'The bot says <text> in the battle room'],
 			'battlesayme':[['*'], 'BattleMe', '!battlesayme <text>', 'The bot says /me <text> in the battle room'],
+			'sleepsay':[['I', '*'], 'Source', '!sleepsay <sleep> <text>', 'Says <text> with a delay of <sleep> sec'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -142,6 +143,9 @@ class HostCmdsSpecial:
 		elif Command == 'battlesayme':
 			self.Host.Lobby.BattleSay (Data[0], 1)
 			return ([True, 'OK'])
+		elif Command == 'sleepsay':
+			time.sleep (Data[0])
+			return ([True, Data[1]])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

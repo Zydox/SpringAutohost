@@ -33,6 +33,8 @@ class Host (threading.Thread):
 			'ModOptions':{},
 			'Teams':2,
 		}
+		self.CommandThreads = {}
+		self.CommandThreadID = 0
 		
 	
 	def run (self):
@@ -132,39 +134,9 @@ class Host (threading.Thread):
 		
 		if len (Input) > 2:
 			if self.Lobby.ReturnValue (Input['Input'], ' ')[0:1] == '!':
-				Input['Command'] = self.Lobby.ReturnValue (Input['Input'], ' ')[1:]
-				Input['RawData'] = Input['Input'][len (Input['Command']) + 2:]
-				Input['Data'] = []
-				
-				if self.HostCmds.Commands.has_key (Input['Command']):
-					Data = Input['RawData']
-					Failed = 0
-					if Source == 'INTERAL_RETURN':
-						Input['Return'] = 'Return'
-					elif self.HostCmds.Commands[Input['Command']][1] == 'Source':
-						if Input['Source'] == 'Battle':
-							Input['Return'] = 'BattleMe'
-						else:
-							Input['Return'] = Input['Source']
-					else:
-						Input['Return'] = self.HostCmds.Commands[Input['Command']][1]
-					
-					Extracted = doxExtractInput (Input['RawData'], self.HostCmds.Commands[Input['Command']][0])
-					if not Extracted[0]:
-						Input['Message'] = 'ERROR:' + str (Extracted[1])
-					else:
-						Input['Data'] = Extracted[1]
-						Input = self.HandleAccess (Input, Source)
-				else:
-					Input['Message'] = ['UNKNOWN COMMAND ("' + str (Input['Command']) + '")', 'Use !help to list the available commands']
-					Input['Return'] = 'PM'
-			else:
-				Input['Message'] = ''	# Everything which doesn't start with ! ?
-			
-			if Input['Return'] == 'Return':
-				return (Input['Message'])
-			
-			self.ReturnInput (Input)
+				self.CommandThreads[self.CommandThreadID] = HostCommand (self, self.Debug, self.CommandThreadID, Input, Source)
+				self.CommandThreadID += 1
+				self.HostCommandThreadCleanup ()
 	
 	
 	def HandleAccess (self, Input, Source = ''):
@@ -311,3 +283,59 @@ class Host (threading.Thread):
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
 		self.Server.RemoveHost (self.ID)
+	
+	
+	def HostCommandThreadCleanup (self):
+		for ThreadID in self.CommandThreads.keys ():
+			if not self.CommandThreads[ThreadID].Active:
+				del (self.CommandThreads[ThreadID])
+
+
+class HostCommand (threading.Thread):
+	def __init__ (self, ClassHost, FunctionDebug, CommandThreadID, Input, Source):
+		threading.Thread.__init__ (self)
+		self.Host = ClassHost
+		self.Debug = FunctionDebug
+		self.CommandThreadID = CommandThreadID
+		self.Active = 1
+		self.Input = Input
+		self.Source = Source
+		self.start ()
+	
+	
+	def run (self):
+		self.Debug ('INFO', 'HostCommand start')
+		self.Handle (self.Input, self.Source)
+		self.Debug ('INFO', 'HostCommand run finnished')
+		self.Active = 0
+	
+	
+	def Handle (self, Input, Source):
+		Input['Command'] = doxReturnValue (Input['Input'], ' ')[1:]
+		Input['RawData'] = Input['Input'][len (Input['Command']) + 2:]
+		Input['Data'] = []
+		
+		if self.Host.HostCmds.Commands.has_key (Input['Command']):
+			Data = Input['RawData']
+			Failed = 0
+			if Source == 'INTERAL_RETURN':
+				Input['Return'] = 'Return'
+			elif self.Host.HostCmds.Commands[Input['Command']][1] == 'Source':
+				if Input['Source'] == 'Battle':
+					Input['Return'] = 'BattleMe'
+				else:
+					Input['Return'] = Input['Source']
+			else:
+				Input['Return'] = self.Host.HostCmds.Commands[Input['Command']][1]
+			
+			Extracted = doxExtractInput (Input['RawData'], self.Host.HostCmds.Commands[Input['Command']][0])
+			if not Extracted[0]:
+				Input['Message'] = 'ERROR:' + str (Extracted[1])
+			else:
+				Input['Data'] = Extracted[1]
+				Input = self.Host.HandleAccess (Input, Source)
+		else:
+			Input['Message'] = ['UNKNOWN COMMAND ("' + str (Input['Command']) + '")', 'Use !help to list the available commands']
+			Input['Return'] = 'PM'
+		
+		self.Host.ReturnInput (Input)

@@ -35,6 +35,7 @@ class Host (threading.Thread):
 		}
 		self.CommandThreads = {}
 		self.CommandThreadID = 0
+		self.CommandSeen = {}
 		
 	
 	def run (self):
@@ -51,6 +52,7 @@ class Host (threading.Thread):
 	
 	def HandleEvent (self, Event, Data):
 		self.Debug ('DEBUG', 'HandleEvent::' + str (Event) + '::' + str (Data))
+		self.CommandSeen[Event] = 1
 		if Event == 'DENIED':
 			self.Terminate ('LOGIN_DENIED::' + str (Data[0]))
 		
@@ -283,6 +285,19 @@ class Host (threading.Thread):
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
 		self.Server.RemoveHost (self.ID)
+	
+	
+	def HostCommandWait (self, LobbyEvent):
+		self.Debug ('DEBUG', LobbyEvent)
+		iSleep = 0
+		self.CommandSeen[LobbyEvent] = 0
+		while not self.CommandSeen[LobbyEvent]:
+			iSleep += 1
+			time.sleep (0.01)
+			if iSleep == 1000:	# 10 seconds, breaking the wait...
+				self.Debug ('WARNING', 'Breaking, timelimit excceded')
+				return (False)
+		return (True)
 	
 	
 	def HostCommandThreadCleanup (self):

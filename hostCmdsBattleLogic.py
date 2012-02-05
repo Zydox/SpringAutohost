@@ -36,6 +36,7 @@ class HostCmdsBattleLogic:
 		if self.Server.Config['General']['SpringBuildDefault'] != self.Host.SpringVersion:
 			Desc = 'Dev build:' + str (self.Host.SpringVersion) + ', ' + Desc
 		self.Lobby.BattleOpen (Mod,  UnitsyncMod['Hash'], Map, UnitsyncMap['Hash'], Desc, 16)
+		self.Host.HostCommandWait ('OPENBATTLE')
 		self.Lobby.BattleEnableUnitsAll ()
 		return ([True, 'Battle opened'])
 	
@@ -91,6 +92,7 @@ class HostCmdsBattleLogic:
 		if AI_ID:
 			AI_Data = Mod['AI'][AI_ID]
 			self.Lobby.BattleAddAI ('ADDBOT BOT' + str (Team) + ' ' + str (self.LogicFunctionBattleStatus (0, Team - 1, Ally - 1, 0, 0, 0, Side)) + ' ' + str (self.LogicFunctionBattleColor (Color)) + ' ' + AI_Data['shortName'])
+			self.Host.HostCommandWait ('ADDBOT')
 			return ([True, Name])
 		return ([False, 'No AI found with that name'])
 	
@@ -147,6 +149,8 @@ class HostCmdsBattleLogic:
 					Return.append ('AI "' + User + '" kicked')
 		if Return:
 			return ([True, Return])
+		else:
+			return ([True, 'No AI\'s in the battle'])
 	
 	
 	def LogicFixID (self):

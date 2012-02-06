@@ -68,7 +68,7 @@ class HostCmdsBattle:
 			return (self.Logic.LogicStartBattle ())
 		elif Command == 'stop':
 			Return = self.Host.Spring.SpringStop ()
-			return (Return)
+			return ([True, Return])
 		elif Command == 'lock':
 			if len (Data) == 1:
 				Lock = Data[0]

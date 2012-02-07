@@ -179,7 +179,10 @@ class HostCmdsBattleLogic:
 		if self.BattleUsers.has_key (User):
 			Team -= 1
 			if self.BattleUsers[User]['Ally'] != Team:
-				self.Lobby.BattleForceTeam (User, Team)
+				if self.BattleUsers[User]['AI']:
+					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], Team, 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
+				else:
+					self.Lobby.BattleForceTeam (User, Team)
 			return ([True, 'Team changed'])
 		else:
 			return ([False, 'User not found'])
@@ -192,7 +195,10 @@ class HostCmdsBattleLogic:
 		if self.BattleUsers.has_key (User):
 			ID -= 1
 			if self.BattleUsers[User]['Team'] != ID:
-				self.Lobby.BattleForceID (User, ID)
+				if self.BattleUsers[User]['AI']:
+					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
+				else:
+					self.Lobby.BattleForceID (User, ID)
 			return ([True, 'ID changed'])
 		else:
 			return ([False, 'User not found'])

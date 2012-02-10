@@ -23,6 +23,7 @@ class HostCmdsSpecial:
 			'battlesay':[['*'], 'BattleMe', '!battlesay <text>', 'The bot says <text> in the battle room'],
 			'battlesayme':[['*'], 'BattleMe', '!battlesayme <text>', 'The bot says /me <text> in the battle room'],
 			'sleepsay':[['I', '*'], 'Source', '!sleepsay <sleep> <text>', 'Says <text> with a delay of <sleep> sec'],
+			'reloadconfig':[[], 'Source', '!reloadconfig', 'Reloads the config files'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -146,6 +147,9 @@ class HostCmdsSpecial:
 		elif Command == 'sleepsay':
 			time.sleep (Data[0])
 			return ([True, Data[1]])
+		elif Command == 'reloadconfig':
+			self.Server.HandleCFG.LoadCFG (1, 1)
+			return ([True, 'Config reloaded'])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

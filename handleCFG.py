@@ -6,10 +6,11 @@ class HandleCFG:
 	def __init__ (self, Class, CheckCFG = 1):
 		self.Server = Class
 		self.Debug = Class.Debug
+		self.Files = []
 		self.LoadCFG (CheckCFG)
 	
 	
-	def LoadCFG (self, CheckCFG):
+	def LoadCFG (self, CheckCFG, ReLoad = 0):
 		self.Debug ('INFO')
 		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
 		self.Server.AccessCommands = {}
@@ -19,8 +20,13 @@ class HandleCFG:
 			print 'Missing config file (python server.py <conf file1> <font file2> ...)'
 			sys.exit ()
 		
-		for File in sys.argv[1:]:
-			self.LoadFile (File)
+		if ReLoad:
+			for File in self.Files:
+				self.LoadFile (File)
+		else:
+			for File in sys.argv[1:]:
+				self.Files.append (os.getcwd () + '/' + File)
+				self.LoadFile (File)
 		if CheckCFG:
 			self.CheckBaseConfig ()
 #		print self.Server.Config

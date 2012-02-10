@@ -146,7 +146,7 @@ class Host (threading.Thread):
 		OK = 0
 		if Source == 'INTERNAL' or Source == 'INTERAL_RETURN':
 			OK = 1
-		elif self.Server.AccessCommands[self.Group].has_key (Input['Command']):
+		elif self.Server.AccessCommands.has_key (self.Group) and self.Server.AccessCommands[self.Group].has_key (Input['Command']):
 			for Group in self.Server.AccessCommands[self.Group][Input['Command']]:
 				if Group == '%BattlePlayer%':
 					if self.Lobby.BattleUsers.has_key (Input['User']) and self.Lobby.BattleUsers[Input['User']]['Spectator'] == 0:

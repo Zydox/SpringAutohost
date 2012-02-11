@@ -131,7 +131,7 @@ class Host (threading.Thread):
 	
 	def ListAccess (self, Command, Vote = False):
 		Return = {}
-		VoteGroup -1
+		VoteGroup = -1
 		if self.Server.AccessCommands.has_key (self.Group) and self.Server.AccessCommands[self.Group].has_key (Command):
 			if self.Lobby.BattleID and self.Lobby.Users[self.Lobby.User]['InGame']:
 				if Vote:

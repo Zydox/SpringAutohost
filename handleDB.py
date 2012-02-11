@@ -161,7 +161,7 @@ class HandleDB:
 	
 	
 	def Query (self, Query, ReturnType = '2D'):
-		self.Debug ('DEBUG', Query)
+		self.Debug ('DEBUG_QUERY', Query)
 		self.Lock.acquire ()
 		try:
 			Result = self.Engine.execute (Query)

@@ -99,7 +99,9 @@ class HandleCFG:
 						if not self.Server.AccessCommands.has_key (GroupID):
 							self.Server.AccessCommands[GroupID] = {}
 						Value = Value.split ('|')
-						self.Server.AccessCommands[GroupID][Var] = Value[0].split (',')
+						self.Server.AccessCommands[GroupID][Var] = []
+						for iType in range (0, len (Value)):
+							self.Server.AccessCommands[GroupID][Var].append (Value[iType].split (','))
 					elif Type == 'AccessGroup':
 						if not self.Server.AccessRoles.has_key (GroupID):
 							self.Server.AccessRoles[GroupID] = {}

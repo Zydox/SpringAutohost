@@ -18,7 +18,6 @@ def doxTime ():
 def doxExtractInput (Data, Fields):
 	Failed = None
 	Return = []
-	
 	for Field in Fields:
 		NewArg = ''
 		if Field == '*' or (Field == 'O*' and len (Data) > 0):
@@ -55,7 +54,6 @@ def doxExtractInput (Data, Fields):
 		if len (str (NewArg)) > 0:
 			Return.append (NewArg)
 			Data = Data[len (str (NewArg)) + 1:]
-	
 	if Failed:
 		Return = [False, Failed]
 	else:

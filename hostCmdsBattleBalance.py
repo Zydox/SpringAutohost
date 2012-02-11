@@ -158,7 +158,7 @@ class HostCmdsBattleBalance:
 				Teams[Team] += 1000
 			else:
 				Teams[Team] += 100
-		 
+		
 		for Team in self.TeamRank:
 			if self.TeamRank[Team] + Rank == self.Data['OptimalTeamRank'] and self.TeamPlayers[Team] + Players == self.Data['OptimalTeamPlayers']:
 				Teams[Team] += 1000

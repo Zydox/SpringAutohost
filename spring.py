@@ -459,6 +459,8 @@ class SpringOutput (threading.Thread):
 				self.Debug ('DEBUG_GAME', Line)
 				if 'GameID:' in Line:
 					self.Spring.SpringEvent ('GAMEOUTPUT_GAMEID', doxReMatch ('[a-fA-F0-9]{32}', Line))
+			else:
+				self.Active = 0
 	
 	
 	def Terminate (self, Message = ''):
@@ -481,6 +483,8 @@ class SpringError (threading.Thread):
 			Line = self.PID.stderr.readline ()
 			if Line:
 				self.Debug ('DEBUG_GAME_ERROR', Line)
+			else:
+				self.Active = 0
 	
 	
 	def Terminate (self, Message = ''):

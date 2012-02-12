@@ -4,6 +4,7 @@ import hostCmdsSpecial
 import hostCmdsLadderbot
 import hostCmdsDownload
 import hostCmdsUsers
+import hostCmdsVoting
 from doxFunctions import *
 
 
@@ -20,6 +21,7 @@ class HostCmds:
 		self.HostCmdsLadderbot = hostCmdsLadderbot.HostCmdsLadderbot (self, ClassServer, ClassHost)
 		self.HostCmdsDownload = hostCmdsDownload.HostCmdsDownload (self, ClassServer, ClassHost)
 		self.HostCmdsUsers = hostCmdsUsers.HostCmdsUsers (self, ClassServer, ClassHost)
+		self.hostCmdsVoting = hostCmdsVoting.hostCmdsVoting (self, ClassServer, ClassHost)
 		self.LoadAlias ()
 		
 	
@@ -36,6 +38,8 @@ class HostCmds:
 				Return = self.HostCmdsDownload.HandleInput (Command, Data)
 			elif self.HostCmdsUsers.Commands.has_key (Command):
 				Return = self.HostCmdsUsers.HandleInput (Command, Data, User)
+			elif self.hostCmdsVoting.Commands.has_key (Command):
+				Return = self.hostCmdsVoting.HandleInput (Command, Data, User, Source)
 			elif self.Host.GroupConfig['Alias'].has_key (Command):
 				if len (self.Host.GroupConfig['Alias'][Command]) == 1:
 					Command = self.Host.GroupConfig['Alias'][Command][0]
@@ -71,7 +75,7 @@ class HostCmds:
 							break
 					Return[1].append ('Alias command completed')
 			else:
-				Return = [False, 'Unknown command type']
+				Return = [False, 'Unknown command "' + str (Command) + '"']
 		except Exception as Error:
 			self.Debug ('ERROR', 'Failed with error: ' + str (Error), 1)
 			Return = [False, 'Internal failure (crashed)']

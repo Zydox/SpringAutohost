@@ -158,28 +158,38 @@ class Host (threading.Thread):
 		return (Return)
 	
 	
-	def HandleAccess (self, Input, Source = ''):
-		self.Debug ('DEBUG', 'HandleAccess::' + str (Input['User']) + '::' + str (Input['Command']))
-		OK = 0
+	def CheckAccess (self, Allowed, User):
+		if Allowed.has_key ('*') or Allowed.has_key (User):
+			return (True)
+		elif Allowed.has_key ('%BattlePlayer%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 0:
+			return (True)
+		elif Allowed.has_key ('%BattleSpectator%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 1:
+			return (True)
+		elif Allowed.has_key ('%GamePlayer%') and self.Spring.UserIsPlaying (User):
+			return (True)
+		elif Allowed.has_key ('%GameSpectator%') and self.Spring.UserIsSpectating (User):
+			return (True)
+		return (False)
+		
+	
+	def HandleAccess (self, Input, Source = '', Vote = False):
+		self.Debug ('DEBUG', 'HandleAccess::' + str (Input['User']) + '::' + str (Input['Command']) + '::' + str (Vote))
+		OK = False
 		if Source == 'INTERNAL' or Source == 'INTERAL_RETURN':
-			OK = 1
-		Allowed = self.ListAccess (Input['Command'])
-		if Allowed.has_key ('*') or Allowed.has_key (Input['User']):
-			OK = 1
-		elif Allowed['%BattlePlayer%'] and self.Lobby.BattleUsers.has_key (Input['User']) and self.Lobby.BattleUsers[Input['User']]['Spectator'] == 0:
-			OK = 1
-		elif Allowed['%BattleSpectator%'] and self.Lobby.BattleUsers.has_key (Input['User']) and self.Lobby.BattleUsers[Input['User']]['Spectator'] == 1:
-			OK = 1
-		elif Allowed['%GamePlayer%'] and self.Spring.UserIsPlaying (Input['User']):
-			OK = 1
-		elif Allowed['%GameSpectator%'] and self.Spring.UserIsSpectating (Input['User']):
-			OK = 1
+			OK = True
+		else:
+			OK = self.CheckAccess (self.ListAccess (Input['Command'], Vote), Input['User'])
 		
 		if Source == 'INTERNAL_AUTH_CHECK':
 			return (OK)
+		elif not OK and not Vote:
+			return (self.HandleAccess (Input, Source, True))
 		
 		self.Debug ('DEBUG', 'HandleAccessResult::' + str (Input['User']) + '::' + str (Input['Command']) + '==' + str (OK))
 		if OK:
+			if Vote:
+				Input['Data'] = [Input['Command']] + Input['Data']
+				Input['Command'] = 'vote'
 			Input['Message'] = self.HostCmds.HandleInput (Input['Source'], Input['Command'], Input['Data'], Input['User'])
 		else:
 			Input['Message'] = 'Missing auth for command "' + str (Input['Command']) + '"'
@@ -201,8 +211,12 @@ class Host (threading.Thread):
 						self.Lobby.UserSay (Data['Reference'], Message)
 					elif Data['Return'] == 'Battle':
 						self.Lobby.BattleSay (Message, 0)
+						if Data['Source'] == 'PM':
+							self.Lobby.UserSay (Data['Reference'], Message)
 					elif Data['Return'] == 'BattleMe':
 						self.Lobby.BattleSay (Message, 1)
+						if Data['Source'] == 'PM':
+							self.Lobby.UserSay (Data['Reference'], Message)
 					elif Data['Return'] == 'GameBattle':
 						self.Spring.SpringTalk (Message)
 	

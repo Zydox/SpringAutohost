@@ -43,6 +43,7 @@ class HostCmdsBattleLogic:
 	
 	def LogicCloseBattle (self):
 		self.Lobby.BattleClose ()
+		self.Host.HostCommandWait ('BATTLECLOSED')
 		return ([True, 'Battle Closed'])
 	
 	
@@ -350,6 +351,7 @@ class HostCmdsBattleLogic:
 		
 		if self.Host.Spring.SpringStart ():
 			self.Lobby.BattleStart ()
+			self.Host.HostCommandWait ('CLIENTSTATUS')
 			self.Lobby.BattleLock (Locked)
 			return ([True, 'Battle started'])
 		else:

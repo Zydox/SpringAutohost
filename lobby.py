@@ -276,6 +276,8 @@ class Lobby (threading.Thread):
 		elif Command == "BATTLECLOSED":
 			if self.Battles.has_key (Arg[0]):
 				del (self.Battles[Arg[0]])
+				if self.BattleID == Arg[0]:
+					 self.BattleID = 0
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'UPDATEBATTLEINFO':

@@ -1,6 +1,7 @@
 # -*- coding: ISO-8859-1 -*-
 import os
 import sys
+from doxFunctions import *
 
 class HandleCFG:
 	def __init__ (self, Class, CheckCFG = 1):
@@ -14,7 +15,7 @@ class HandleCFG:
 		self.Debug ('INFO')
 		self.Server.Config = {'General':{}, 'Groups':{}, 'GroupUsers':{}}
 		self.Server.AccessCommands = {}
-		self.Server.AccessRoles = {}
+		self.Server.AccessUsers = {}
 		
 		if len (sys.argv) < 2:
 			print 'Missing config file (python server.py <conf file1> <font file2> ...)'
@@ -30,6 +31,7 @@ class HandleCFG:
 		if CheckCFG:
 			self.CheckBaseConfig ()
 #		print self.Server.Config
+#		print self.Server.AccessUsers
 #		sys.exit ()
 	
 	
@@ -74,8 +76,8 @@ class HandleCFG:
 						self.Server.Config['Groups'][GroupID]['Alias'][Alias] = []
 				elif Line[0:17] == '[ACCESS_COMMANDS]':
 					Type = 'AccessCommand'
-				elif Line[0:15] == '[ACCESS_GROUPS]':
-					Type = 'AccessGroup'
+				elif Line[0:15] == '[ACCESS_USERS]':
+					Type = 'AccessUsers'
 				elif '=' in Line:
 					Var = Line[0:Line.index ('='):].strip ()
 					Value = Line[Line.index ('=') + 1:].strip ()
@@ -102,15 +104,17 @@ class HandleCFG:
 						self.Server.AccessCommands[GroupID][Var] = []
 						for iType in range (0, len (Value)):
 							self.Server.AccessCommands[GroupID][Var].append (Value[iType].split (','))
-					elif Type == 'AccessGroup':
-						if not self.Server.AccessRoles.has_key (GroupID):
-							self.Server.AccessRoles[GroupID] = {}
-						self.Server.AccessRoles[GroupID][Var] = {}
-						for User in Value.split (','):
-							self.Server.AccessRoles[GroupID][Var][User.strip ()] = 1
 				elif Line and Type == 'Alias':
 					self.Server.Config['Groups'][GroupID]['Alias'][Alias].append (Line)
-					
+				elif Line and Type == 'AccessUsers':
+					if not self.Server.AccessUsers.has_key (GroupID):
+						self.Server.AccessUsers[GroupID] = []
+					Line = Line.replace ('\t', ' ')
+					while '  ' in Line:
+						Line = Line.replace ('  ', ' ')
+					Line = Line.strip ().split (' ')
+					AccessLine = [doxIfIntToInt (Line[0]), Line[1], Line[2], doxIfIntToInt (Line[3]), doxIfIntToInt (Line[4]), Line[5].split (',')]
+					self.Server.AccessUsers[GroupID].append (AccessLine)
 		FP.close ()
 	
 	

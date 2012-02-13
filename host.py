@@ -129,9 +129,10 @@ class Host (threading.Thread):
 				self.HostCommandThreadCleanup ()
 	
 	
-	def ListAccess (self, Command, Vote = False):
-		Return = {}
+	def UserAccess (self, Command, User, Vote = False):
 		VoteGroup = -1
+		Groups = {}
+		Return = False
 		if self.Server.AccessCommands.has_key (self.Group) and self.Server.AccessCommands[self.Group].has_key (Command):
 			if self.Lobby.BattleID and self.Lobby.Users[self.Lobby.User]['InGame']:
 				if Vote:
@@ -144,33 +145,34 @@ class Host (threading.Thread):
 				else:
 					VoteGroup = 0
 			for Group in self.Server.AccessCommands[self.Group][Command][VoteGroup]:
-				if self.Server.AccessRoles[self.Group].has_key (Group):
-					for User in self.Server.AccessRoles[self.Group][Group]:
-						Return[User] = 1
-				elif Group and Group[0] == '%' and Group[-1] == '%':
-					Return[Group] = 1
+				Groups[Group] = True
+			
+			if Groups.has_key ('%BattlePlayer%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 0:
+				Return = True
+			elif Groups.has_key ('%BattleSpectator%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 1:
+				Return = True
+			elif Groups.has_key ('%GamePlayer%') and self.Spring.UserIsPlaying (User):
+				Return = True
+			elif Groups.has_key ('%GameSpectator%') and self.Spring.UserIsSpectating (User):
+				Return = True
+			elif self.Server.AccessUsers.has_key (self.Group) and self.Lobby.Users.has_key (User):
+				for AccessLine in self.Server.AccessUsers[self.Group]:
+					GroupOK = False
+					for Group in AccessLine[5]:
+						if Groups.has_key (Group):
+							GroupOK = True
+					if GroupOK:
+						if AccessLine[0] == '*' or AccessLine[0] == self.Lobby.Users[User]['ID']:
+							if AccessLine[1] == '*' or AccessLine[1] == User:
+								if AccessLine[2] == '*' or AccessLine[2] == self.Lobby.Users[User]['Country']:
+									if AccessLine[3] == '*' or AccessLine[3] == self.Lobby.Users[User]['Bot']:
+										if AccessLine[4] == '*' or AccessLine[4] == self.Lobby.Users[User]['Moderator']:
+											Return = True
 		else:
-			Return['*'] = 1
-		print 'X----------------------------------------------'
-		print VoteGroup
-		print Return
-		print '----------------------------------------------X'
+			Return = True
+		print 'UserAccess::' + str (Command) + '::' + str (User) + '::' + str (Vote) + '::' + str (Return)
 		return (Return)
 	
-	
-	def CheckAccess (self, Allowed, User):
-		if Allowed.has_key ('*') or Allowed.has_key (User):
-			return (True)
-		elif Allowed.has_key ('%BattlePlayer%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 0:
-			return (True)
-		elif Allowed.has_key ('%BattleSpectator%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 1:
-			return (True)
-		elif Allowed.has_key ('%GamePlayer%') and self.Spring.UserIsPlaying (User):
-			return (True)
-		elif Allowed.has_key ('%GameSpectator%') and self.Spring.UserIsSpectating (User):
-			return (True)
-		return (False)
-		
 	
 	def HandleAccess (self, Input, Source = '', Vote = False):
 		self.Debug ('DEBUG', 'HandleAccess::' + str (Input['User']) + '::' + str (Input['Command']) + '::' + str (Vote))
@@ -178,7 +180,7 @@ class Host (threading.Thread):
 		if Source == 'INTERNAL' or Source == 'INTERAL_RETURN':
 			OK = True
 		else:
-			OK = self.CheckAccess (self.ListAccess (Input['Command'], Vote), Input['User'])
+			OK = self.UserAccess (Input['Command'], Input['User'], Vote)
 		
 		if Source == 'INTERNAL_AUTH_CHECK':
 			return (OK)

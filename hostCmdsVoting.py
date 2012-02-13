@@ -136,8 +136,7 @@ class hostCmdsVoting:
 	
 	def LogicFunctionListValidVoters (self):
 		Return = {}
-		Allowed = self.Host.ListAccess (self.VoteCommand[0], True)
 		for User in self.Host.Lobby.BattleUsers.keys ():
-			if not User == self.Host.Lobby.User and self.Host.CheckAccess (Allowed, User):
+			if not User == self.Host.Lobby.User and self.Host.UserAccess (self.VoteCommand[0], User, True):
 				Return[User] = 1
 		return (Return)

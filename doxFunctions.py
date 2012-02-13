@@ -65,3 +65,13 @@ def doxReturnValue (String, StopChar):
 	if String.find (StopChar) != -1:
 		return (String[0:String.find (StopChar)])
 	return (String)
+
+
+def doxIfIntToInt (Value):
+	try:
+		Temp = int (Value)
+		if str (Temp) == Value:
+			Value = int (Value)
+	except:
+		pass
+	return (Value)

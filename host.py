@@ -168,6 +168,7 @@ class Host (threading.Thread):
 									if AccessLine[3] == '*' or AccessLine[3] == self.Lobby.Users[User]['Bot']:
 										if AccessLine[4] == '*' or AccessLine[4] == self.Lobby.Users[User]['Moderator']:
 											Return = True
+											break
 		else:
 			Return = True
 		print 'UserAccess::' + str (Command) + '::' + str (User) + '::' + str (Vote) + '::' + str (Return)

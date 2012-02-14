@@ -103,6 +103,11 @@ class Lobby (threading.Thread):
 		self.Debug ('INFO', 'Lobby run finnished')
 	
 	
+	def ResetBattle (self):
+		self.BattleUsers = {}
+		self.BattleID = 0
+	
+	
 	def SetLoginInfo (self, LoginInfo):
 		self.Debug ('INFO')
 		if LoginInfo.has_key ('Login'):
@@ -225,6 +230,7 @@ class Lobby (threading.Thread):
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle exsits::' + str (RawData))
 		elif Command == 'OPENBATTLE':
+			self.ResetBattle ()
 			self.BattleID = Arg[0]
 			self.Users[self.User]['InBattle'] = Arg[0]
 			self.BattleUsers[self.User] = {
@@ -277,7 +283,7 @@ class Lobby (threading.Thread):
 			if self.Battles.has_key (Arg[0]):
 				del (self.Battles[Arg[0]])
 				if self.BattleID == Arg[0]:
-					 self.BattleID = 0
+					self.ResetBattle ()
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'UPDATEBATTLEINFO':
@@ -334,10 +340,13 @@ class Lobby (threading.Thread):
 		elif Command == 'REMOVEBOT':
 			if self.Battles.has_key (Arg[0]):
 				self.Battles[Arg[0]]['Users'].remove (Arg[1])
+				if self.BattleUsers.has_key (Arg[1]):
+					del (self.BattleUsers[Arg[1]])
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle doesn\'t exsits::' + str (RawData))
 		elif Command == 'DENIED':
 			self.Debug ('DEBUG', 'DENIED::' + str (Arg[0]))
+			self.ResetBattle ()
 		elif Command == 'UPDATEBOT':
 			if self.BattleID and Arg[0] == self.BattleID:
 				self.BattleUsers[Arg[1]]['Ready'] = int (Arg[2][1])
@@ -351,6 +360,7 @@ class Lobby (threading.Thread):
 		elif Command == 'SERVERMSG':
 			if Arg[0][0:35] == 'You\'ve been kicked from server by <':
 				self.AllowReConnect = 0
+				self.ResetBattle ()
 				print 'KICKED FROM SERVER'
 				print Arg[0]
 		elif Command == 'ADDSTARTRECT':

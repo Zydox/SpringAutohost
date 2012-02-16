@@ -251,6 +251,10 @@ class Spring:
 				FP.write ('\t\tHandicap=' + str (self.Lobby.BattleUsers[User]['Handicap']) + ';\n')
 				FP.write ('\t}\n')
 				Return['Allies'][Allys[self.Lobby.BattleUsers[User]['Ally']]].append ([Teams[self.Lobby.BattleUsers[User]['Team']], UnitsyncMod['Sides'][self.Lobby.BattleUsers[User]['Side']], self.Lobby.BattleUsers[User]['Handicap'], self.Lobby.BattleUsers[User]['Color']])
+		for Ally in Battle['Boxes'].keys ():
+			if not Allys.has_key (Ally):
+				Allys[Ally] = iA
+				iA+= 1
 		
 		FP.write ('\tNumAllyTeams=' + str (len (Allys)) + ';\n')
 		for Ally in Allys:

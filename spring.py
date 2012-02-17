@@ -425,14 +425,18 @@ class SpringUDP (threading.Thread):
 		self.Talk ('/ADDUSER ' + str (User) + ' ' + str (Password))
 	
 	
-	def Talk (self, Message):
+	def Talk (self, Message, Try = 0):
 		self.Debug ('INFO', str (Message))
 		if self.Active:
 			try:
 				self.Socket.sendto (str (Message), self.ServerAddr)
 			except:
-				self.Debug ('ERROR', 'Socked send failed')
-				self.Spring.SpringStop ('UDP_TALK_FAIED', 'SpringUDP lost connection to spring')
+				self.Debug ('ERROR', 'Socked send failed (try: ' + str (Try) + ')')
+				if Try < 10:
+					time.sleep (0.05)
+					self.Talk (Message, Try + 1)
+				else:	
+					self.Spring.SpringStop ('UDP_TALK_FAIED', 'SpringUDP lost connection to spring')
 	
 	
 	def Terminate (self, Message = ''):

@@ -47,15 +47,14 @@ class HostCmdsBattleLogic:
 		return ([True, 'Battle Closed'])
 	
 	
-	def LogicRing (self, User =''):
+	def LogicRing (self, SearchUser = None):
 		self.Refresh ()
-		if User:
-			Match = self.LogicFunctionSearchMatch (User, self.BattleUsers.keys ())
-			if self.BattleUsers.has_key (Match):
-				self.Host.Lobby.BattleRing (Match)
-				return ([True, 'Ringing "' + str (Match) + '"'])
-			else:
-				return ([False, 'No user found'])
+		if SearchUser:
+			User = self.LogicFunctionUserInBattle (SearchUser)
+			if not User:
+				return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+			self.Host.Lobby.BattleRing (User)
+			return ([True, 'Ringing "' + str (User) + '"'])
 		else:
 			for User in self.BattleUsers:
 				if self.BattleUsers[User]['Spectator'] == 0 and self.BattleUsers[User]['Ready'] == 0:
@@ -114,29 +113,29 @@ class HostCmdsBattleLogic:
 		return ([True, Return])
 	
 	
-	def LogicSpec (self, User):
-		self.Refresh ()
-		if self.BattleUsers.has_key (User):
-			self.Lobby.Send ('FORCESPECTATORMODE ' + str (User))
-			return ([True, 'User "' + str (User) + '" spectated'])
-		return ([False, 'User "' + str (User) + '" not found in battle'])
+	def LogicSpec (self, SearchUser):
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		self.Lobby.Send ('FORCESPECTATORMODE ' + str (User))
+		return ([True, 'User "' + str (User) + '" spectated'])
 	
 	
-	def LogicKick (self, User):
+	def LogicKick (self, SearchUser):
 		self.Refresh ()
-		if self.Lobby.User.lower () == User.lower ():
+		if self.Lobby.User.lower () == SearchUser.lower ():
 			return ([False, 'Can\'t kick the host... use !terminate'])
-		elif self.Host.Lobby.BattleUsers.has_key (User):
-			if self.Host.Lobby.BattleUsers[User]['AI']:
-				self.Host.Lobby.BattleKickAI (User)
-				self.Host.Spring.SpringTalk ('/kick ' + User)
-				return ([True, 'AI "'+ str (User) + '" kicked'])
-			else:
-				self.Host.Lobby.BattleKick (User)
-				self.Host.Spring.SpringTalk ('/kick ' + User)
-				return ([True, 'User "'+ str (User) + '" kicked'])
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		if self.Host.Lobby.BattleUsers[User]['AI']:
+			self.Host.Lobby.BattleKickAI (User)
+			self.Host.Spring.SpringTalk ('/kick ' + User)
+			return ([True, 'AI "'+ str (User) + '" kicked'])
 		else:
-			return ([False, 'Can\'t find the user "' + str (User) + '"'])
+			self.Host.Lobby.BattleKick (User)
+			self.Host.Spring.SpringTalk ('/kick ' + User)
+			return ([True, 'User "'+ str (User) + '" kicked'])
 	
 	
 	def LogicKickBots (self):
@@ -173,50 +172,50 @@ class HostCmdsBattleLogic:
 		return ([True, 'IDs fixed'])
 	
 	
-	def LogicForceTeam (self, User, Team):
+	def LogicForceTeam (self, SearchUser, Team):
 		self.Refresh ()
 		if Team < 1 or Team > 16:
 			return ([False, 'Team has to be between 1 to 16'])
-		if self.BattleUsers.has_key (User):
-			Team -= 1
-			if self.BattleUsers[User]['Ally'] != Team:
-				if self.BattleUsers[User]['AI']:
-					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], Team, 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
-				else:
-					self.Lobby.BattleForceTeam (User, Team)
-			return ([True, 'Team changed'])
-		else:
-			return ([False, 'User not found'])
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		Team -= 1
+		if self.BattleUsers[User]['Ally'] != Team:
+			if self.BattleUsers[User]['AI']:
+				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], Team, 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
+			else:
+				self.Lobby.BattleForceTeam (User, Team)
+		return ([True, 'Team changed'])
 	
 	
-	def LogicForceID (self, User, ID):
+	def LogicForceID (self, SearchUser, ID):
 		self.Refresh ()
 		if ID < 1 or ID > 16:
 			return ([False, 'ID has to be between 1 to 16'])
-		if self.BattleUsers.has_key (User):
-			ID -= 1
-			if self.BattleUsers[User]['Team'] != ID:
-				if self.BattleUsers[User]['AI']:
-					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
-				else:
-					self.Lobby.BattleForceID (User, ID)
-			return ([True, 'ID changed'])
-		else:
-			return ([False, 'User not found'])
-	
-	
-	def LogicForceColor (self, User, Color):
-		self.Refresh ()
-		if not len (Color) == 6 or Color.upper().strip ('0123456789ABCDEF'):
-			return ([False, 'Color was not a Hex RGB color'])
-		if self.BattleUsers.has_key (User):
-			if not self.BattleUsers[User]['AI']:
-				self.Lobby.BattleForceColor (User, self.LogicFunctionBattleColor (Color))
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		ID -= 1
+		if self.BattleUsers[User]['Team'] != ID:
+			if self.BattleUsers[User]['AI']:
+				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, ID, self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
 			else:
-				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (Color))
-			return ([True, 'Color changed'])
+				self.Lobby.BattleForceID (User, ID)
+		return ([True, 'ID changed'])
+	
+	
+	def LogicForceColor (self, SearchUser, Color):
+		self.Refresh ()
+		if not len (Color) == 6 or Color.upper ().strip ('0123456789ABCDEF'):
+			return ([False, 'Color was not a Hex RGB color'])
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		if not self.BattleUsers[User]['AI']:
+			self.Lobby.BattleForceColor (User, self.LogicFunctionBattleColor (Color))
 		else:
-			return ([False, 'User not found'])
+			self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (Color))
+		return ([True, 'Color changed'])
 	
 	
 	def LogicChangeMap (self, Map):
@@ -359,19 +358,19 @@ class HostCmdsBattleLogic:
 			return ([False, 'Battle failed to start'])
 	
 	
-	def LogicSetHandicap (self, User, Hcp):
-		self.Debug ('INFO', 'User:' + str (User) + ', Hcp:' + str (Hcp))
-		if self.Host.Lobby.BattleUsers.has_key (User):
-			if Hcp >= 0 and Hcp <= 100:
-				if self.BattleUsers[User]['AI']:
-					self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, int (Hcp), 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
-				else:
-					self.Lobby.BattleHandicap (User, Hcp)
-				return ([True, 'OK'])
+	def LogicSetHandicap (self, SearchUser, Hcp):
+		self.Debug ('INFO', 'User:' + str (SearchUser) + ', Hcp:' + str (Hcp))
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		if Hcp >= 0 and Hcp <= 100:
+			if self.BattleUsers[User]['AI']:
+				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, int (Hcp), 0, self.BattleUsers[User]['Side']), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
 			else:
-				return ([False, 'Handicap must be in the range of 0 - 100'])
+				self.Lobby.BattleHandicap (User, Hcp)
+			return ([True, 'OK'])
 		else:
-			return ([False, 'User "' + str (User) + '" is not in this battle'])
+			return ([False, 'Handicap must be in the range of 0 - 100'])
 	
 	
 	def LogicReHostWithMod (self, Mod):
@@ -560,8 +559,10 @@ class HostCmdsBattleLogic:
 				CurrentList[self.BattleUsers[User]['Team']] = self.Lobby.BattleUsers[User]['Color']
 		
 		if ColorUser:
-			if not self.BattleUsers.has_key (ColorUser):
-				return ([False, 'No user found'])
+			User = self.LogicFunctionUserInBattle (ColorUser)
+			if not User:
+				return ([False, 'User "' + str (ColorUser) + '" is not in this battle'])
+			ColorUser = User
 			for Diff in [400, 300, 200, 150, 100, 50, 10, 0]:
 #				print 'DIFF::' + str (Diff)
 				for Color in List:
@@ -589,24 +590,30 @@ class HostCmdsBattleLogic:
 			return ([True, 'Colors fixed'])
 	
 	
-	def LogicSetBotSide (self, User, Side):
-		if self.Host.Lobby.BattleUsers.has_key (User):
-			if self.BattleUsers[User]['AI']:
-				Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
-				SideOK = 0
-				for iSide in Mod['Sides'].keys ():
-					if Mod['Sides'][iSide] == Side:
-						SideOK = 1
-				if not SideOK:
-					return ([False, 'Side "' + str (Side) + '" doesn\'t exist'])
-				self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, Side), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
-				return ([True, 'OK'])
-			else:
-				return ([False, 'User "' + str (User) + '" is not a bot'])
+	def LogicSetBotSide (self, SearchUser, Side):
+		User = self.LogicFunctionUserInBattle (SearchUser)
+		if not User:
+			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
+		if self.BattleUsers[User]['AI']:
+			Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
+			SideOK = 0
+			for iSide in Mod['Sides'].keys ():
+				if Mod['Sides'][iSide] == Side:
+					SideOK = 1
+			if not SideOK:
+				return ([False, 'Side "' + str (Side) + '" doesn\'t exist'])
+			self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, Side), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
+			return ([True, 'OK'])
 		else:
-			return ([False, 'User "' + str (User) + '" is not in this battle'])
-		
-		
+			return ([False, 'User "' + str (User) + '" is not a bot'])
+	
+	
+	def LogicFunctionUserInBattle (self, User):
+		if self.Lobby.BattleID:
+			Match = self.LogicFunctionSearchMatch (User, self.Lobby.BattleUsers.keys ())
+			if self.Lobby.BattleUsers.has_key (Match):
+				return (Match)
+		return (False)
 	
 	
 	def LogicFunctionCompareColors (self, Color1, Color2):

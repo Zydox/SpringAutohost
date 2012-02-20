@@ -62,7 +62,7 @@ class HostCmdsBattleLogic:
 			return ([True, 'Ringing all unready users'])
 	
 	
-	def LogicAddBot (self, Team, Ally, Side, Color, Bot):
+	def LogicAddBot (self, Team, Ally, SearchSide, Color, Bot):
 		if not self.Host.Lobby.BattleID:
 			return ([False, 'No battle open'])
 		self.Refresh ()
@@ -70,12 +70,9 @@ class HostCmdsBattleLogic:
 		AI_ID = 0
 		Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
 		
-		SideOK = 0
-		for iSide in Mod['Sides'].keys ():
-			if Mod['Sides'][iSide] == Side:
-				SideOK = 1
-		if not SideOK:
-			return ([False, 'Side "' + str (Side) + '" doesn\'t exist'])
+		Side = self.LogicFunctionSearchMatch (SearchSide, Mod['Sides'], 0, 0)
+		if not Side:
+			return ([False, 'Side "' + str (SearchSide) + '" doesn\'t exist'])
 		
 		for AI in Mod['AI']:
 			if Mod['AI'][AI]['shortName'] == Bot:
@@ -590,18 +587,15 @@ class HostCmdsBattleLogic:
 			return ([True, 'Colors fixed'])
 	
 	
-	def LogicSetBotSide (self, SearchUser, Side):
+	def LogicSetBotSide (self, SearchUser, SearchSide):
 		User = self.LogicFunctionUserInBattle (SearchUser)
 		if not User:
 			return ([False, 'User "' + str (SearchUser) + '" is not in this battle'])
 		if self.BattleUsers[User]['AI']:
 			Mod = self.Host.GetUnitsyncMod (self.Battle['Mod'])
-			SideOK = 0
-			for iSide in Mod['Sides'].keys ():
-				if Mod['Sides'][iSide] == Side:
-					SideOK = 1
-			if not SideOK:
-				return ([False, 'Side "' + str (Side) + '" doesn\'t exist'])
+		  	Side = self.LogicFunctionSearchMatch (SearchSide, Mod['Sides'], 0, 0)
+		  	if not Side:
+		  		return ([False, 'Side "' + str (SearchSide) + '" doesn\'t exist'])
 			self.Lobby.BattleUpdateAI (User, self.LogicFunctionBattleStatus (0, self.BattleUsers[User]['Team'], self.BattleUsers[User]['Ally'], 0, self.BattleUsers[User]['Handicap'], 0, Side), self.LogicFunctionBattleColor (self.BattleUsers[User]['Color']))
 			return ([True, 'OK'])
 		else:
@@ -636,11 +630,11 @@ class HostCmdsBattleLogic:
 					else:
 						Matches.append (Match)
 		elif isinstance(List, dict):
-			for Match in List:
+			for Match in List.keys ():
 				if Search.lower () in List[Match].lower ():
-					if Search == Match and not ListMatches:
-						self.Debug ('INFO', 'Perfect match:' + str (Search))
-						return (Search)
+					if Search.lower () == List[Match].lower () and not ListMatches:
+						self.Debug ('INFO', 'Perfect match:' + str (List[Match]))
+						return (List[Match])
 					elif DictReturnKeys:
 						Matches.append (Match)
 					else:

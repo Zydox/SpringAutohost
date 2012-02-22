@@ -225,6 +225,7 @@ class HostCmdsBattleLogic:
 				self.Host.Lobby.BattleMap (Match, UnitsyncMap['Hash'])
 				self.LogicFunctionMapLoadDefaults ()
 				self.LogicFunctionLoadBoxes ()
+				self.Host.HandleLocalEvent ('BATTLE_MAP_CHANGED', [Match])
 				return ([True, 'Map changed to ' + str (Match)])
 		else:
 			Matches = self.LogicFunctionSearchMatch (Map, self.Host.GetUnitsyncMap ('#KEYS#'), 1)

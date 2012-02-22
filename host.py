@@ -193,7 +193,9 @@ class Host (threading.Thread):
 			if Vote:
 				Input['Data'] = [Input['Command']] + Input['Data']
 				Input['Command'] = 'vote'
-			Input['Message'] = self.HostCmds.HandleInput (Input['Source'], Input['Command'], Input['Data'], Input['User'])
+			CommandReturn = self.HostCmds.HandleInput (Input['Source'], Input['Command'], Input['Data'], Input['User'], True)
+			Input['CommandSuccess'] = CommandReturn[0]
+			Input['Message'] = CommandReturn[1]
 		else:
 			Input['Message'] = 'Missing auth for command "' + str (Input['Command']) + '"'
 			Input['Return'] = 'PM'
@@ -201,6 +203,13 @@ class Host (threading.Thread):
 	
 	
 	def ReturnInput (self, Data):
+		# If Return is a list, the first option is for successfull command and the second for command failure
+		if isinstance (Data['Return'], list) and len (Data['Return']) == 2 and Data.has_key ('CommandSuccess'):
+			if Data['CommandSuccess']:
+				Data['Return'] = Data['Return'][0]
+			else:
+				Data['Return'] = Data['Return'][1]
+		
 		Messages = []
 		if isinstance (Data['Message'], str):
 			Messages = [Data['Message']]

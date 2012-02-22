@@ -11,7 +11,7 @@ class HostCmdsBattle:
 		self.HostCmds = ClassHostCmds
 		self.Logic = hostCmdsBattleLogic.HostCmdsBattleLogic (self, ClassServer, ClassHost)
 		self.Balance = hostCmdsBattleBalance.HostCmdsBattleBalance (self, ClassServer, ClassHost)
-		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
+		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle, if List = [True return, False return]), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
 			'map':[['*'], 'BattleMe', '!map <map name>', 'Changes the map to <map name>'],
 			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],
 			'mods':[[], 'PM', '!mods', 'Return a list with all the available mods'],
@@ -30,7 +30,7 @@ class HostCmdsBattle:
 			'balance':[[], 'BattleMe', '!balance', 'Balances the battle users based on rank'],
 			'openbattle':[[], 'Source', '!openbattle', 'Opens a battle'],
 			'spring':[['V'], 'Source', '!spring <spring version>', 'Sets the spring version to the specified tag'],
-			'modoption':[['V', 'O*'], 'PM', '!modoption <option> <value>', 'Sets a mod option'],
+			'modoption':[['V', 'O*'], ['BattleMe', 'PM'], '!modoption <option> <value>', 'Sets a mod option'],
 			'startpos':[['I'], 'Source', '!startpos <0-3>', 'Sets the start pos (0 Fixed, 1 Randon, 2 Choose in-game, 3 Choose now)'],
 			'hcp':[['V', 'I'], 'Source', '!hcp <user> <hcp>', 'Sets the handicap for the specified user'],
 			'mod':[['*'], 'Source', '!mod <mod>', 'Rehosts with the specified mod'],
@@ -39,7 +39,7 @@ class HostCmdsBattle:
 			'preset':[['V'], 'Source', '!preset <preset name>', 'Loads the specified preset settings'],
 			'savepreset':[['V'], 'Source', '!savepreset <preset name>', 'Saves the current battle settings with the <preset name>'],
 			'teams':[['OI'], 'Source', '!teams <>|<1-16>', 'Sets or displays the number of teams in the battle'],
-			'mapoption':[['V', 'O*'], 'PM', '!mapoption <option> <value>', 'Sets a map option'],
+			'mapoption':[['V', 'O*'], ['BattleMe', 'PM'], '!mapoption <option> <value>', 'Sets a map option'],
 			'disableunit':[['V'], 'Source', '!disableunit <unit>', 'Disbles a unit'],
 			'enableunitsall':[[], 'Source', '!enableunitsall', 'Enables all units'],
 			'id':[['V', 'I'], 'BattleMe', '!id <user> <new id>', 'Changes a users ID'],

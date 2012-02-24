@@ -71,11 +71,11 @@ class Host (threading.Thread):
 		elif Event == 'USER_JOINED_BATTLE':
 			if self.Spring.SpringUDP and self.Spring.SpringUDP.Active:
 				self.Spring.SpringUDP.AddUser (Data[0], Data[1])
-			self.HandleInput ('INTERNAL', '!sleepunsyncedmaplink 2 ' + Data[0])
+			self.HandleInput ('INTERNAL', '!sleepunsyncedmaplink ' + Data[0])
 		elif Event == 'USER_LEFT_BATTLE':
 			pass
 		elif Event == 'BATTLE_MAP_CHANGED':
-			self.HandleInput ('INTERNAL', '!sleepunsyncedmaplink 2')
+			self.HandleInput ('INTERNAL', '!sleepunsyncedmaplink')
 		else:
 			print ''
 			print Event

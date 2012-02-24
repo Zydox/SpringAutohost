@@ -25,7 +25,7 @@ class HostCmdsSpecial:
 			'sleepsay':[['I', '*'], 'Source', '!sleepsay <sleep> <text>', 'Says <text> with a delay of <sleep> sec'],
 			'reloadconfig':[[], 'Source', '!reloadconfig', 'Reloads the config files'],
 			'debug':[[], 'PM', '!debug', 'Displays debug information'],
-			'sleepunsyncedmaplink':[['I', 'OV'], 'BattleMe', '!sleepunsyncedmaplink <time> <optional user>', 'If the <optional user or any user> is unsynced after <time>, the maplink is returned'],
+			'sleepunsyncedmaplink':[['OV'], 'BattleMe', '!sleepunsyncedmaplink <optional user>', 'If the <optional user or any user> is unsynced, the maplink is returned'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -160,14 +160,18 @@ class HostCmdsSpecial:
 					Return.append (User + '\t' + str (self.Host.Lobby.BattleUsers[User]))
 			return ([True, Return])
 		elif Command == 'sleepunsyncedmaplink':
-			time.sleep (Data[0])
-			if len (Data) == 2:
-				Users = [Data[1]]
+			time.sleep (1)
+			if len (Data) == 1:
+				Users = [Data[0]]
 			else:
 				Users = self.Host.Lobby.BattleUsers.keys ()
 			for User in Users:
-				if self.Host.Lobby.BattleUsers.has_key (User) and self.Host.Lobby.BattleUsers[User]['Synced'] != 1:
-					return (self.HostCmds.HostCmdsDownload.HandleInput ('maplink', []))
+				if self.Host.Lobby.BattleUsers.has_key (User):
+					for x in range (0, 5):
+						if not self.Host.Lobby.BattleUsers[User].has_key ('Synced'):
+							time.sleep (1)
+						elif self.Host.Lobby.BattleUsers[User]['Synced'] != 1:
+							return (self.HostCmds.HostCmdsDownload.HandleInput ('maplink', []))
 			return ([False, ''])
 	
 	

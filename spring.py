@@ -71,7 +71,9 @@ class Spring:
 		
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
-		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), ScriptURI], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		ConfigURI = str (self.Server.Config['General']['PathTemp']) + 'Spring.cfg'
+		self.GenerateSpringConfig (ConfigURI)
+		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), '-C' + ConfigURI, ScriptURI], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		self.SpringEvent ('BATTLE_STARTED')
 		self.SpringOutput = SpringOutput (self, self.Debug)
 		self.SpringOutput.start ()
@@ -122,6 +124,18 @@ class Spring:
 			self.SpringUDP.Talk (UDP_Command)
 		except:
 			return (False)
+	
+	
+	def GenerateSpringConfig (self, FilePath):
+		self.Debug ('INFO', str (FilePath))
+		FP = open (FilePath, 'w')
+		FP.write ('SpringData=' + self.Server.Config['General']['PathTemp'] + self.Lobby.User + ':/mnt/data/PyAutoHost/\n')
+		FP.write ('LinkIncomingMaxPacketRate=128\n')
+		FP.write ('LinkIncomingMaxWaitingPackets=1024\n')
+		FP.write ('LinkIncomingPeakBandwidth=65536\n')
+		FP.write ('LinkIncomingSustainedBandwidth=4096\n')
+		FP.write ('LinkOutgoingBandwidth=131072\n')
+		FP.close ()
 	
 	
 	def GenerateBattleScript (self, FilePath):

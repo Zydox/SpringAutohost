@@ -126,7 +126,8 @@ class HandleCFG:
 			'PathSpringBuilds',
 			'PathTemp',
 			'PathMods',
-			'PathMaps'
+			'PathMaps',
+			'PathDemos'
 		]
 		
 		for Path in Paths:

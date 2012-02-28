@@ -1,5 +1,6 @@
 # -*- coding: ISO-8859-1 -*-
 import os
+import shutil
 import subprocess
 import threading
 import time
@@ -23,6 +24,7 @@ class Spring:
 		self.HeadlessSpeed = [1, 3]
 		self.Debug ('INFO', 'UDP Port:' + str (self.SpringAutoHostPort))
 		self.Game = {}
+		self.SpringDataPath = None
 	
 	
 	def SpringEvent (self, Event, Data = ''):
@@ -52,7 +54,8 @@ class Spring:
 			self.Game['Deaths'].append ([Data, doxTime ()])
 		elif Event == 'GAMEOUTPUT_GAMEID':
 			self.Game['GameID'] = Data
-			
+		elif Event == 'GAMEOUTPUT_DEMOLOCATION':
+			self.Game['Demo'] = Data
 	
 	
 	def UserIsPlaying (self, User):
@@ -68,12 +71,15 @@ class Spring:
 	
 	def SpringStart (self, Reason = 'UNKNOWN'):
 		self.Debug ('INFO', 'Spring::Start (' + Reason + ')')
+		self.SpringDataPath = self.Server.Config['General']['PathTemp'] + self.Lobby.User + '/'
 		
 		ScriptURI = str (self.Server.Config['General']['PathTemp']) + 'Script.txt'
 		self.GenerateBattleScript (ScriptURI)
 		ConfigURI = str (self.Server.Config['General']['PathTemp']) + 'Spring.cfg'
 		self.GenerateSpringConfig (ConfigURI)
+		
 		self.SpringPID = subprocess.Popen([self.Host.GetSpringBinary (self.Headless), '-C' + ConfigURI, ScriptURI], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		
 		self.SpringEvent ('BATTLE_STARTED')
 		self.SpringOutput = SpringOutput (self, self.Debug)
 		self.SpringOutput.start ()
@@ -100,21 +106,28 @@ class Spring:
 					self.SpringPID.kill ()
 				self.SpringPID = None
 			except Exception as Error:
-				self.Debug('ERROR', 'Error killing Spring: ' + str (Error))
+				self.Debug('ERROR', 'Error killing Spring: ' + str (Error), 1)
 		
 		if self.SpringOutput:
 			try:
 				self.SpringOutput.Terminate (Message)
 			except Exception as Error:
-				self.Debug('ERROR', 'Error killing SpringOutput: ' + str (Error))
+				self.Debug('ERROR', 'Error killing SpringOutput: ' + str (Error), 1)
 		
 		if self.SpringError:
 			try:
 				self.SpringError.Terminate (Message)
 			except Exception as Error:
-				self.Debug('ERROR', 'Error killing SpringError: ' + str (Error))
+				self.Debug('ERROR', 'Error killing SpringError: ' + str (Error), 1)
 		
 		self.Lobby.BattleStop ()
+		if os.path.exists (self.SpringDataPath + self.Game['Demo']):
+			try:
+				NewFile = self.Server.Config['General']['PathDemos'] + self.Game['GameID'] + '.sdf'
+				shutil.move (self.SpringDataPath + self.Game['Demo'], NewFile)
+				self.Debug ('INFO', 'Demo moved to:' + NewFile)
+			except Exception as Error:
+				self.Debug('ERROR', 'Error moving demo: ' + str (Error), 1)
 		return (True)
 	
 	
@@ -129,7 +142,7 @@ class Spring:
 	def GenerateSpringConfig (self, FilePath):
 		self.Debug ('INFO', str (FilePath))
 		FP = open (FilePath, 'w')
-		FP.write ('SpringData=' + self.Server.Config['General']['PathTemp'] + self.Lobby.User + ':/mnt/data/PyAutoHost/\n')
+		FP.write ('SpringData=' + self.SpringDataPath + '\n')
 		FP.write ('LinkIncomingMaxPacketRate=128\n')
 		FP.write ('LinkIncomingMaxWaitingPackets=1024\n')
 		FP.write ('LinkIncomingPeakBandwidth=65536\n')
@@ -396,7 +409,7 @@ class SpringUDP (threading.Thread):
 								except:
 									self.Debug ('WARNING', 'UNKNOWN_UDP::' + str (ord (Data[0])))
 				except Exception as Error:
-					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])) + ' => ' + str (Error))
+					self.Debug ('ERROR', 'CRASH::' + str (ord (Data[0])) + ' => ' + str (Error), 1)
 		self.Debug ('INFO', 'UDP run finnsihed')
 	
 	
@@ -481,6 +494,8 @@ class SpringOutput (threading.Thread):
 				self.Debug ('DEBUG_GAME', Line)
 				if 'GameID:' in Line:
 					self.Spring.SpringEvent ('GAMEOUTPUT_GAMEID', doxReMatch ('[a-fA-F0-9]{32}', Line))
+				elif 'recording demo:' in Line:
+					self.Spring.SpringEvent ('GAMEOUTPUT_DEMOLOCATION', doxReMatch ('demos/.*\.sdf', Line))
 			else:
 				self.Active = 0
 	

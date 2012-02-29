@@ -26,6 +26,7 @@ class HostCmdsSpecial:
 			'reloadconfig':[[], 'Source', '!reloadconfig', 'Reloads the config files'],
 			'debug':[[], 'PM', '!debug', 'Displays debug information'],
 			'sleepunsyncedmaplink':[['OV'], 'BattleMe', '!sleepunsyncedmaplink <optional user>', 'If the <optional user or any user> is unsynced, the maplink is returned'],
+			'spawnhost':[[], 'Source', '!spawnhost', 'Spawns another host if any is available'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -173,6 +174,8 @@ class HostCmdsSpecial:
 						elif self.Host.Lobby.BattleUsers[User]['Synced'] != 1:
 							return (self.HostCmds.HostCmdsDownload.HandleInput ('maplink', []))
 			return ([False, ''])
+		elif Command == 'spawnhost':
+			return (self.Host.Server.SpawnHost (self.Host.Group))
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

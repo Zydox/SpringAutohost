@@ -63,14 +63,14 @@ class Server:
 		for Group in GroupRange:
 			if self.Config['Groups'].has_key (Group):
 				for Account in AccountRange:
-					if self.Config['GroupUsers'][Group].has_key (Account):
+					if self.Config['GroupUsers'][Group].has_key (Account) and not self.Hosts.has_key (Account):
 						Config = self.Config['Groups'][Group]
 						for Key in Config.keys ():
 							if self.Config['GroupUsers'][Group][Account].has_key (Key):
 								Config[Key] = self.Config['GroupUsers'][Group][Account][Key]
 						self.Hosts[Account] = host.Host (Account, Group, self, Config, self.Config['GroupUsers'][Group][Account])
 						self.Hosts[Account].start ()
-						break	# only spawn one host for each group
+						return ([True, 'Started ' + str (Account)])
 	
 	
 	def RemoveHost (self, Account):

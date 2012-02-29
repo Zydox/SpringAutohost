@@ -121,7 +121,7 @@ class Spring:
 				self.Debug('ERROR', 'Error killing SpringError: ' + str (Error), 1)
 		
 		self.Lobby.BattleStop ()
-		if os.path.exists (self.SpringDataPath + self.Game['Demo']):
+		if self.Game.has_key ('Demo') and self.Game.has_key ('GameID') and os.path.exists (self.SpringDataPath + self.Game['Demo']):
 			try:
 				NewFile = self.Server.Config['General']['PathDemos'] + self.Game['GameID'] + '.sdf'
 				shutil.move (self.SpringDataPath + self.Game['Demo'], NewFile)

@@ -2,6 +2,10 @@
 import re
 import time
 import math
+import string 
+import random 
+import subprocess
+import shlex
 
 
 def doxReMatch (Pattern, Text):
@@ -61,9 +65,12 @@ def doxExtractInput (Data, Fields):
 	return (Return)
 	
 
-def doxReturnValue (String, StopChar):
+def doxReturnValue (String, StopChar, Reverse = False):
 	if String.find (StopChar) != -1:
-		return (String[0:String.find (StopChar)])
+		if Reverse:
+			return (String[String.find (StopChar) + 1:])
+		else:
+			return (String[0:String.find (StopChar)])
 	return (String)
 
 
@@ -75,3 +82,23 @@ def doxIfIntToInt (Value):
 	except:
 		pass
 	return (Value)
+
+
+def doxUniqID ():
+	return (str (doxTime ()) + ''.join (random.choice (string.ascii_lowercase) for x in range(22)))
+
+
+def doxExec (Command):
+	PID = subprocess.Popen(shlex.split (Command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	Lines = []
+	while 1:
+		Line1 = PID.stdout.readline ().rstrip ()
+		Line2 = PID.stderr.readline ().rstrip ()
+		if len (Lines) > 100 or (len (Line1) == 0 and len (Line2) == 0):
+			break
+		else:
+			if len (Line1):
+				Lines.append (Line1)
+			if len (Line2):
+				Lines.append (Line2)
+	return (Lines)

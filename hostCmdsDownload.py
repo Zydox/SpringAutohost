@@ -1,10 +1,11 @@
 # -*- coding: ISO-8859-1 -*-
-#import os, time, datetime
-#import inspect
 from xmlrpclib import ServerProxy
 import urllib
 import hashlib
 import os
+import shutil
+import string
+from doxFunctions import *
 
 
 class HostCmdsDownload:
@@ -20,6 +21,7 @@ class HostCmdsDownload:
 			'downloadmap':[['*'], 'PM', '!downloadmap <map>', 'Downloads the specified map'],
 			'maplink':[[], 'Source', '!maplink', 'Provides the current maplink'],
 			'modlink':[[], 'Source', '!modlink', 'Provides the current modlink'],
+			'downloadrapidmod':[['*'], '!downloadrapidmod <mod>', 'Downloads the specified mod'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -79,6 +81,47 @@ class HostCmdsDownload:
 			else:
 				for Mirror in Result[0]['mirrors']:
 					return ([True, Type + ' download link: ' + str (Mirror)])
+		elif Command == 'downloadrapidmod':
+			WorkPath = self.Server.Config['General']['PathTemp'] + doxUniqID ()
+			Command = self.Server.Config['General']['PathRapid'] + ' list-tags ' + Data[0]
+			print Command
+			Result = doxExec (Command)
+			if len (Result) == 4 and Result[2] == 'Available tags:':
+				Mod = Result[3][0:40].strip ()
+			elif len (Result) > 4:
+				return ([False, 'To many tags found, please try again'])
+			else:
+				return ([False, 'No match could be found'])
+			
+			self.Debug ('INFO', 'Rapid: make-sdd ' + Mod + ' to ' + WorkPath)
+			Command = self.Server.Config['General']['PathRapid'] + ' make-sdd "' + Mod + '" ' + WorkPath
+			print Command
+			Result = doxExec (Command)
+			if 'package ' + Mod.lower () + ' not known' in '\n'.join (Result).lower ():
+				return ([False, 'Mod "' + Data[0] + '" not found'])
+			elif not '====100%=====' in '\n'.join (Result):
+				self.Debug ('INFO', 'Rapid: Removing ' + WorkPath)
+				shutil.rmtree (WorkPath)
+				self.Debug ('INFO', 'Rapid: Removed ' + WorkPath)
+				return ([False, 'Mod "' + Data[0] + '" download failed'])
+			
+			ModName = Mod.lower ().replace ('version', '')
+			for Pos in range (0, len (ModName)):
+				if not ModName[Pos] in string.ascii_lowercase + string.digits + '._-':
+					ModName = ModName.replace (ModName[Pos], '_')
+			ModName = ModName.replace ('__', '_') + '.sd7'
+			
+			Command = self.Server.Config['General']['Path7Zip'] + ' a -t7z -ms=off "' + self.Server.Config['General']['PathMods'] + ModName + '" "' + WorkPath + '/*"'
+			print Command
+			self.Debug ('INFO', 'Rapid: 7Ziping to ' + self.Server.Config['General']['PathMods'] + ModName)
+			Result = doxExec (Command)
+			self.Debug ('INFO', 'Rapid: 7Ziped to ' + self.Server.Config['General']['PathMods'] + ModName)
+			
+			self.Debug ('INFO', 'Rapid: Removing ' + WorkPath)
+			shutil.rmtree (WorkPath)
+			self.Debug ('INFO', 'Rapid: Removed ' + WorkPath)
+			
+			return ([True, 'Downloaded mod ' + Mod])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

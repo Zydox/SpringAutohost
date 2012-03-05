@@ -21,7 +21,7 @@ class HostCmdsDownload:
 			'downloadmap':[['*'], 'PM', '!downloadmap <map>', 'Downloads the specified map'],
 			'maplink':[[], 'Source', '!maplink', 'Provides the current maplink'],
 			'modlink':[[], 'Source', '!modlink', 'Provides the current modlink'],
-			'downloadrapidmod':[['*'], '!downloadrapidmod <mod>', 'Downloads the specified mod'],
+			'downloadrapidmod':[['*'], 'PM', '!downloadrapidmod <mod>', 'Downloads the specified mod'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]

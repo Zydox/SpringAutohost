@@ -89,11 +89,12 @@ def doxUniqID ():
 
 
 def doxExec (Command):
-	PID = subprocess.Popen(shlex.split (Command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	PID = subprocess.Popen (shlex.split (Command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	Lines = []
 	while 1:
 		Line1 = PID.stdout.readline ().rstrip ()
-		Line2 = PID.stderr.readline ().rstrip ()
+#		Line2 = PID.stderr.readline ().rstrip ()
+		Line2 = ''
 		if len (Lines) > 100 or (len (Line1) == 0 and len (Line2) == 0):
 			break
 		else:

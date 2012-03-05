@@ -121,7 +121,9 @@ class HostCmdsDownload:
 			shutil.rmtree (WorkPath)
 			self.Debug ('INFO', 'Rapid: Removed ' + WorkPath)
 			
-			return ([True, 'Downloaded mod ' + Mod])
+			if self.Server.SpringUnitsync.Load (self.Host.SpringVersion):
+				return ([True, 'Downloaded mod ' + Mod])
+			return ([False, 'Unitsync reload failed'])
 	
 	
 	def StringPad (self, String, Length, Char = '0'):

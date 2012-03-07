@@ -5,6 +5,7 @@ import debug
 import host
 import time
 import springUnitsync
+from threading import RLock
 
 #
 #	Server
@@ -26,6 +27,7 @@ class Server:
 		self.ClassDebug = debug.Debug ()
 		self.Debug = self.ClassDebug.Debug
 		self.Debug ('INFO', 'Initiate')
+		self.Lock = RLock ()
 		self.LogicTest = 0
 		self.HandleCFG = handleCFG.HandleCFG (self)
 		self.ClassDebug.SetFile (self.Config['General']['FileDebugLog'])
@@ -41,6 +43,23 @@ class Server:
 		self.Debug ('INFO', 'Start server')
 		for Group in self.Config['Groups'].keys ():
 			self.SpawnHost (Group)
+	
+	
+	def GetMasterLock (self, ClassHost):
+		self.Debug ('INFO', 'Request')
+		self.Lock.acquire ()
+		ClassHost.IsMaster = True
+		self.Debug ('INFO', 'Received')
+	
+	
+	def ReleaseMasterLock (self, ClassHost):
+		self.Debug ('INFO', 'Release')
+		try:
+			self.Lock.release ()
+			ClassHost.IsMaster = False
+			self.Debug ('INFO', 'Released')
+		except:
+			self.Debug ('ERROR', 'Release failed', 1)
 	
 	
 	def SpawnHost (self, Group = None, Account = None):
@@ -68,9 +87,10 @@ class Server:
 						for Key in Config.keys ():
 							if self.Config['GroupUsers'][Group][Account].has_key (Key):
 								Config[Key] = self.Config['GroupUsers'][Group][Account][Key]
-						self.Hosts[Account] = host.Host (Account, Group, self, Config, self.Config['GroupUsers'][Group][Account])
-						self.Hosts[Account].start ()
-						return ([True, 'Started ' + str (Account)])
+						AccountKey = Group + '=' + str (Account)
+						self.Hosts[AccountKey] = host.Host (AccountKey, Group, self, Config, self.Config['GroupUsers'][Group][Account])
+						self.Hosts[AccountKey].start ()
+						return ([True, 'Started ' + str (AccountKey)])
 	
 	
 	def RemoveHost (self, Account):

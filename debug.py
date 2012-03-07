@@ -4,6 +4,7 @@ import inspect
 import time
 import traceback
 import sys
+import threading
 
 class Debug:
 	def __init__ (self):
@@ -18,7 +19,7 @@ class Debug:
 		filename = os.path.basename (frame.f_back.f_code.co_filename)
 		fileline = frame.f_back.f_lineno
 		function = frame.f_back.f_code.co_name
-		LogLine = time.strftime ('%Y%m%d %H:%M:%S') + '\t' + str (time.clock ()) + '\t' + Level + '\t' + filename + '\t' + function + '\t' + str (Info) 
+		LogLine = time.strftime ('%Y%m%d %H:%M:%S') + '\t' + threading.current_thread().name + '\t' + str (time.clock ()) + '\t' + Level + '\t' + filename + '\t' + function + '\t' + str (Info) 
 		if self.LogStore:
 			self.LogHistory.append (LogLine)
 		elif self.LogFile:

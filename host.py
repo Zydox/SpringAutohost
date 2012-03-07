@@ -36,7 +36,7 @@ class Host (threading.Thread):
 		self.CommandThreads = {}
 		self.CommandThreadID = 0
 		self.CommandSeen = {}
-		
+		self.IsMaster = False
 	
 	def run (self):
 		self.Debug ('INFO', 'Start host')
@@ -48,6 +48,12 @@ class Host (threading.Thread):
 		self.SetDefaultMod ()
 		self.HostCmds.HostCmdsBattle.Logic.LogicFunctionBattleLoadDefaults ()
 		self.Debug ('INFO', 'Run finnished')
+		
+		# Gets and releases the Master lock for the Host thread...
+		self.Server.GetMasterLock (self)
+		while (self.IsMaster):
+			time.sleep (1)
+		self.Server.ReleaseMasterLock (self)
 	
 	
 	def HandleEvent (self, Event, Data):
@@ -66,7 +72,10 @@ class Host (threading.Thread):
 	
 	def HandleLocalEvent (self, Event, Data):
 		self.Debug ('DEBUG', Event + str (Data))
-		if Event == 'SMURF_DETECTION':
+		if Event == 'SMURF_DETECTION_PUBLIC':
+			if self.IsMaster:
+				self.Server.HandleDB.StoreSmurf (Data[0], Data[1], Data[2], Data[3], Data[4])
+		elif Event == 'SMURF_DETECTION_BATTLE':
 			self.Server.HandleDB.StoreSmurf (Data[0], Data[1], Data[2], Data[3], Data[4])
 		elif Event == 'USER_JOINED_BATTLE':
 			if self.Spring.SpringUDP and self.Spring.SpringUDP.Active:
@@ -321,6 +330,7 @@ class Host (threading.Thread):
 		self.Debug ('INFO', str (Reason) + '::' + str (Info))
 		self.Spring.Terminate ()
 		self.Lobby.Terminate ()
+		self.IsMaster = False
 		self.Server.RemoveHost (self.ID)
 	
 	

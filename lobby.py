@@ -155,7 +155,7 @@ class Lobby (threading.Thread):
 					except:
 						print '\n\nCOMMAND FAILED\n\n'
 			except:
-				self.Debug ('ERROR', 'WrongFormatedCommand::' + str (RawData))
+				self.Debug ('ERROR', 'WrongFormatedCommand::' + str (RawData), 1)
 				print '\n\nCOMMAND FAILED'
 				print RawData
 				print '\n'
@@ -183,12 +183,12 @@ class Lobby (threading.Thread):
 					'Bot':0,
 					'InBattle':0,
 				}
-				self.SmurfDetection (Arg[0])
+				self.SmurfDetection ('Public', Arg[0])
 			else:
 				self.Debug ('WARNING', 'ERROR::User exsits' + str (RawData))
 		elif Command == "REMOVEUSER":
 			if self.Users.has_key (Arg[0]):
-				self.SmurfDetection (Arg[0])
+				self.SmurfDetection ('Public', Arg[0])
 				del (self.Users[Arg[0]])
 			else:
 				self.Debug ('WARNING', 'ERROR::User doesn\'t exist::' + str (RawData))
@@ -226,7 +226,7 @@ class Lobby (threading.Thread):
 					'DisabledUnits':{},
 				}
 				self.Users[Arg[3]]['InBattle'] = Arg[0]
-				self.SmurfDetection (Arg[3], Arg[4])
+				self.SmurfDetection ('Public', Arg[3], Arg[4])
 			else:
 				self.Debug ('WARNING', 'ERROR::Battle exsits::' + str (RawData))
 		elif Command == 'OPENBATTLE':
@@ -302,7 +302,7 @@ class Lobby (threading.Thread):
 			self.Send ('MYBATTLESTATUS 4194304 000000')
 		elif Command == 'JOINBATTLEREQUEST':
 			self.Send ('JOINBATTLEACCEPT ' + str (Arg[0]))
-			self.SmurfDetection (Arg[0], Arg[1])
+			self.SmurfDetection ('Battle', Arg[0], Arg[1])
 		elif Command == 'CLIENTBATTLESTATUS':
 			self.BattleUsers[Arg[0]]['Ready'] = int (Arg[1][1])
 			self.BattleUsers[Arg[0]]['Team'] = int (Arg[1][5]) * 8 + int (Arg[1][4]) * 4 + int (Arg[1][3]) * 2 + int (Arg[1][2])
@@ -530,12 +530,15 @@ class Lobby (threading.Thread):
 	
 	
 	def Send (self, Command, Force = 0):
-		if self.LoggedIn or Force == 1:
-			self.Debug ('DEBUG', "SEND::" + str (Command))
-			self.Socket.send (Command + "\n")
-		else:
-			self.Debug ('DEBUG', "SEND_QUEUE::" + str (Command))
-			self.LoggedInQueue.append (Command)
+		try:
+			if self.LoggedIn or Force == 1:
+				self.Debug ('DEBUG', "SEND::" + str (Command))
+				self.Socket.send (Command + "\n")
+			else:
+				self.Debug ('DEBUG', "SEND_QUEUE::" + str (Command))
+				self.LoggedInQueue.append (Command)
+		except:
+			self.Debug ('ERROR', 'Send failed:' + Command, 1)
 	
 	
 	def Connect (self):
@@ -590,8 +593,11 @@ class Lobby (threading.Thread):
 		return (String)
 	
 	
-	def SmurfDetection (self, User, IP = ''):
-		self.CallbackInternalEvent ('SMURF_DETECTION', [self.Users[User]['ID'], User, IP, self.Users[User]['Country'], self.Users[User]['CPU']])
+	def SmurfDetection (self, Source, User, IP = ''):
+		if Source == 'Public':
+			self.CallbackInternalEvent ('SMURF_DETECTION_PUBLIC', [self.Users[User]['ID'], User, IP, self.Users[User]['Country'], self.Users[User]['CPU']])
+		elif Source == 'Battle':
+			self.CallbackInternalEvent ('SMURF_DETECTION_BATTLE', [self.Users[User]['ID'], User, IP, self.Users[User]['Country'], self.Users[User]['CPU']])
 	
 	
 	def SetIP (self):

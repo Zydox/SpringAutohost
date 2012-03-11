@@ -156,8 +156,9 @@ class Host (threading.Thread):
 					VoteGroup = 1
 				else:
 					VoteGroup = 0
-			for Group in self.Server.AccessCommands[self.Group][Command][VoteGroup]:
-				Groups[Group] = True
+			if self.Server.AccessCommands[self.Group][Command].has_key (VoteGroup):
+				for Group in self.Server.AccessCommands[self.Group][Command][VoteGroup]:
+					Groups[Group] = True
 			
 			if Groups.has_key ('%BattlePlayer%') and self.Lobby.BattleUsers.has_key (User) and self.Lobby.BattleUsers[User]['Spectator'] == 0:
 				Return = True

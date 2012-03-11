@@ -121,6 +121,7 @@ class HostCmdsBattleBalance:
 			iPlayers = GetPlayers
 			Users = []
 			Rank = 0
+			BestUsers = []
 			while iPlayers > 0:
 				User = Players.pop (random.randint( 0,len (Players) - 1))
 				iPlayers -= 1

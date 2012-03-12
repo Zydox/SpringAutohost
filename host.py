@@ -156,7 +156,7 @@ class Host (threading.Thread):
 					VoteGroup = 1
 				else:
 					VoteGroup = 0
-			if self.Server.AccessCommands[self.Group][Command].has_key (VoteGroup):
+			if len (self.Server.AccessCommands[self.Group][Command]) == 4:
 				for Group in self.Server.AccessCommands[self.Group][Command][VoteGroup]:
 					Groups[Group] = True
 			

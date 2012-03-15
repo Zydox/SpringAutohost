@@ -80,7 +80,7 @@ class HostCmdsDownload:
 				return ([False, 'No download link found for the current ' + Type.lower ()])
 			else:
 				for Mirror in Result[0]['mirrors']:
-					return ([True, Type + ' download link: ' + str (Mirror)])
+					return ([True, Type + ' download link: ' + str (Mirror).replace (' ', '%20')])
 		elif Command == 'downloadrapidmod':
 			WorkPath = self.Server.Config['General']['PathTemp'] + doxUniqID ()
 			Command = self.Server.Config['General']['PathRapid'] + ' list-tags ' + Data[0]

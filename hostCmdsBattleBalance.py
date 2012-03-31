@@ -115,13 +115,13 @@ class HostCmdsBattleBalance:
 	
 	def BalanceGetPlayers (self, GetPlayers, GetRank):
 		Best = GetRank
+		BestUsers = []
 		for iRand in range (0, 100):
 			random.seed()
 			Players = self.PlayerList.keys ()
 			iPlayers = GetPlayers
 			Users = []
 			Rank = 0
-			BestUsers = []
 			while iPlayers > 0:
 				User = Players.pop (random.randint( 0,len (Players) - 1))
 				iPlayers -= 1

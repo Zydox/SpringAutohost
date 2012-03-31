@@ -680,7 +680,7 @@ class HostCmdsBattleLogic:
 				self.Debug ('DEBUG', Value <= Option['Max'])
 				self.Debug ('DEBUG', not Value % Option['Step'])
 				self.Debug ('DEBUG', Decimal ((Value / Option['Step']) % 1))
-				if Value >= Option['Min'] and Value <= Option['Max'] and Decimal ((Value / Option['Step']) % 1) == 0:
+				if Value >= Option['Min'] and Value <= Option['Max'] and (Decimal ((Value / Option['Step'])) % 1 == 0 or Decimal ((Value / Option['Step'])) % 1 == 1):
 					if int (Value) == Value:
 						Value = int (Value)
 					Return = {'OK':1, 'Value':Value}

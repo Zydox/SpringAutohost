@@ -239,9 +239,12 @@ class HostCmdsBattleLogic:
 		return ([False, 'Map "' + str (Map) + '" not found'])
 	
 	
-	def LogicListMaps (self):
+	def LogicListMaps (self, Search = None):
 		Return = []
-		Maps = self.Host.GetUnitsyncMap ('#KEYS#')
+		if Search:
+			Maps = self.LogicFunctionSearchMatch (Search, self.Host.GetUnitsyncMap ('#KEYS#'), 1)
+		else:
+			Maps = self.Host.GetUnitsyncMap ('#KEYS#')
 		for Map in Maps:
 			Return.append (Map)
 		Return.sort ()
@@ -249,9 +252,12 @@ class HostCmdsBattleLogic:
 		return ([True, Return])
 	
 	
-	def LogicListMods (self):
+	def LogicListMods (self, Search = None):
 		Return = []
-		Mods = self.Host.GetUnitsyncMod ('#KEYS#')
+		if Search:
+			Mods = self.LogicFunctionSearchMatch (Search, self.Host.GetUnitsyncMod ('#KEYS#'), 1)
+		else:
+			Mods = self.Host.GetUnitsyncMod ('#KEYS#')
 		for Mod in Mods:
 			Return.append (Mod)
 		Return.sort ()

@@ -13,8 +13,8 @@ class HostCmdsBattle:
 		self.Balance = hostCmdsBattleBalance.HostCmdsBattleBalance (self, ClassServer, ClassHost)
 		self.Commands = {	# 0 = Field, 1 = Return to where (Source, PM, Battle, if List = [True return, False return]), 2 = Ussage example, 3 = Usage desc, 4 = Category (if available), 5 = Extended help (if available)
 			'map':[['*'], 'BattleMe', '!map <map name>', 'Changes the map to <map name>'],
-			'maps':[[], 'PM', '!maps', 'Return a list with all the available maps'],
-			'mods':[[], 'PM', '!mods', 'Return a list with all the available mods'],
+			'maps':[['O*'], 'PM', '!maps <optional search>', 'Return a list with all the available maps'],
+			'mods':[['O*'], 'PM', '!mods <optional search>', 'Return a list with all the available mods'],
 			'start':[[], 'BattleMe', '!start', 'Starts the battle if possible'],
 			'stop':[[], 'BattleMe', '!stop', 'Stops the battle'],
 			'lock':[['OB'], 'BattleMe', '!lock [0/1]', 'Locks/unlocks the battle'],
@@ -61,9 +61,15 @@ class HostCmdsBattle:
 		if Command == 'map':
 			return (self.Logic.LogicChangeMap (Data[0]))
 		elif Command == 'maps':
-			return (self.Logic.LogicListMaps ())
+			if len (Data) == 1:
+				return (self.Logic.LogicListMaps (Data[0]))
+			else:
+				return (self.Logic.LogicListMaps ())
 		elif Command == 'mods':
-			return (self.Logic.LogicListMods ())
+			if len (Data) == 1:
+				return (self.Logic.LogicListMods (Data[0]))
+			else:
+				return (self.Logic.LogicListMods ())
 		elif Command == 'start':
 			return (self.Logic.LogicStartBattle ())
 		elif Command == 'stop':

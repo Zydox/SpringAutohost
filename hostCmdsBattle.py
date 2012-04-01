@@ -50,6 +50,10 @@ class HostCmdsBattle:
 			'fixcolor':[['V'], 'BattleMe', '!fixcolor <user>', 'Fixes the <user>s battle color'],
 			'fixcolors':[[], 'BattleMe', '!fixcolors', 'Fixes all users battle colors'],
 			'botside':[['V', 'V'], 'BattleMe', '!botside <bot> <side>', 'Forces <bot> to switch side to <side>'],
+			'nextmap':[[], 'BattleMe', '!nextmap', 'Switches to the next map in the list'],
+			'prevmap':[[], 'BattleMe', '!prevmap', 'Switches to the prev map in the list'],
+			'randommap':[[], 'BattleMe', '!randommap', 'Switches to a random map in the list (does not work with prev/next map)'],
+			'reordermaps':[[], 'BattleMe', '!reordermaps', 'Reorders the map list'],
 		}
 		for Command in self.Commands:
 			self.HostCmds.Commands[Command] = self.Commands[Command]
@@ -168,3 +172,11 @@ class HostCmdsBattle:
 			return (self.Logic.LogicFixColors ())
 		elif Command == 'botside':
 			return (self.Logic.LogicSetBotSide (Data[0], Data[1]))
+		elif Command == 'nextmap':
+			return (self.Logic.LogicChangeMap (None, 'Next'))
+		elif Command == 'prevmap':
+			return (self.Logic.LogicChangeMap (None, 'Prev'))
+		elif Command == 'randommap':
+			return (self.Logic.LogicChangeMap (None, 'Random'))
+		elif Command == 'reordermaps':
+			return (self.Logic.LogicChangeMap (None, 'Reorder'))

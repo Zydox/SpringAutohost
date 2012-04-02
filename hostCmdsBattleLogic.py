@@ -217,18 +217,15 @@ class HostCmdsBattleLogic:
 		return ([True, 'Color changed'])
 	
 	
-	def LogicChangeMap (self, Map, Action = 'Fixed'):
+	def LogicChangeMap (self, SelectedMap, Action = 'Fixed'):
 		self.Refresh ()
 		Pos = 0
 		if Action == 'Reorder' or len (self.MapsRandom['List']) == 0:
 			self.MapsRandom = {'Pos':0, 'List':{}}
 			Maps = self.Host.GetUnitsyncMap ('#KEYS#')
 			random.seed ()
-			print Maps
 			random.shuffle (Maps)
 			iPos = 0
-			print ''
-			print Maps
 			for Map in Maps:
 				iPos += 1
 				self.MapsRandom['List'][iPos] = Map
@@ -246,14 +243,14 @@ class HostCmdsBattleLogic:
 			random.seed ()
 			Pos = random.randint (1, len (self.MapsRandom['List']))
 		elif Action == 'Fixed':
-		  	Match = self.LogicFunctionSearchMatch (Map, self.Host.GetUnitsyncMap ('#KEYS#'))
+		  	Match = self.LogicFunctionSearchMatch (SelectedMap, self.Host.GetUnitsyncMap ('#KEYS#'))
 			if Match:
 				for MapID in self.MapsRandom['List'].keys ():
 					if self.MapsRandom['List'][MapID] == Match:
 						Pos = MapID
 						break
 			else:
-				Matches = self.LogicFunctionSearchMatch (Map, self.Host.GetUnitsyncMap ('#KEYS#'), 1)
+				Matches = self.LogicFunctionSearchMatch (SelectedMap, self.Host.GetUnitsyncMap ('#KEYS#'), 1)
 				if Matches:
 					Return = ['Multiple maps found, listing the 10 first:']
 					for Map in Matches:
@@ -274,7 +271,7 @@ class HostCmdsBattleLogic:
 				self.Host.HandleLocalEvent ('BATTLE_MAP_CHANGED', [NewMap])
 				return ([True, 'Map changed to ' + str (NewMap)])
 		else:
-			return ([False, 'Map "' + str (Map) + '" not found'])
+			return ([False, 'Map "' + str (SelectedMap) + '" not found'])
 	
 	
 	def LogicListMaps (self, Search = None):

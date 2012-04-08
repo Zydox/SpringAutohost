@@ -278,6 +278,8 @@ class HostCmdsBattleLogic:
 		Return = []
 		if Search:
 			Maps = self.LogicFunctionSearchMatch (Search, self.Host.GetUnitsyncMap ('#KEYS#'), 1)
+			if not Maps:
+				return ([False, 'No map matching "' + Search + '" found'])
 		else:
 			Maps = self.Host.GetUnitsyncMap ('#KEYS#')
 		for Map in Maps:

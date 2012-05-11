@@ -162,6 +162,8 @@ class HostCmdsSpecial:
 			return ([True, Return])
 		elif Command == 'sleepunsyncedmaplink':
 			time.sleep (1)
+			CurrentMap = self.Host.Battle['Map']
+			time.sleep (4)
 			if len (Data) == 1:
 				Users = [Data[0]]
 			else:
@@ -172,7 +174,8 @@ class HostCmdsSpecial:
 						if not self.Host.Lobby.BattleUsers[User].has_key ('Synced'):
 							time.sleep (1)
 						elif self.Host.Lobby.BattleUsers[User]['Synced'] != 1:
-							return (self.HostCmds.HostCmdsDownload.HandleInput ('maplink', []))
+							if CurrentMap == self.Host.Battle['Map']:
+								return (self.HostCmds.HostCmdsDownload.HandleInput ('maplink', []))
 			return ([False, ''])
 		elif Command == 'spawnhost':
 			return (self.Host.Server.SpawnHost (self.Host.Group))

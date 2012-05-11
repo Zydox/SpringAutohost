@@ -333,7 +333,7 @@ class HostCmdsBattleLogic:
 				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
 				self.Host.Battle['ModOptions'][Option] = Result['Value']
 				self.LogicFunctionBattleUpdateScript ()
-				return ([True, 'OK'])
+				return ([True, 'Modoption ' + Mod['Options'][Option]['Key'] + ' changed to ' + str (Result['Value'])])
 			else:
 				return ([False, self.LogicFunctionOptionValueValid (Mod['Options'][Option], Value, 1)])
 	
@@ -358,7 +358,7 @@ class HostCmdsBattleLogic:
 				self.Debug ('DEBUG', str (Value) + ' => ' + str (Result['Value']))
 				self.Host.Battle['MapOptions'][Option] = Result['Value']
 				self.LogicFunctionBattleUpdateScript ()
-				return ([True, 'OK'])
+				return ([True, 'Mapoption ' + Map['Options'][Option]['Key'] + ' changed to ' + str (Result['Value'])])
 			else:
 				return ([False, self.LogicFunctionOptionValueValid (Map['Options'][Option], Value, 1)])
 	

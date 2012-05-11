@@ -596,7 +596,7 @@ class HostCmdsBattleLogic:
 		''' Collect current colors '''
 		CurrentList = {}
 		for User in self.BattleUsers:
-			if not self.BattleUsers[User]['Spectator'] or self.BattleUsers[User]['AI']:
+			if self.BattleUsers[User].has_key ('Spectator') and (not self.BattleUsers[User]['Spectator'] or self.BattleUsers[User]['AI']):
 				CurrentList[self.BattleUsers[User]['Team']] = self.Lobby.BattleUsers[User]['Color']
 		
 		if ColorUser:

@@ -387,8 +387,10 @@ class SpringUDP (threading.Thread):
 						self.SpringUsers[Data[1]] = Data[2:]
 						self.Users[self.GetUserFromID (Data[1])]['InGame'] = 1
 					elif ord (Data[0]) == 11:	# User left
-						self.Spring.SpringEvent ('USER_LEFT', self.GetUserFromID (Data[1]))
-						self.Users[self.GetUserFromID (Data[1])]['InGame'] = 0
+						User = self.GetUserFromID (Data[1])
+						self.Spring.SpringEvent ('USER_LEFT', User)
+						if self.Users.has_key (User):
+							self.Users[User]['InGame'] = 0
 					elif ord (Data[0]) == 12:	# User ready
 						self.Spring.SpringEvent ('USER_READY', self.GetUserFromID (Data[1]))
 						self.Users[self.GetUserFromID (Data[1])]['Ready'] = 1

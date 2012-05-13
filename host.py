@@ -229,6 +229,14 @@ class Host (threading.Thread):
 		elif isinstance (Data['Message'], list):
 			Messages = Data['Message']
 		
+		if Data['Return'][-9:] == 'Requester':
+			Data['Return'] = Data['Return'][0:-9]
+			if Data.has_key ('User') and Data['User']:
+				User = Data['User']
+			else:
+				User = '<Unknown>'
+			Messages[0] = Messages[0] + ' (req: ' + User + ')'
+		
 		if Messages and len (Messages) > 0:
 			for Message in Messages:
 				if Message and len (Message) > 0:
@@ -386,6 +394,8 @@ class HostCommand (threading.Thread):
 			elif self.Host.HostCmds.Commands[Input['Command']][1] == 'Source':
 				if Input['Source'] == 'Battle':
 					Input['Return'] = 'BattleMe'
+				elif Input['Source'] == 'BattleRequester':
+					Input['Return'] = 'BattleMeRequester'
 				else:
 					Input['Return'] = Input['Source']
 			else:

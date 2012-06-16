@@ -150,6 +150,8 @@ class HostCmdsDownload:
 				urllib.urlretrieve (Mirror, FilePath)
 				if self.DownloadFileVerify (FilePath, Mirror, Result):
 					if self.Server.SpringUnitsync.Load (self.Host.SpringVersion):
+						if Type == 'Map':
+							self.HostCmds.HostCmdsBattle.Logic.LogicChangeMap (None, 'Reorder')
 						return (True)
 					else:
 						self.Debug ('ERROR', 'Unitsync re-load failed')
